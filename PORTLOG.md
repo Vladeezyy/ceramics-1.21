@@ -108,3 +108,24 @@ Branch `mc/1.21.11`, same content and behavior as 1.21.1, Kilnwork `1.21.11-1.0.
 Verification: self-test 51/51 (new: aborted transactions, cracks in the state, placing cracked items, 1.21.1 block
 entity data, armor repair tag and equipment asset), client scene 8/8, release jar on a dedicated NeoForge 21.11.48
 server with a clean log.
+
+## 1.8.0.1+26.1.2
+
+Branch `mc/26.1.2` (from 1.21.11), Java 25, Minecraft without obfuscation, Kilnwork `26.1.2-1.0.0` inside the jar.
+- Recipes: serializers are records of codecs (`RecipeSerializer<>(mapCodec, streamCodec)`), results are
+  `ItemStackTemplate`, recipes carry `Recipe.CommonInfo` and book info; `assemble` has no registry argument.
+- Item stacks can not be made before components are bound (after common setup): the cauldron interactions make the
+  filled bucket on use. Crafting remainders are templates.
+- Fluid sprites and tint come from the fluid model of the fluid state (`ModelManager.getFluidStateModelSet()`).
+- Item models: cuboid wrappers and material infos (`ClayBucketItemModel` rewritten on the new model baker).
+- GUI is extracted (`GuiGraphicsExtractor`, `extractBackground`), messages above the hotbar are
+  `sendOverlayMessage`, cauldron interactions are dispatchers in `CauldronInteractions`, `ChunkPos.containing`.
+- Datagen: cooking recipes take an explicit book category (blocks for block items, else misc, as before).
+
+## 1.8.0.1+26.2
+
+Branch `mc/26.2`, Kilnwork `26.2-1.0.0`.
+- Tag providers take registry keys: a small `ObjectTagAppender` keeps the datagen readable.
+- Dyed and glazed terracotta are `ColorCollection`s (`Blocks.DYED_TERRACOTTA.pick(color)`), dyes too.
+- Screen, toasts and HUD moved to `Minecraft.gui`; advancement triggers to `net.minecraft.advancements.triggers`.
+- The furnace menu no longer takes the recipe type.
