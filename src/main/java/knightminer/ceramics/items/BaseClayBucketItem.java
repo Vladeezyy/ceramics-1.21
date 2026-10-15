@@ -6,8 +6,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import javax.annotation.Nullable;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
@@ -96,7 +96,7 @@ public abstract class BaseClayBucketItem extends Item {
   protected static void renderBrokenItem(Player player, ItemStack stack) {
     // play sound
     Level world = player.level();
-    world.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_BREAK, player.getSoundSource(), 0.8F, 0.8F + world.random.nextFloat() * 0.4F, false);
+    world.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_BREAK.value(), player.getSoundSource(), 0.8F, 0.8F + world.random.nextFloat() * 0.4F, false);
     // add particles
     RandomSource rand = player.getRandom();
     ItemParticleOption particle = new ItemParticleOption(ParticleTypes.ITEM, stack);
@@ -127,7 +127,7 @@ public abstract class BaseClayBucketItem extends Item {
    * @return  Empty bucket, may be the original stack
    */
   protected static ItemStack emptyBucket(ItemStack stack, Player player) {
-    return !player.isCreative() ? stack.getCraftingRemainingItem() : stack;
+    return !player.isCreative() ? stack.getCraftingRemainder() : stack;
   }
 
   /**
@@ -253,10 +253,7 @@ public abstract class BaseClayBucketItem extends Item {
   protected static String getLegacyString(ItemStack stack, String key) {
     CustomData data = stack.get(DataComponents.CUSTOM_DATA);
     if (data != null) {
-      CompoundTag tag = data.getUnsafe();
-      if (tag.contains(key, Tag.TAG_STRING)) {
-        return tag.getString(key);
-      }
+      return data.copyTag().getString(key).orElse(null);
     }
     return null;
   }
@@ -283,9 +280,7 @@ public abstract class BaseClayBucketItem extends Item {
   protected void migrateLegacy(ItemStack stack) {}
 
   @Override
-  public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
-    if (!level.isClientSide) {
-      migrateLegacy(stack);
-    }
+  public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+    migrateLegacy(stack);
   }
 }

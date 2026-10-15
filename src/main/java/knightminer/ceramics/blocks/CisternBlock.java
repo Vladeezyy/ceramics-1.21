@@ -7,16 +7,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
 import net.minecraft.core.Direction.Plane;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -177,7 +180,7 @@ public class CisternBlock extends Block {
     }
   }
 
-  private static boolean facingConnected(Direction facing, BlockState state, DirectionProperty property) {
+  private static boolean facingConnected(Direction facing, BlockState state, EnumProperty<Direction> property) {
     return !state.hasProperty(property) || state.getValue(property) == facing;
   }
 
@@ -228,7 +231,7 @@ public class CisternBlock extends Block {
   @SuppressWarnings("deprecation")
   @Override
   @Deprecated
-  public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
+  protected BlockState updateShape(BlockState state, LevelReader worldIn, ScheduledTickAccess ticks, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
     if (!facing.getAxis().isVertical()) {
       // barrel connects to
       state = state.setValue(CONNECTIONS.get(facing), isConnected(facing, facingState));

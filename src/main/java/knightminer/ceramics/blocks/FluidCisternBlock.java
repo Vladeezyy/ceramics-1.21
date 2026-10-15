@@ -1,6 +1,6 @@
 package knightminer.ceramics.blocks;
 
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import knightminer.ceramics.blocks.entity.CisternBlockEntity;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlock;
 import net.minecraft.core.BlockPos;
@@ -12,7 +12,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,14 +48,14 @@ public class FluidCisternBlock extends CisternBlock implements ICrackableBlock, 
   @SuppressWarnings("deprecation")
   @Deprecated
   @Override
-  protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+  protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     if (crackable && ICrackableBlock.tryRepair(world, pos, player, hand)) {
-      return ItemInteractionResult.sidedSuccess(world.isClientSide);
+      return InteractionResult.SUCCESS;
     }
     if (FluidTransferHelper.interactWithTank(world, pos, player, hand, hit)) {
-      return ItemInteractionResult.sidedSuccess(world.isClientSide);
+      return InteractionResult.SUCCESS;
     }
-    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    return InteractionResult.TRY_WITH_EMPTY_HAND;
   }
 
 
@@ -82,48 +86,36 @@ public class FluidCisternBlock extends CisternBlock implements ICrackableBlock, 
 
   @Override
   public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    // cracks of the item are already in the state, see getStateForPlacement
     if (state.getValue(CisternBlock.EXTENSION)) {
       // try to find a base cistern below if an extension
       CisternBlockEntity base = findBase(world, pos);
       if (base != null) {
         base.addExtension(pos);
       }
-      // crackable handling
-      if (crackable) {
-        ICrackableBlock.onBlockPlacedBy(world, pos, stack);
-      }
     } else if (world.getBlockEntity(pos) instanceof CisternBlockEntity cistern) {
       cistern.tryMerge(pos.above());
-      // crackable handling
-      if (crackable) {
-        cistern.getCracksHandler().setCracks(stack);
-      }
     }
+  }
+
+  // breaking the cistern moves the fluid to the cisterns above, see CisternBlockEntity#preRemoveSideEffects (onRemove is gone since 1.21.5)
+
+  @Override
+  protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    super.createBlockStateDefinition(builder);
+    builder.add(CRACKS);
+  }
+
+  @Nullable
+  @Override
+  public BlockState getStateForPlacement(BlockPlaceContext context) {
+    return withItemCracks(super.getStateForPlacement(context), context);
   }
 
   @SuppressWarnings("deprecation")
   @Override
   @Deprecated
-  public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-    if (state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())) {
-      if (state.getValue(EXTENSION)) {
-        CisternBlockEntity base = findBase(world, pos);
-        if (base != null) {
-          base.removeExtension(pos);
-        }
-      } else {
-        if (world.getBlockEntity(pos) instanceof CisternBlockEntity te) {
-          te.onBroken(this);
-        }
-      }
-      world.removeBlockEntity(pos);
-    }
-  }
-
-  @SuppressWarnings("deprecation")
-  @Override
-  @Deprecated
-  public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
+  protected BlockState updateShape(BlockState state, LevelReader worldIn, ScheduledTickAccess ticks, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
     // overridden to remove down connection, we handle that conditionally in the TE
     if (!facing.getAxis().isVertical()) {
       // barrel connects to

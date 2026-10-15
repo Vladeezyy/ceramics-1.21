@@ -6,17 +6,16 @@ import knightminer.ceramics.recipe.CeramicsTags;
 import knightminer.ceramics.recipe.CeramicsTags.Blocks;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
+import net.neoforged.neoforge.common.data.BlockTagCopyingItemTagProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ItemTagProvider extends ItemTagsProvider {
-  public ItemTagProvider(PackOutput packOutput, CompletableFuture<Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTags, ExistingFileHelper helper) {
-    super(packOutput, lookupProvider, blockTags, Ceramics.MOD_ID, helper);
+public class ItemTagProvider extends BlockTagCopyingItemTagProvider {
+  public ItemTagProvider(PackOutput packOutput, CompletableFuture<Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTags) {
+    super(packOutput, lookupProvider, blockTags, Ceramics.MOD_ID);
   }
 
   @Override
@@ -42,6 +41,8 @@ public class ItemTagProvider extends ItemTagsProvider {
     this.tag(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).add(Items.CLAY_BALL);
     this.tag(CeramicsTags.Items.BRICK_PLATES).add(Registration.CLAY_PLATE.get());
     this.tag(CeramicsTags.Items.PLATES).addTag(CeramicsTags.Items.BRICK_PLATES);
+    // armor repair, a tag on the material since 1.21.2
+    this.tag(CeramicsTags.Items.REPAIRS_CLAY_ARMOR).add(Registration.CLAY_PLATE.get());
 
     // buckets
     this.tag(CeramicsTags.Items.EMPTY_CLAY_BUCKETS).add(Registration.EMPTY_CLAY_BUCKET.asItem(), Registration.CRACKED_EMPTY_CLAY_BUCKET.asItem());

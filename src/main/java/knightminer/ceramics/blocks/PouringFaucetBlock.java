@@ -1,6 +1,6 @@
 package knightminer.ceramics.blocks;
 
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlock;
 import knightminer.ceramics.blocks.entity.FaucetBlockEntity;
@@ -10,7 +10,6 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +21,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import dev.vladeezyy.kilnwork.util.BlockEntityHelper;
 
@@ -55,12 +57,12 @@ public class PouringFaucetBlock extends FaucetBlock implements ICrackableBlock, 
   @SuppressWarnings("deprecation")
   @Deprecated
   @Override
-  protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+  protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
     if (isCrackable() && ICrackableBlock.tryRepair(worldIn, pos, player, handIn)) {
-      return ItemInteractionResult.sidedSuccess(worldIn.isClientSide);
+      return InteractionResult.SUCCESS;
     }
     // any other item starts the faucet as with an empty hand, as in 1.20
-    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    return InteractionResult.TRY_WITH_EMPTY_HAND;
   }
 
   @Override
@@ -77,12 +79,11 @@ public class PouringFaucetBlock extends FaucetBlock implements ICrackableBlock, 
   @SuppressWarnings("deprecation")
   @Deprecated
   @Override
-  public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+  protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
     if (worldIn.isClientSide()) {
       return;
     }
     if (worldIn.getBlockEntity(pos) instanceof FaucetBlockEntity faucet) {
-      faucet.neighborChanged(fromPos);
       faucet.handleRedstone(worldIn.hasNeighborSignal(pos));
     }
   }
@@ -140,9 +141,14 @@ public class PouringFaucetBlock extends FaucetBlock implements ICrackableBlock, 
   }
 
   @Override
-  public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-    if (isCrackable()) {
-      ICrackableBlock.onBlockPlacedBy(worldIn, pos, stack);
-    }
+  protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    super.createBlockStateDefinition(builder);
+    builder.add(CRACKS);
+  }
+
+  @Nullable
+  @Override
+  public BlockState getStateForPlacement(BlockPlaceContext context) {
+    return withItemCracks(super.getStateForPlacement(context), context);
   }
 }

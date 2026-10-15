@@ -1,18 +1,18 @@
 package knightminer.ceramics.blocks.entity;
 
-import knightminer.ceramics.Registration;
 import knightminer.ceramics.menu.KilnMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class KilnBlockEntity extends AbstractFurnaceBlockEntity {
   public KilnBlockEntity(BlockPos pos, BlockState state) {
-    super(Registration.KILN_BLOCK_ENTITY.get(), pos, state, Registration.KILN_RECIPE.get());
+    super(knightminer.ceramics.Registration.KILN_BLOCK_ENTITY.get(), pos, state, knightminer.ceramics.Registration.KILN_RECIPE.get());
   }
 
   @Override
@@ -21,8 +21,8 @@ public class KilnBlockEntity extends AbstractFurnaceBlockEntity {
   }
 
   @Override
-  protected int getBurnDuration(ItemStack fuel) {
-    return super.getBurnDuration(fuel) / 2;
+  protected int getBurnDuration(FuelValues fuelValues, ItemStack fuel) {
+    return super.getBurnDuration(fuelValues, fuel) / 2;
   }
   
   @Override

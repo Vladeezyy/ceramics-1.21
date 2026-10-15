@@ -12,11 +12,10 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,19 +35,18 @@ public class Ceramics {
 		bus.addListener(this::gatherData);
 	}
 
-	private void gatherData(GatherDataEvent event) {
-		boolean server = event.includeServer();
+	/** Server data, since 1.21.4 the client and server data run as separate events */
+	private void gatherData(GatherDataEvent.Server event) {
 		DataGenerator gen = event.getGenerator();
 		PackOutput packOutput = gen.getPackOutput();
-		ExistingFileHelper helper = event.getExistingFileHelper();
 		CompletableFuture<Provider> lookupProvider = event.getLookupProvider();
 
-		BlockTagProvider blockTags = new BlockTagProvider(packOutput, lookupProvider, helper);
-		gen.addProvider(server, blockTags);
-		gen.addProvider(server, new ItemTagProvider(packOutput, lookupProvider, blockTags.contentsGetter(), helper));
-		gen.addProvider(server, new FluidTagProvider(packOutput, lookupProvider, helper));
-		gen.addProvider(server, new RecipeProvider(packOutput, lookupProvider));
-		gen.addProvider(server, new LootTableProvider(packOutput, lookupProvider));
+		BlockTagProvider blockTags = new BlockTagProvider(packOutput, lookupProvider);
+		gen.addProvider(true, blockTags);
+		gen.addProvider(true, new ItemTagProvider(packOutput, lookupProvider, blockTags.contentsGetter()));
+		gen.addProvider(true, new FluidTagProvider(packOutput, lookupProvider));
+		gen.addProvider(true, new RecipeProvider.Runner(packOutput, lookupProvider));
+		gen.addProvider(true, new LootTableProvider(packOutput, lookupProvider));
 		// the fluid shapes of faucets, channels and cisterns are plain JSON in src/main/resources (were Mantle datagen)
 	}
 
@@ -67,8 +65,8 @@ public class Ceramics {
 	 * @param name  Resource path
 	 * @return  Resource location for Ceramics
 	 */
-	public static ResourceLocation getResource(String name) {
-	  return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+	public static Identifier getResource(String name) {
+	  return Identifier.fromNamespaceAndPath(MOD_ID, name);
 	}
 
 	/**

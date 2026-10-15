@@ -2,13 +2,7 @@ package knightminer.ceramics;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import knightminer.ceramics.util.FluidClayBucketWrapper;
-import knightminer.ceramics.util.ConstantFluidContainerWrapper;
-import knightminer.ceramics.recipe.CeramicsTags;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
-import dev.vladeezyy.kilnwork.tag.TagPreference;
-import java.util.Optional;
+import knightminer.ceramics.util.ClayBucketFluidHandler;
 import com.mojang.serialization.Codec;
 import knightminer.ceramics.blocks.ChannelBlock;
 import knightminer.ceramics.blocks.CisternBlock;
@@ -41,6 +35,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.Consumables;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -48,11 +44,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters;
@@ -62,7 +57,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SimpleCookingSerializer;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -78,6 +73,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.crafting.IngredientType;
@@ -109,7 +106,6 @@ public class Registration {
   private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, Ceramics.MOD_ID);
   private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Ceramics.MOD_ID);
   private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Ceramics.MOD_ID);
-  private static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, Ceramics.MOD_ID);
   private static final DeferredRegister<IngredientType<?>> INGREDIENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPES, Ceramics.MOD_ID);
 
   /**
@@ -123,9 +119,10 @@ public class Registration {
     RECIPE_TYPES.register(bus);
     CREATIVE_TABS.register(bus);
     DATA_COMPONENTS.register(bus);
-    ARMOR_MATERIALS.register(bus);
     INGREDIENT_TYPES.register(bus);
     bus.register(Registration.class);
+    // since 1.21.2 clients only get the recipes the server sends, JEI shows the kiln recipes from these
+    NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent event) -> event.sendRecipes(KILN_RECIPE.get()));
   }
 
   /* Creative tab */
@@ -149,11 +146,11 @@ public class Registration {
   /**
    * Item block function that sets the group props
    */
-  private static final Function<Block, BlockItem> DEFAULT_BLOCK_ITEM = (block) -> new BlockItem(block, new Item.Properties());
+  private static final BlockRegister.BlockItemFactory<Block> DEFAULT_BLOCK_ITEM = BlockRegister::blockItem;
   /**
    * Item block function using {@link FixedTooltipBlockItem}
    */
-  private static final Function<String, Function<Block, BlockItem>> HEAT_RESISTANT = name -> block -> new HeatResistantBlockItem(block, new Item.Properties(), name);
+  private static final Function<String, BlockRegister.BlockItemFactory<Block>> HEAT_RESISTANT = name -> (block, props) -> new HeatResistantBlockItem(block, props, name);
 
   /**
    * Mapping for terracotta to make registration easier
@@ -178,24 +175,24 @@ public class Registration {
     .build();
 
   /* Building blocks */
-  public static final DeferredBlock<Block> UNFIRED_PORCELAIN_BLOCK = BLOCKS.register("unfired_porcelain_block", Block.Properties.of().mapColor(MapColor.CLAY).strength(0.6F).sound(SoundType.GRAVEL), DEFAULT_BLOCK_ITEM);
+  public static final DeferredBlock<Block> UNFIRED_PORCELAIN_BLOCK = BLOCKS.register("unfired_porcelain_block", Block::new, () -> Block.Properties.of().mapColor(MapColor.CLAY).strength(0.6F).sound(SoundType.GRAVEL), DEFAULT_BLOCK_ITEM);
 
   // porcelain
-  public static final EnumObject<DyeColor, Block> PORCELAIN_BLOCK = registerEnum(DyeColor.values(), "porcelain", color -> new Block(Block.Properties.ofFullCopy(TERRACOTTA.get(color))), DEFAULT_BLOCK_ITEM);
+  public static final EnumObject<DyeColor, Block> PORCELAIN_BLOCK = registerEnum(DyeColor.values(), "porcelain", (color, props) -> new Block(props), color -> Block.Properties.ofFullCopy(TERRACOTTA.get(color)), DEFAULT_BLOCK_ITEM);
   public static final EnumObject<RainbowPorcelain, Block> RAINBOW_PORCELAIN = registerEnum(RainbowPorcelain.values(), "rainbow_porcelain",
-    color -> new Block(Block.Properties.of().mapColor(color.getColor()).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops()), block -> new BlockTooltipItem(block, new Item.Properties()));
+    (color, props) -> new Block(props), color -> Block.Properties.of().mapColor(color.getColor()).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops(), BlockTooltipItem::new);
 
   // clay bricks
-  public static final BuildingBlocks DARK_BRICKS = registerWallBuilding("dark_bricks", Block.Properties.of().mapColor(MapColor.COLOR_RED).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final BuildingBlocks LAVA_BRICKS = registerWallBuilding("lava_bricks", Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final BuildingBlocks DRAGON_BRICKS = registerWallBuilding("dragon_bricks", Block.Properties.of().mapColor(MapColor.PODZOL).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks DARK_BRICKS = registerWallBuilding("dark_bricks", () -> Block.Properties.of().mapColor(MapColor.COLOR_RED).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks LAVA_BRICKS = registerWallBuilding("lava_bricks", () -> Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks DRAGON_BRICKS = registerWallBuilding("dragon_bricks", () -> Block.Properties.of().mapColor(MapColor.PODZOL).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
 
   // porcelain bricks
-  public static final BuildingBlocks PORCELAIN_BRICKS = registerWallBuilding("porcelain_bricks", Block.Properties.of().mapColor(MapColor.SNOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final BuildingBlocks MONOCHROME_BRICKS = registerWallBuilding("monochrome_bricks", Block.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final BuildingBlocks GOLDEN_BRICKS = registerWallBuilding("golden_bricks", Block.Properties.of().mapColor(MapColor.COLOR_YELLOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final BuildingBlocks MARINE_BRICKS = registerWallBuilding("marine_bricks", Block.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final BuildingBlocks RAINBOW_BRICKS = registerWallBuilding("rainbow_bricks", Block.Properties.of().mapColor(MapColor.COLOR_GREEN).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks PORCELAIN_BRICKS = registerWallBuilding("porcelain_bricks", () -> Block.Properties.of().mapColor(MapColor.SNOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks MONOCHROME_BRICKS = registerWallBuilding("monochrome_bricks", () -> Block.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks GOLDEN_BRICKS = registerWallBuilding("golden_bricks", () -> Block.Properties.of().mapColor(MapColor.COLOR_YELLOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks MARINE_BRICKS = registerWallBuilding("marine_bricks", () -> Block.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks RAINBOW_BRICKS = registerWallBuilding("rainbow_bricks", () -> Block.Properties.of().mapColor(MapColor.COLOR_GREEN).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
 
 
   /* items */
@@ -210,38 +207,35 @@ public class Registration {
   public static final DeferredItem<SolidClayBucketItem> SOLID_CLAY_BUCKET, CRACKED_SOLID_CLAY_BUCKET;
   static {
     // empty
-    UNFIRED_CLAY_BUCKET = ITEMS.registerSimpleItem("unfired_clay_bucket", new Item.Properties().stacksTo(16));
-    EMPTY_CLAY_BUCKET = ITEMS.register("empty_clay_bucket", () -> new EmptyClayBucketItem(false, new Item.Properties().stacksTo(16)));
-    CRACKED_EMPTY_CLAY_BUCKET = ITEMS.register("cracked_empty_clay_bucket", () -> new EmptyClayBucketItem(true, new Item.Properties().stacksTo(16)));
+    UNFIRED_CLAY_BUCKET = ITEMS.registerSimpleItem("unfired_clay_bucket", () -> new Item.Properties().stacksTo(16));
+    EMPTY_CLAY_BUCKET = ITEMS.registerItem("empty_clay_bucket", props -> new EmptyClayBucketItem(false, props), () -> new Item.Properties().stacksTo(16));
+    CRACKED_EMPTY_CLAY_BUCKET = ITEMS.registerItem("cracked_empty_clay_bucket", props -> new EmptyClayBucketItem(true, props), () -> new Item.Properties().stacksTo(16));
     // uncracked filled
-    FLUID_CLAY_BUCKET = ITEMS.register("fluid_clay_bucket", () -> new FluidClayBucketItem(false, new Item.Properties().stacksTo(1).craftRemainder(EMPTY_CLAY_BUCKET.get())));
-    MILK_CLAY_BUCKET = ITEMS.register("milk_clay_bucket", () -> new MilkClayBucketItem(false, new Item.Properties().stacksTo(1).craftRemainder(EMPTY_CLAY_BUCKET.get())));
-    SOLID_CLAY_BUCKET = ITEMS.register("solid_clay_bucket", () -> new SolidClayBucketItem(false, new Item.Properties().stacksTo(1).craftRemainder(EMPTY_CLAY_BUCKET.get())));
+    FLUID_CLAY_BUCKET = ITEMS.registerItem("fluid_clay_bucket", props -> new FluidClayBucketItem(false, props), () -> new Item.Properties().stacksTo(1).craftRemainder(EMPTY_CLAY_BUCKET.get()));
+    MILK_CLAY_BUCKET = ITEMS.registerItem("milk_clay_bucket", props -> new MilkClayBucketItem(false, props), () -> new Item.Properties().stacksTo(1).craftRemainder(EMPTY_CLAY_BUCKET.get()).component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK));
+    SOLID_CLAY_BUCKET = ITEMS.registerItem("solid_clay_bucket", props -> new SolidClayBucketItem(false, props), () -> new Item.Properties().stacksTo(1).craftRemainder(EMPTY_CLAY_BUCKET.get()));
     // cracked filled
-    CRACKED_FLUID_CLAY_BUCKET = ITEMS.register("cracked_fluid_clay_bucket", () -> new FluidClayBucketItem(true, new Item.Properties().stacksTo(1)));
-    CRACKED_MILK_CLAY_BUCKET = ITEMS.register("cracked_milk_clay_bucket", () -> new MilkClayBucketItem(true, new Item.Properties().stacksTo(1)));
-    CRACKED_SOLID_CLAY_BUCKET = ITEMS.register("cracked_solid_clay_bucket", () -> new SolidClayBucketItem(true, new Item.Properties().stacksTo(1)));
+    CRACKED_FLUID_CLAY_BUCKET = ITEMS.registerItem("cracked_fluid_clay_bucket", props -> new FluidClayBucketItem(true, props), () -> new Item.Properties().stacksTo(1));
+    CRACKED_MILK_CLAY_BUCKET = ITEMS.registerItem("cracked_milk_clay_bucket", props -> new MilkClayBucketItem(true, props), () -> new Item.Properties().stacksTo(1).component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK));
+    CRACKED_SOLID_CLAY_BUCKET = ITEMS.registerItem("cracked_solid_clay_bucket", props -> new SolidClayBucketItem(true, props), () -> new Item.Properties().stacksTo(1));
   }
 
   // armor
-  public static final DeferredHolder<ArmorMaterial,ArmorMaterial> CLAY_ARMOR_MATERIAL = ARMOR_MATERIALS.register("clay", ArmorMaterials::createClay);
   public static final DeferredItem<Item> UNFIRED_CLAY_PLATE = ITEMS.registerSimpleItem("unfired_clay_plate");
   public static final DeferredItem<Item> CLAY_PLATE = ITEMS.registerSimpleItem("clay_plate");
-  public static final DeferredItem<ArmorItem> CLAY_HELMET, CLAY_CHESTPLATE, CLAY_LEGGINGS, CLAY_BOOTS;
-  static {
-    CLAY_HELMET = ITEMS.register("clay_helmet", () -> new ArmorItem(CLAY_ARMOR_MATERIAL, ArmorItem.Type.HELMET, ArmorMaterials.armorProps(ArmorItem.Type.HELMET)));
-    CLAY_CHESTPLATE = ITEMS.register("clay_chestplate", () -> new ArmorItem(CLAY_ARMOR_MATERIAL, ArmorItem.Type.CHESTPLATE, ArmorMaterials.armorProps(ArmorItem.Type.CHESTPLATE)));
-    CLAY_LEGGINGS = ITEMS.register("clay_leggings", () -> new ArmorItem(CLAY_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, ArmorMaterials.armorProps(ArmorItem.Type.LEGGINGS)));
-    CLAY_BOOTS = ITEMS.register("clay_boots", () -> new ArmorItem(CLAY_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, ArmorMaterials.armorProps(ArmorItem.Type.BOOTS)));
-  }
+  // armor items are plain items since 1.21.2, the equippable component does the rest
+  public static final DeferredItem<Item> CLAY_HELMET = armor("clay_helmet", ArmorType.HELMET);
+  public static final DeferredItem<Item> CLAY_CHESTPLATE = armor("clay_chestplate", ArmorType.CHESTPLATE);
+  public static final DeferredItem<Item> CLAY_LEGGINGS = armor("clay_leggings", ArmorType.LEGGINGS);
+  public static final DeferredItem<Item> CLAY_BOOTS = armor("clay_boots", ArmorType.BOOTS);
 
   // kiln block
-  public static final DeferredBlock<KilnBlock> KILN = BLOCKS.register("kiln", () -> new KilnBlock(terracottaProps(MapColor.COLOR_ORANGE).lightLevel(s -> s.getValue(KilnBlock.LIT) ? 13 : 0)), DEFAULT_BLOCK_ITEM);
+  public static final DeferredBlock<KilnBlock> KILN = BLOCKS.register("kiln", KilnBlock::new, () -> terracottaProps(MapColor.COLOR_ORANGE).lightLevel(s -> s.getValue(KilnBlock.LIT) ? 13 : 0), DEFAULT_BLOCK_ITEM);
   public static final DeferredHolder<MenuType<?>,MenuType<KilnMenu>> KILN_MENU = MENUS.register("kiln", () -> IMenuTypeExtension.create(KilnMenu::new));
   public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<KilnBlockEntity>> KILN_BLOCK_ENTITY = blockEntity("kiln", KilnBlockEntity::new, () -> Set.of(KILN.get()));
   // kiln recipes
   public static final DeferredHolder<RecipeType<?>,RecipeType<KilnRecipe>> KILN_RECIPE = RECIPE_TYPES.register("kiln", () -> RecipeType.simple(Ceramics.getResource("kiln")));
-  public static final DeferredHolder<RecipeSerializer<?>,SimpleCookingSerializer<KilnRecipe>> KILN_SERIALIZER = RECIPE_SERIALIZERS.register("kiln", () -> new SimpleCookingSerializer<>(KilnRecipe::new, 100));
+  public static final DeferredHolder<RecipeSerializer<?>,AbstractCookingRecipe.Serializer<KilnRecipe>> KILN_SERIALIZER = RECIPE_SERIALIZERS.register("kiln", () -> new AbstractCookingRecipe.Serializer<>(KilnRecipe::new, 100));
 
   /*
    * fluid handling
@@ -250,10 +244,10 @@ public class Registration {
   public static final DeferredBlock<GaugeBlock> TERRACOTTA_GAUGE, PORCELAIN_GAUGE;
 
   static {
-    Function<Block, BlockItem> GAUGE_BLOCK_ITEM = block -> new FixedTooltipBlockItem(block, new Item.Properties(), "gauge.tooltip");
-    BlockBehaviour.Properties GAUGE_PROPERTIES = BlockBehaviour.Properties.of().mapColor(MapColor.NONE).pushReaction(PushReaction.DESTROY).noCollission().strength(0.5F).noOcclusion().requiresCorrectToolForDrops();
-    TERRACOTTA_GAUGE = BLOCKS.register("terracotta_gauge", () -> new GaugeBlock(GAUGE_PROPERTIES), GAUGE_BLOCK_ITEM);
-    PORCELAIN_GAUGE = BLOCKS.register("porcelain_gauge", () -> new GaugeBlock(GAUGE_PROPERTIES), GAUGE_BLOCK_ITEM);
+    BlockRegister.BlockItemFactory<Block> GAUGE_BLOCK_ITEM = (block, props) -> new FixedTooltipBlockItem(block, props, "gauge.tooltip");
+    Supplier<BlockBehaviour.Properties> GAUGE_PROPERTIES = () -> BlockBehaviour.Properties.of().mapColor(MapColor.NONE).pushReaction(PushReaction.DESTROY).noCollision().strength(0.5F).noOcclusion().requiresCorrectToolForDrops();
+    TERRACOTTA_GAUGE = BLOCKS.register("terracotta_gauge", GaugeBlock::new, GAUGE_PROPERTIES, GAUGE_BLOCK_ITEM);
+    PORCELAIN_GAUGE = BLOCKS.register("porcelain_gauge", GaugeBlock::new, GAUGE_PROPERTIES, GAUGE_BLOCK_ITEM);
     // the 1.16 gauge was renamed to the terracotta gauge, keep old worlds working
     BLOCKS.addAlias("gauge", "terracotta_gauge");
   }
@@ -263,22 +257,22 @@ public class Registration {
   public static final DeferredBlock<FaucetBlock> CLAY_FAUCET, UNFIRED_FAUCET;
   public static final DeferredBlock<ChannelBlock> CLAY_CHANNEL, UNFIRED_CHANNEL;
   static {
-    BlockBehaviour.Properties CLAY_PROPERTIES = BlockBehaviour.Properties.of().mapColor(MapColor.CLAY).strength(0.6F).sound(SoundType.GRAVEL).noOcclusion();
-    CLAY_CISTERN = BLOCKS.register("clay_cistern", () -> new CisternBlock(CLAY_PROPERTIES), DEFAULT_BLOCK_ITEM);
-    UNFIRED_CISTERN = BLOCKS.register("unfired_cistern", () -> new CisternBlock(CLAY_PROPERTIES), DEFAULT_BLOCK_ITEM);
-    CLAY_FAUCET = BLOCKS.register("clay_faucet", () -> new FaucetBlock(CLAY_PROPERTIES), DEFAULT_BLOCK_ITEM);
-    UNFIRED_FAUCET = BLOCKS.register("unfired_faucet", () -> new FaucetBlock(CLAY_PROPERTIES), DEFAULT_BLOCK_ITEM);
-    CLAY_CHANNEL = BLOCKS.register("clay_channel", () -> new ChannelBlock(CLAY_PROPERTIES), DEFAULT_BLOCK_ITEM);
-    UNFIRED_CHANNEL = BLOCKS.register("unfired_channel", () -> new ChannelBlock(CLAY_PROPERTIES), DEFAULT_BLOCK_ITEM);
+    Supplier<BlockBehaviour.Properties> CLAY_PROPERTIES = () -> BlockBehaviour.Properties.of().mapColor(MapColor.CLAY).strength(0.6F).sound(SoundType.GRAVEL).noOcclusion();
+    CLAY_CISTERN = BLOCKS.register("clay_cistern", CisternBlock::new, CLAY_PROPERTIES, DEFAULT_BLOCK_ITEM);
+    UNFIRED_CISTERN = BLOCKS.register("unfired_cistern", CisternBlock::new, CLAY_PROPERTIES, DEFAULT_BLOCK_ITEM);
+    CLAY_FAUCET = BLOCKS.register("clay_faucet", FaucetBlock::new, CLAY_PROPERTIES, DEFAULT_BLOCK_ITEM);
+    UNFIRED_FAUCET = BLOCKS.register("unfired_faucet", FaucetBlock::new, CLAY_PROPERTIES, DEFAULT_BLOCK_ITEM);
+    CLAY_CHANNEL = BLOCKS.register("clay_channel", ChannelBlock::new, CLAY_PROPERTIES, DEFAULT_BLOCK_ITEM);
+    UNFIRED_CHANNEL = BLOCKS.register("unfired_channel", ChannelBlock::new, CLAY_PROPERTIES, DEFAULT_BLOCK_ITEM);
   }
 
   // cistern
-  private static final Function<String,Function<Block,BlockItem>> CRACKABLE_BLOCK_ITEM = tooltip -> block -> new CrackableBlockItem(block, new Item.Properties(), tooltip);
-  private static final Function<Block,BlockItem> TERRACOTTA_CISTERN_BLOCK_ITEM = CRACKABLE_BLOCK_ITEM.apply("cistern.tooltip");
-  private static final Function<Block,BlockItem> PORCELAIN_CISTERN_BLOCK_ITEM = HEAT_RESISTANT.apply("cistern.tooltip");
-  public static final DeferredBlock<FluidCisternBlock> TERRACOTTA_CISTERN = BLOCKS.register("terracotta_cistern", () -> new FluidCisternBlock(terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), true), TERRACOTTA_CISTERN_BLOCK_ITEM);
-  public static final EnumObject<DyeColor, FluidCisternBlock> COLORED_CISTERN = registerEnum(DyeColor.values(), "terracotta_cistern", (color) -> new FluidCisternBlock(terracottaProps(getTerracottaColor(color)).noOcclusion().randomTicks(), true), TERRACOTTA_CISTERN_BLOCK_ITEM);
-  public static final EnumObject<DyeColor, FluidCisternBlock> PORCELAIN_CISTERN = registerEnum(DyeColor.values(), "porcelain_cistern", (color) -> new FluidCisternBlock(terracottaProps(getTerracottaColor(color)).noOcclusion(), false), PORCELAIN_CISTERN_BLOCK_ITEM);
+  private static final Function<String,BlockRegister.BlockItemFactory<Block>> CRACKABLE_BLOCK_ITEM = tooltip -> (block, props) -> new CrackableBlockItem(block, props, tooltip);
+  private static final BlockRegister.BlockItemFactory<Block> TERRACOTTA_CISTERN_BLOCK_ITEM = CRACKABLE_BLOCK_ITEM.apply("cistern.tooltip");
+  private static final BlockRegister.BlockItemFactory<Block> PORCELAIN_CISTERN_BLOCK_ITEM = HEAT_RESISTANT.apply("cistern.tooltip");
+  public static final DeferredBlock<FluidCisternBlock> TERRACOTTA_CISTERN = BLOCKS.register("terracotta_cistern", props -> new FluidCisternBlock(props, true), () -> terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), TERRACOTTA_CISTERN_BLOCK_ITEM);
+  public static final EnumObject<DyeColor, FluidCisternBlock> COLORED_CISTERN = registerEnum(DyeColor.values(), "terracotta_cistern", (color, props) -> new FluidCisternBlock(props, true), color -> terracottaProps(getTerracottaColor(color)).noOcclusion().randomTicks(), TERRACOTTA_CISTERN_BLOCK_ITEM);
+  public static final EnumObject<DyeColor, FluidCisternBlock> PORCELAIN_CISTERN = registerEnum(DyeColor.values(), "porcelain_cistern", (color, props) -> new FluidCisternBlock(props, false), color -> terracottaProps(getTerracottaColor(color)).noOcclusion(), PORCELAIN_CISTERN_BLOCK_ITEM);
   public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CisternBlockEntity>> CISTERN_BLOCK_ENTITY = blockEntity("cistern", CisternBlockEntity::new, () -> {
     Set<Block> blocks = new java.util.HashSet<>();
     blocks.add(TERRACOTTA_CISTERN.get());
@@ -288,13 +282,13 @@ public class Registration {
   });
 
   // faucet
-  public static final DeferredBlock<PouringFaucetBlock> TERRACOTTA_FAUCET = BLOCKS.register("terracotta_faucet", () -> new PouringFaucetBlock(terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), true), CRACKABLE_BLOCK_ITEM.apply("faucet.tooltip"));
-  public static final DeferredBlock<PouringFaucetBlock> PORCELAIN_FAUCET = BLOCKS.register("porcelain_faucet", () -> new PouringFaucetBlock(terracottaProps(MapColor.TERRACOTTA_WHITE).noOcclusion(), false), HEAT_RESISTANT.apply("faucet.tooltip"));
+  public static final DeferredBlock<PouringFaucetBlock> TERRACOTTA_FAUCET = BLOCKS.register("terracotta_faucet", props -> new PouringFaucetBlock(props, true), () -> terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), CRACKABLE_BLOCK_ITEM.apply("faucet.tooltip"));
+  public static final DeferredBlock<PouringFaucetBlock> PORCELAIN_FAUCET = BLOCKS.register("porcelain_faucet", props -> new PouringFaucetBlock(props, false), () -> terracottaProps(MapColor.TERRACOTTA_WHITE).noOcclusion(), HEAT_RESISTANT.apply("faucet.tooltip"));
   public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<FaucetBlockEntity>> FAUCET_BLOCK_ENTITY = blockEntity("faucet", FaucetBlockEntity::new, () -> Set.of(TERRACOTTA_FAUCET.get(), PORCELAIN_FAUCET.get()));
 
   // channel
-  public static final DeferredBlock<FlowingChannelBlock> TERRACOTTA_CHANNEL = BLOCKS.register("terracotta_channel", () -> new FlowingChannelBlock(terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), true), CRACKABLE_BLOCK_ITEM.apply("channel.tooltip"));
-  public static final DeferredBlock<FlowingChannelBlock> PORCELAIN_CHANNEL = BLOCKS.register("porcelain_channel", () -> new FlowingChannelBlock(terracottaProps(MapColor.TERRACOTTA_WHITE).noOcclusion(), false), HEAT_RESISTANT.apply("channel.tooltip"));
+  public static final DeferredBlock<FlowingChannelBlock> TERRACOTTA_CHANNEL = BLOCKS.register("terracotta_channel", props -> new FlowingChannelBlock(props, true), () -> terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), CRACKABLE_BLOCK_ITEM.apply("channel.tooltip"));
+  public static final DeferredBlock<FlowingChannelBlock> PORCELAIN_CHANNEL = BLOCKS.register("porcelain_channel", props -> new FlowingChannelBlock(props, false), () -> terracottaProps(MapColor.TERRACOTTA_WHITE).noOcclusion(), HEAT_RESISTANT.apply("channel.tooltip"));
   public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ChannelBlockEntity>> CHANNEL_BLOCK_ENTITY = blockEntity("channel", ChannelBlockEntity::new, () -> Set.of(TERRACOTTA_CHANNEL.get(), PORCELAIN_CHANNEL.get()));
 
   // clay repair
@@ -305,22 +299,13 @@ public class Registration {
   @SubscribeEvent
   static void registerCapabilities(RegisterCapabilitiesEvent event) {
     // blocks, in 1.20 these were getCapability overrides on the block entities
-    event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CISTERN_BLOCK_ENTITY.get(), (cistern, side) -> cistern.getPublicHandler());
-    event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CHANNEL_BLOCK_ENTITY.get(), ChannelBlockEntity::getFluidHandler);
-    // fluid buckets, milk buckets were missing a fluid handler in 1.20 (issue #88 of the original)
-    event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new FluidClayBucketWrapper(stack),
-                       EMPTY_CLAY_BUCKET, CRACKED_EMPTY_CLAY_BUCKET, FLUID_CLAY_BUCKET, CRACKED_FLUID_CLAY_BUCKET, MILK_CLAY_BUCKET, CRACKED_MILK_CLAY_BUCKET);
-    // solid buckets: powder snow is also a fluid if a mod adds one
-    event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> {
-      // TODO: can this be extracted to JSON?
-      if (stack.getItem() instanceof SolidClayBucketItem bucket && bucket.getBlock(stack) == Blocks.POWDER_SNOW) {
-        Optional<Fluid> optional = TagPreference.getPreference(CeramicsTags.Fluids.POWDERED_SNOW);
-        if (optional.isPresent()) {
-          return new ConstantFluidContainerWrapper(new FluidStack(optional.get(), FluidType.BUCKET_VOLUME), stack);
-        }
-      }
-      return null;
-    }, SOLID_CLAY_BUCKET, CRACKED_SOLID_CLAY_BUCKET);
+    event.registerBlockEntity(Capabilities.Fluid.BLOCK, CISTERN_BLOCK_ENTITY.get(), (cistern, side) -> cistern.getPublicHandler());
+    event.registerBlockEntity(Capabilities.Fluid.BLOCK, CHANNEL_BLOCK_ENTITY.get(), ChannelBlockEntity::getFluidHandler);
+    // clay buckets, milk buckets were missing a fluid handler in 1.20 (issue #88 of the original)
+    // solid buckets hold powder snow as a fluid if a mod adds one
+    event.registerItem(Capabilities.Fluid.ITEM, (stack, access) -> new ClayBucketFluidHandler(access),
+                       EMPTY_CLAY_BUCKET, CRACKED_EMPTY_CLAY_BUCKET, FLUID_CLAY_BUCKET, CRACKED_FLUID_CLAY_BUCKET, MILK_CLAY_BUCKET, CRACKED_MILK_CLAY_BUCKET,
+                       SOLID_CLAY_BUCKET, CRACKED_SOLID_CLAY_BUCKET);
   }
 
   @SubscribeEvent
@@ -329,7 +314,7 @@ public class Registration {
     event.enqueueWork(() -> {
       record FillClayBucketCauldronInteraction(Predicate<BlockState> cauldron, ItemStack filledBucket, SoundEvent sound) implements CauldronInteraction {
         @Override
-        public ItemInteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
+        public InteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
           return CauldronInteraction.fillBucket(state, level, pos, player, hand, stack, filledBucket.copy(), cauldron, sound);
         }
       }
@@ -435,17 +420,22 @@ public class Registration {
 
   /** Registers a block entity type for the given blocks, resolved once the blocks exist */
   private static <T extends net.minecraft.world.level.block.entity.BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> blockEntity(String name, BlockEntityType.BlockEntitySupplier<T> factory, Supplier<Set<Block>> blocks) {
-    return BLOCK_ENTITIES.register(name, () -> new BlockEntityType<>(factory, blocks.get(), null));
+    return BLOCK_ENTITIES.register(name, () -> new BlockEntityType<>(factory, blocks.get()));
   }
 
   /** Registers a block with slab, stairs and wall, all using the default block item */
-  private static BuildingBlocks registerWallBuilding(String name, BlockBehaviour.Properties props) {
+  private static BuildingBlocks registerWallBuilding(String name, Supplier<BlockBehaviour.Properties> props) {
     return BLOCKS.registerBuilding(name, props, DEFAULT_BLOCK_ITEM);
   }
 
   /** Registers one block per enum value */
-  private static <E extends Enum<E>, B extends Block> EnumObject<E, B> registerEnum(E[] values, String name, Function<E, B> mapper, Function<Block, BlockItem> item) {
-    return BLOCKS.registerEnum(values, name, mapper, item);
+  private static <E extends Enum<E>, B extends Block> EnumObject<E, B> registerEnum(E[] values, String name, java.util.function.BiFunction<E, BlockBehaviour.Properties, B> mapper, Function<E, BlockBehaviour.Properties> props, BlockRegister.BlockItemFactory<? super B> item) {
+    return BLOCKS.registerEnum(values, name, mapper, props, item);
+  }
+
+  /** Registers a clay armor piece */
+  private static DeferredItem<Item> armor(String name, ArmorType type) {
+    return ITEMS.registerItem(name, Item::new, () -> new Item.Properties().humanoidArmor(ArmorMaterials.CLAY, type));
   }
 
   /**

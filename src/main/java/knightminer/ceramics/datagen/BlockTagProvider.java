@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.data.tags.TagAppender;
 import dev.vladeezyy.kilnwork.tag.KilnworkTags;
 import dev.vladeezyy.kilnwork.registration.EnumObject;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -21,8 +21,8 @@ import dev.vladeezyy.kilnwork.registration.BuildingBlocks;
 import java.util.concurrent.CompletableFuture;
 
 public class BlockTagProvider extends BlockTagsProvider {
-  public BlockTagProvider(PackOutput packOutput, CompletableFuture<Provider> lookupProvider, ExistingFileHelper helper) {
-    super(packOutput, lookupProvider, Ceramics.MOD_ID, helper);
+  public BlockTagProvider(PackOutput packOutput, CompletableFuture<Provider> lookupProvider) {
+    super(packOutput, lookupProvider, Ceramics.MOD_ID);
   }
 
   @Override
@@ -33,14 +33,14 @@ public class BlockTagProvider extends BlockTagsProvider {
   @Override
   protected void addTags(Provider provider) {
     // vanilla colored terracotta
-    IntrinsicTagAppender<Block> coloredTerracotta = this.tag(CeramicsTags.Blocks.COLORED_TERRACOTTA);
+    TagAppender<Block, Block> coloredTerracotta = this.tag(CeramicsTags.Blocks.COLORED_TERRACOTTA);
     Registration.TERRACOTTA.values().forEach(coloredTerracotta::add);
 
     this.tag(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS);
 
     // porcelain
     this.tag(BlockTags.ENDERMAN_HOLDABLE).add(Registration.UNFIRED_PORCELAIN_BLOCK.get());
-    IntrinsicTagAppender<Block> coloredPorcelain = this.tag(CeramicsTags.Blocks.COLORED_PORCELAIN);
+    TagAppender<Block, Block> coloredPorcelain = this.tag(CeramicsTags.Blocks.COLORED_PORCELAIN);
     Registration.PORCELAIN_BLOCK.forEach((color, block) -> {
       if (color != DyeColor.WHITE) {
         coloredPorcelain.add(block);
@@ -51,7 +51,7 @@ public class BlockTagProvider extends BlockTagsProvider {
         .addTag(CeramicsTags.Blocks.COLORED_PORCELAIN);
 
     // rainbow porcelain
-    IntrinsicTagAppender<Block> rainbow = this.tag(CeramicsTags.Blocks.RAINBOW_PORCELAIN);
+    TagAppender<Block, Block> rainbow = this.tag(CeramicsTags.Blocks.RAINBOW_PORCELAIN);
     Registration.RAINBOW_PORCELAIN.values().forEach(rainbow::add);
 
     // bricks
@@ -86,10 +86,10 @@ public class BlockTagProvider extends BlockTagsProvider {
              Registration.CLAY_CHANNEL.get(), Registration.UNFIRED_CHANNEL.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get())
       .addTag(KilnworkTags.Blocks.ATTACHED_GAUGES);
     // list of all terracotta cisterns
-    IntrinsicTagAppender<Block> terracottaCisterns = this.tag(CeramicsTags.Blocks.TERRACOTTA_CISTERNS)
+    TagAppender<Block, Block> terracottaCisterns = this.tag(CeramicsTags.Blocks.TERRACOTTA_CISTERNS)
                                                          .add(Registration.TERRACOTTA_CISTERN.get());
     Registration.COLORED_CISTERN.forEach(block -> terracottaCisterns.add(block));
-    IntrinsicTagAppender<Block> porcelainCisterns = this.tag(CeramicsTags.Blocks.PORCELAIN_CISTERNS);
+    TagAppender<Block, Block> porcelainCisterns = this.tag(CeramicsTags.Blocks.PORCELAIN_CISTERNS);
     Registration.PORCELAIN_CISTERN.forEach(block -> porcelainCisterns.add(block));
 
     this.tag(KilnworkTags.Blocks.ATTACHED_GAUGES).add(Registration.TERRACOTTA_GAUGE.get(), Registration.PORCELAIN_GAUGE.get());
@@ -121,7 +121,7 @@ public class BlockTagProvider extends BlockTagsProvider {
 
   @SafeVarargs
   private <T extends Block> void addTag(TagKey<Block> tag, DeferredBlock<T>... blocks) {
-    IntrinsicTagAppender<Block> appender = this.tag(tag);
+    TagAppender<Block, Block> appender = this.tag(tag);
     for (DeferredBlock<T> block : blocks) {
       appender.add(block.get());
     }
@@ -129,14 +129,14 @@ public class BlockTagProvider extends BlockTagsProvider {
 
   @SafeVarargs
   private<T extends Block> void addTag(TagKey<Block> tag, EnumObject<?, T>... blocks) {
-    IntrinsicTagAppender<Block> appender = this.tag(tag);
+    TagAppender<Block, Block> appender = this.tag(tag);
     for (EnumObject<?, T> object : blocks) {
       object.forEach(block -> appender.add(block));
     }
   }
 
   private void addTag(TagKey<Block> tag, BuildingBlocks... blocks) {
-    IntrinsicTagAppender<Block> appender = this.tag(tag);
+    TagAppender<Block, Block> appender = this.tag(tag);
     for (BuildingBlocks object : blocks) {
       object.values().forEach(appender::add);
     }

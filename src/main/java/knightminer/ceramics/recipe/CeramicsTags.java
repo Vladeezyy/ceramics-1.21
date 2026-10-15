@@ -1,6 +1,6 @@
 package knightminer.ceramics.recipe;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import knightminer.ceramics.Ceramics;
@@ -66,13 +66,15 @@ public class CeramicsTags {
 
     public static final TagKey<Item> CLAY_BUCKETS = ceramicsTag("clay_buckets");
     public static final TagKey<Item> EMPTY_CLAY_BUCKETS = ceramicsTag("clay_buckets/empty");
+    /** Repair items of clay armor, the material takes a tag since 1.21.2 */
+    public static final TagKey<Item> REPAIRS_CLAY_ARMOR = ceramicsTag("repairs_clay_armor");
 
     private static TagKey<Item> ceramicsTag(String id) {
       return ItemTags.create(Ceramics.getResource(id));
     }
 
     private static TagKey<Item> commonTag(String id) {
-      return ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", id));
+      return ItemTags.create(Identifier.fromNamespaceAndPath("c", id));
     }
   }
 
@@ -88,7 +90,7 @@ public class CeramicsTags {
     /** Fluids in this tag won't show in the creative filled buckets. Unlike {@link #BUCKET_BLACKLIST}, will not prevent filling the bucket */
     public static final TagKey<Fluid> HIDE_IN_BUCKET = ceramicsTag("hide_in_bucket");
     /** Powdered snow in fluid form */
-    public static final TagKey<Fluid> POWDERED_SNOW = FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "powdered_snow"));
+    public static final TagKey<Fluid> POWDERED_SNOW = FluidTags.create(Identifier.fromNamespaceAndPath("c", "powdered_snow"));
 
     private static TagKey<Fluid> ceramicsTag(String id) {
       return FluidTags.create(Ceramics.getResource(id));

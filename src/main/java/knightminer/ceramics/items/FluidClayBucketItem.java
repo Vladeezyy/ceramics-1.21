@@ -1,5 +1,8 @@
 package knightminer.ceramics.items;
 
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.block.entity.FuelValues;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
@@ -12,7 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -20,13 +23,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -62,17 +66,17 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	/* Bucket behavior */
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		Fluid fluid = this.getFluid(stack);
 		if (fluid == Fluids.EMPTY) {
-			return InteractionResultHolder.fail(stack);
+			return InteractionResult.FAIL;
 		}
 		BlockHitResult trace = getPlayerPOVHitResult(world, player, ClipContext.Fluid.NONE);
 
 		// if we missed, do nothing
 		if (trace.getType() != Type.BLOCK) {
-			return InteractionResultHolder.pass(stack);
+			return InteractionResult.PASS;
 		}
 
 		// normal fluid logic
@@ -91,10 +95,10 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 				}
 
 				player.awardStat(Stats.ITEM_USED.get(this));
-				return InteractionResultHolder.success(emptyBucket(stack, player));
+				return InteractionResult.SUCCESS.heldItemTransformedTo(emptyBucket(stack, player));
 			}
 		}
-		return InteractionResultHolder.fail(stack);
+		return InteractionResult.FAIL;
 	}
 
 	/**
@@ -124,7 +128,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		Block block = state.getBlock();
 		boolean replaceable = state.canBeReplaced(fluid);
 		if (state.isAir() || replaceable || block instanceof LiquidBlockContainer container && container.canPlaceLiquid(player, world, pos, state, fluid)) {
-			if (world.dimensionType().ultraWarm() && fluid.is(FluidTags.WATER)) {
+			if (world.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, pos) && fluid.is(FluidTags.WATER)) {
 				world.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
 
 				for(int l = 0; l < 8; ++l) {
@@ -182,9 +186,9 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		// bucket from a 1.20 world, not converted yet
 		String legacy = getLegacyString(stack, TAG_FLUID);
 		if (legacy != null) {
-			ResourceLocation location = ResourceLocation.tryParse(legacy);
+			Identifier location = Identifier.tryParse(legacy);
 			if (location != null) {
-				return BuiltInRegistries.FLUID.get(location);
+				return BuiltInRegistries.FLUID.getValue(location);
 			}
 		}
 		return Fluids.EMPTY;
@@ -216,7 +220,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	/* Item stack properties */
 
 	@Override
-	public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
+	public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
 		return getFluid(stack) == Fluids.LAVA ? 20000 : 0;
 	}
 
@@ -227,8 +231,8 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 			return super.getName(stack);
 		}
 		// if the specific fluid is translatable, use that
-		String key = this.getDescriptionId(stack);
-		ResourceLocation location = BuiltInRegistries.FLUID.getKey(fluid);
+		String key = this.getDescriptionId();
+		Identifier location = BuiltInRegistries.FLUID.getKey(fluid);
 		String fluidKey = String.format("%s.%s.%s", key, location.getNamespace(), location.getPath());
 		MutableComponent component;
 		if (Language.getInstance().has(fluidKey)) {
@@ -253,14 +257,14 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
 		if (isCracked) {
-			tooltip.add(Component.translatable(this.getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
+			tooltip.accept(Component.translatable(this.getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
 		}
 	}
 
 	@Override
-	public String getCreatorModId(ItemStack stack) {
+	public String getCreatorModId(HolderLookup.Provider registries, ItemStack stack) {
 		Fluid fluid = getFluid(stack);
 		if (fluid != Fluids.EMPTY) {
 			String namespace = BuiltInRegistries.FLUID.getKey(fluid).getNamespace();

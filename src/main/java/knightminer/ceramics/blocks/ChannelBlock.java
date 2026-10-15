@@ -1,21 +1,23 @@
 package knightminer.ceramics.blocks;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import knightminer.ceramics.Ceramics;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -150,9 +152,9 @@ public class ChannelBlock extends Block {
 	 * @param pos    Position to check
 	 * @return  True if its a fluid handler
 	 */
-	private static boolean isFluidHandler(LevelAccessor world, Direction side, BlockPos pos) {
+	private static boolean isFluidHandler(LevelReader world, Direction side, BlockPos pos) {
 		// capabilities are only available on a full level, not during worldgen
-		return world instanceof Level level && level.getCapability(Capabilities.FluidHandler.BLOCK, pos, side) != null;
+		return world instanceof Level level && level.getCapability(Capabilities.Fluid.BLOCK, pos, side) != null;
 	}
 
 	/**
@@ -163,7 +165,7 @@ public class ChannelBlock extends Block {
 	 * @param side         Side facing
 	 * @return  True if the channel can connect
 	 */
-	private boolean canConnect(LevelAccessor world, Direction side, BlockState facingState, BlockPos facingPos) {
+	private boolean canConnect(LevelReader world, Direction side, BlockState facingState, BlockPos facingPos) {
 		if (facingState.getBlock() == this) {
 			return true;
 		}
@@ -177,7 +179,7 @@ public class ChannelBlock extends Block {
 	 * @param side   Side to check
 	 * @return  True if the channel can connect
 	 */
-	private boolean canConnect(LevelAccessor world, BlockPos pos, Direction side) {
+	private boolean canConnect(LevelReader world, BlockPos pos, Direction side) {
 		BlockPos facingPos = pos.relative(side);
 		return canConnect(world, side, world.getBlockState(facingPos), facingPos);
 	}
@@ -215,7 +217,7 @@ public class ChannelBlock extends Block {
 	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
-	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor world, BlockPos currentPos, BlockPos facingPos) {
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess ticks, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		// down only cares about connected or not
 		if (facing == Direction.DOWN) {
 			if (state.getValue(DOWN) && !canConnect(world, facing, facingState, facingPos)) {
@@ -274,14 +276,14 @@ public class ChannelBlock extends Block {
 	protected void activateTileEntity(BlockState state, Level world, BlockPos pos, Direction side) { }
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		// if the player is holding a channel, skip unless we clicked the top
 		// they can shift click to place one on the top
 		if (stack.getItem() == this.asItem() && world.isEmptyBlock(pos.relative(hit.getDirection()))) {
-			return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.PASS;
 		}
 		// any other item toggles the side as with an empty hand, as in 1.20
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override
@@ -312,7 +314,7 @@ public class ChannelBlock extends Block {
 
 		// if we have changes, apply them and return success
 		if (newState != null) {
-			if (!world.isClientSide) {
+			if (!world.isClientSide()) {
 				activateTileEntity(newState, world, pos, side);
 			}
 			world.setBlockAndUpdate(pos, newState);
@@ -325,9 +327,9 @@ public class ChannelBlock extends Block {
 	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos, isMoving);
-		if (!worldIn.isClientSide) {
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
+		super.neighborChanged(state, worldIn, pos, blockIn, orientation, isMoving);
+		if (!worldIn.isClientSide()) {
 			boolean isPowered = worldIn.hasNeighborSignal(pos);
 			if (isPowered != state.getValue(POWERED)) {
 				state = state.setValue(POWERED, isPowered).setValue(DOWN, isPowered && canConnect(worldIn, pos, Direction.DOWN));

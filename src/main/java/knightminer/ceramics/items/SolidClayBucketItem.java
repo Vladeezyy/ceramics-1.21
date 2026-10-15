@@ -1,5 +1,6 @@
 package knightminer.ceramics.items;
 
+import net.minecraft.core.HolderLookup;
 import com.google.common.collect.ImmutableList;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
@@ -9,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -55,7 +56,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 			return InteractionResult.FAIL;
 		}
 
-		ItemStack resultStack = context.getItemInHand().getCraftingRemainingItem();
+		ItemStack resultStack = context.getItemInHand().getCraftingRemainder();
 		InteractionResult result = blockItem.useOn(new BlockPlaceContext(context));
 		Player player = context.getPlayer();
 		if (result.consumesAction() && player != null && !player.isCreative()) {
@@ -80,9 +81,9 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 		// bucket from a 1.20 world, not converted yet
 		String legacy = getLegacyString(stack, TAG_BLOCK);
 		if (legacy != null) {
-			ResourceLocation location = ResourceLocation.tryParse(legacy);
+			Identifier location = Identifier.tryParse(legacy);
 			if (location != null) {
-				return BuiltInRegistries.BLOCK.get(location);
+				return BuiltInRegistries.BLOCK.getValue(location);
 			}
 		}
 		return Blocks.AIR;
@@ -121,8 +122,8 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 			component = super.getName(stack).plainCopy();
 		} else {
 			// if the specific block is translatable, use that
-			String key = this.getDescriptionId(stack);
-			ResourceLocation location = BuiltInRegistries.BLOCK.getKey(block);
+			String key = this.getDescriptionId();
+			Identifier location = BuiltInRegistries.BLOCK.getKey(block);
 			String blockKey = String.format("%s.%s.%s", key, location.getNamespace(), location.getPath());
 			if (Language.getInstance().has(blockKey)) {
 				component = Component.translatable(blockKey);
@@ -144,7 +145,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 	}
 
 	@Override
-	public String getCreatorModId(ItemStack stack) {
+	public String getCreatorModId(HolderLookup.Provider registries, ItemStack stack) {
 		Block block = getBlock(stack);
 		if (block != Blocks.AIR) {
 			String namespace = BuiltInRegistries.BLOCK.getKey(block).getNamespace();

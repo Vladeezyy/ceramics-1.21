@@ -12,17 +12,17 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 
 /** Category to show kilns in JEI. Basically a copy of the vanilla furnace category */
 public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
-  static final RecipeType<RecipeHolder<KilnRecipe>> TYPE = RecipeType.createRecipeHolderType(Ceramics.getResource("kiln"));
+  static final IRecipeHolderType<KilnRecipe> TYPE = IRecipeHolderType.create(Ceramics.getResource("kiln"));
   // slots
   static final int INPUT_SLOT = 0;
   static final int FUEL_SLOT = 1;
@@ -40,7 +40,7 @@ public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
   /* Properties */
 
   @Override
-  public RecipeType<RecipeHolder<KilnRecipe>> getRecipeType() {
+  public IRecipeHolderType<KilnRecipe> getRecipeType() {
     return TYPE;
   }
 
@@ -74,26 +74,26 @@ public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
     // input
     builder.addInputSlot(1, 1)
       .setStandardSlotBackground()
-      .addIngredients(recipe.getInput());
+      .add(recipe.getInput());
     // fuel
     builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 1, 37)
       .setStandardSlotBackground();
     // output
     builder.addOutputSlot(61, 19)
       .setOutputSlotBackground()
-      .addItemStack(recipe.getOutput());
+      .add(recipe.getOutput());
   }
 
   @Override
   public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<KilnRecipe> holder, IFocusGroup focuses) {
     KilnRecipe recipe = holder.value();
-    int cookTime = recipe.getCookingTime();
+    int cookTime = recipe.cookingTime();
     if (cookTime <= 0) {
       cookTime = 100;
     }
-    builder.addAnimatedRecipeArrow(cookTime)
+    builder.addAnimatedRecipeArrowWidget(cookTime)
       .setPosition(26, 17);
-    builder.addAnimatedRecipeFlame(300)
+    builder.addAnimatedRecipeFlameWidget(300)
       .setPosition(1, 20);
 
     addExperience(builder, recipe);
@@ -102,7 +102,7 @@ public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
 
   /** Draws the recipe experience info */
   protected void addExperience(IRecipeExtrasBuilder builder, KilnRecipe recipe) {
-    float experience = recipe.getExperience();
+    float experience = recipe.experience();
     if (experience > 0) {
       Component experienceString = Component.translatable("gui.jei.category.smelting.experience", experience);
       builder.addText(experienceString, getWidth() - 20, 10)
@@ -114,7 +114,7 @@ public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
 
   /** Draws the recipe cook time info */
   protected void addCookTime(IRecipeExtrasBuilder builder, KilnRecipe recipe) {
-    int cookTime = recipe.getCookingTime();
+    int cookTime = recipe.cookingTime();
     if (cookTime > 0) {
       int cookTimeSeconds = cookTime / 20;
       Component timeString = Component.translatable("gui.jei.category.smelting.time.seconds", cookTimeSeconds);
@@ -127,7 +127,7 @@ public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
   }
 
   @Override
-  public ResourceLocation getRegistryName(RecipeHolder<KilnRecipe> recipe) {
-    return recipe.id();
+  public Identifier getIdentifier(RecipeHolder<KilnRecipe> recipe) {
+    return recipe.id().identifier();
   }
 }

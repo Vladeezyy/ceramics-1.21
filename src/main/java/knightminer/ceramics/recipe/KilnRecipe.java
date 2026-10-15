@@ -1,34 +1,53 @@
 package knightminer.ceramics.recipe;
 
 import knightminer.ceramics.Registration;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 
 public class KilnRecipe extends AbstractCookingRecipe {
   public KilnRecipe(String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookTime) {
-    super(Registration.KILN_RECIPE.get(), group, category, ingredient, result, experience, cookTime);
+    super(group, category, ingredient, result, experience, cookTime);
   }
 
   public Ingredient getInput() {
-    return ingredient;
+    return input();
   }
 
   /** Output of the recipe, kiln recipes do not depend on registries */
   public ItemStack getOutput() {
-    return result;
+    return result();
+  }
+
+  /** Was getToastSymbol, now the icon of the recipe display */
+  @Override
+  protected Item furnaceIcon() {
+    return Registration.KILN.asItem();
   }
 
   @Override
-  public ItemStack getToastSymbol() {
-    return new ItemStack(Registration.KILN);
-  }
-
-  @Override
-  public RecipeSerializer<?> getSerializer() {
+  public RecipeSerializer<KilnRecipe> getSerializer() {
     return Registration.KILN_SERIALIZER.get();
+  }
+
+  @Override
+  public RecipeType<KilnRecipe> getType() {
+    return Registration.KILN_RECIPE.get();
+  }
+
+  @Override
+  public RecipeBookCategory recipeBookCategory() {
+    return switch (category()) {
+      case BLOCKS -> RecipeBookCategories.FURNACE_BLOCKS;
+      case FOOD -> RecipeBookCategories.FURNACE_FOOD;
+      case MISC -> RecipeBookCategories.FURNACE_MISC;
+    };
   }
 
   @Override

@@ -1,32 +1,44 @@
 package knightminer.ceramics.client.renderer;
 
-import dev.vladeezyy.kilnwork.client.render.KilnworkFluidModels;
-import dev.vladeezyy.kilnwork.client.render.FluidCuboidRenderer;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vladeezyy.kilnwork.client.render.FluidCuboid;
+import dev.vladeezyy.kilnwork.client.render.FluidCuboidRenderer;
+import dev.vladeezyy.kilnwork.client.render.KilnworkFluidModels;
 import knightminer.ceramics.blocks.FaucetBlock;
 import knightminer.ceramics.blocks.entity.FaucetBlockEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import dev.vladeezyy.kilnwork.client.render.FluidCuboid;
 
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
-public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBlockEntity> {
+public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBlockEntity, FaucetBlockEntityRenderer.State> {
   public FaucetBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
+
+  /** Data of one faucet for drawing */
+  public static class State extends BlockEntityRenderState {
+    FluidStack fluid = FluidStack.EMPTY;
+    /** Fluid shapes of the blocks below the faucet */
+    List<List<FluidCuboid>> below = List.of();
+  }
+
+  @Override
+  public State createRenderState() {
+    return new State();
+  }
 
   @Override
   public AABB getRenderBoundingBox(FaucetBlockEntity te) {
@@ -35,22 +47,29 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
     return new AABB(pos.getX(), pos.getY() - 1, pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
   }
 
-
   @Override
-  public void render(FaucetBlockEntity tileEntity, float partialTicks, PoseStack matrices, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn) {
-    FluidStack renderFluid = tileEntity.getRenderFluid();
-    if (!tileEntity.isPouring() || renderFluid.isEmpty()) {
+  public void extractRenderState(FaucetBlockEntity faucet, State state, float partialTick, Vec3 camera, @Nullable ModelFeatureRenderer.CrumblingOverlay crumbling) {
+    BlockEntityRenderer.super.extractRenderState(faucet, state, partialTick, camera, crumbling);
+    FluidStack fluid = faucet.getRenderFluid();
+    Level level = faucet.getLevel();
+    if (!faucet.isPouring() || fluid.isEmpty() || level == null) {
+      state.fluid = FluidStack.EMPTY;
+      state.below = List.of();
       return;
     }
+    state.fluid = fluid.copy();
+    state.below = FluidCuboidRenderer.collectFaucetFluids(level, faucet.getBlockPos(), faucet.getBlockState().getValue(FaucetBlock.FACING));
+  }
 
-    // safety
-    Level world = tileEntity.getLevel();
-    if (world == null) {
+  @Override
+  public void submit(State renderState, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
+    FluidStack renderFluid = renderState.fluid;
+    if (renderFluid.isEmpty()) {
       return;
     }
 
     // fetch faucet model to determine where to render fluids
-    BlockState state = tileEntity.getBlockState();
+    BlockState state = renderState.blockState;
     List<FluidCuboid> fluids = KilnworkFluidModels.BLOCK_FLUIDS.get(state, List.of());
     if (!fluids.isEmpty()) {
       // if side, rotate fluid model
@@ -60,22 +79,20 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
       // fluid props
       IClientFluidTypeExtensions client = IClientFluidTypeExtensions.of(renderFluid.getFluid());
       int color = client.getTintColor(renderFluid);
-      Function<ResourceLocation, TextureAtlasSprite> spriteGetter = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
-      TextureAtlasSprite still = spriteGetter.apply(client.getStillTexture(renderFluid));
-      TextureAtlasSprite flowing = spriteGetter.apply(client.getFlowingTexture(renderFluid));
-      combinedLightIn = FluidCuboidRenderer.withBlockLight(combinedLightIn, renderFluid.getFluid().getFluidType().getLightLevel(renderFluid));
+      TextureAtlasSprite still = FluidCuboidRenderer.getBlockSprite(client.getStillTexture(renderFluid));
+      TextureAtlasSprite flowing = FluidCuboidRenderer.getBlockSprite(client.getFlowingTexture(renderFluid));
+      int light = FluidCuboidRenderer.withBlockLight(renderState.lightCoords, renderFluid.getFluid().getFluidType().getLightLevel(renderFluid));
 
       // render all cubes in the model
-      VertexConsumer buffer = FluidCuboidRenderer.getBuffer(bufferIn);
       for (FluidCuboid cube : fluids) {
-        FluidCuboidRenderer.renderCuboid(matrices, buffer, cube, 0, still, flowing, color, combinedLightIn, false);
+        FluidCuboidRenderer.submitCuboid(matrices, collector, cube, 0, still, flowing, color, light, false);
       }
 
       // render into the block(s) below
-      FluidCuboidRenderer.renderFaucetFluids(world, tileEntity.getBlockPos(), direction, matrices, buffer, still, flowing, color, combinedLightIn);
+      FluidCuboidRenderer.submitFaucetFluids(renderState.below, matrices, collector, still, flowing, color, light);
 
       // if rotated, pop back rotation
-      if(isRotated) {
+      if (isRotated) {
         matrices.popPose();
       }
     }

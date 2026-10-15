@@ -1,6 +1,6 @@
 package knightminer.ceramics.util;
 
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.sounds.SoundEvent;
@@ -33,15 +33,15 @@ public abstract class EmptyClayBucketCauldronInteraction<T> implements CauldronI
 	protected abstract SoundEvent getSound(T contents);
 
 	@Override
-	public ItemInteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
+	public InteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
 		// fill cauldron from bucket
 		T contents = getContents(stack);
 		BlockState cauldron = getFullCauldron(contents);
 		if (cauldron != null) {
 			// would use vanilla logic here, but it is dumb and insists on using a vanilla bucket
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				// empty bucket
-				player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, stack.getCraftingRemainingItem()));
+				player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, stack.getCraftingRemainder()));
 				// grant stats
 				player.awardStat(Stats.FILL_CAULDRON);
 				player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
@@ -51,8 +51,8 @@ public abstract class EmptyClayBucketCauldronInteraction<T> implements CauldronI
 				level.playSound(null, pos, getSound(contents), SoundSource.BLOCKS, 1.0F, 1.0F);
 				level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
 			}
-			return ItemInteractionResult.sidedSuccess(level.isClientSide);
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 }

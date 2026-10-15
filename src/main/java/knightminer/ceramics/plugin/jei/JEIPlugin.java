@@ -20,12 +20,10 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
@@ -38,7 +36,7 @@ import java.util.function.Function;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
   @Override
-  public net.minecraft.resources.ResourceLocation getPluginUid() {
+  public net.minecraft.resources.Identifier getPluginUid() {
     return Ceramics.getResource("jei_plugin");
   }
 
@@ -51,10 +49,6 @@ public class JEIPlugin implements IModPlugin {
       return value.isEmpty() ? null : value;
     }
 
-    @Override
-    public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
-      return key.apply(stack);
-    }
   }
 
   @Override
@@ -81,47 +75,40 @@ public class JEIPlugin implements IModPlugin {
 
   @Override
   public void registerRecipes(IRecipeRegistration registration) {
-    ClientLevel world = Minecraft.getInstance().level;
-    assert world != null;
-    RecipeManager recipeManager = world.getRecipeManager();
+    // since 1.21.2 the client only has the recipes the server sends, see KilnRecipeSync
     List<RecipeHolder<KilnRecipe>> results = new ArrayList<>();
     // kiln recipes are all marked special to keep the vanilla recipe book quiet, so unlike 1.8.0 do not skip special
     // recipes here: that hid every kiln recipe from JEI
-    for (RecipeHolder<KilnRecipe> holder : recipeManager.getAllRecipesFor(Registration.KILN_RECIPE.get())) {
-      KilnRecipe recipe = holder.value();
+    for (RecipeHolder<KilnRecipe> holder : KilnRecipeSync.getRecipes()) {
       // validate output
-      if (recipe.getOutput().isEmpty()) {
-        Ceramics.LOG.error("Invalid kiln recipe {}, no output", holder.id());
+      if (holder.value().getOutput().isEmpty()) {
+        Ceramics.LOG.error("Invalid kiln recipe {}, no output", holder.id().identifier());
         continue;
       }
-      if (recipe.getIngredients().size() != 1) {
-        Ceramics.LOG.error("Invalid kiln recipe {}, wrong number of inputs", holder.id());
-        continue;
-      }
-      // add to list
       results.add(holder);
     }
     registration.addRecipes(KilnCategory.TYPE, results);
 
     // clay repair info
-    List<ItemStack> clayRepair = BuiltInRegistries.ITEM.getTag(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).stream().flatMap(set -> set.stream()).map(ItemStack::new).toList();
+    List<ItemStack> clayRepair = BuiltInRegistries.ITEM.get(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).stream().flatMap(HolderSet::stream).map(ItemStack::new).toList();
     registration.addIngredientInfo(clayRepair, VanillaTypes.ITEM_STACK, Ceramics.component("jei", "clay_repair"));
   }
 
   @Override
   public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-    registration.addRecipeClickArea(KilnScreen.class, 78, 32, 28, 23, KilnCategory.TYPE, RecipeTypes.FUELING);
+    registration.addRecipeClickArea(KilnScreen.class, 78, 32, 28, 23, KilnCategory.TYPE, RecipeTypes.SMELTING_FUEL);
   }
 
   @Override
   public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
     registration.addRecipeTransferHandler(KilnMenu.class, Registration.KILN_MENU.get(), KilnCategory.TYPE, KilnCategory.INPUT_SLOT, 1, 3, 36);
-    registration.addRecipeTransferHandler(KilnMenu.class, Registration.KILN_MENU.get(), RecipeTypes.FUELING, KilnCategory.FUEL_SLOT, 1, 3, 36);
+    registration.addRecipeTransferHandler(KilnMenu.class, Registration.KILN_MENU.get(), RecipeTypes.SMELTING_FUEL, KilnCategory.FUEL_SLOT, 1, 3, 36);
   }
 
   @Override
   public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-    registration.addRecipeCatalyst(new ItemStack((ItemLike) Registration.KILN), KilnCategory.TYPE, RecipeTypes.FUELING);
+    registration.addCraftingStation(KilnCategory.TYPE, Registration.KILN);
+    registration.addCraftingStation(RecipeTypes.SMELTING_FUEL, Registration.KILN);
   }
 
   @Override

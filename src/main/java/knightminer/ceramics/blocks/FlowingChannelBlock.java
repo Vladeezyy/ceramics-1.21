@@ -1,6 +1,6 @@
 package knightminer.ceramics.blocks;
 
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.entity.ChannelBlockEntity;
@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.phys.BlockHitResult;
 import dev.vladeezyy.kilnwork.util.BlockEntityHelper;
 
@@ -47,28 +49,7 @@ public class FlowingChannelBlock extends ChannelBlock implements ICrackableBlock
 		return BlockEntityHelper.serverTicker(level, type, Registration.CHANNEL_BLOCK_ENTITY.get(), ChannelBlockEntity.SERVER_TICKER);
 	}
 
-	private static Direction fromOffset(BlockPos pos, BlockPos neighbor) {
-		BlockPos offset = neighbor.subtract(pos);
-		for (Direction direction : Direction.values()) {
-			if (direction.getNormal().equals(offset)) {
-				return direction;
-			}
-		}
-		Ceramics.LOG.error("Channel found no offset for position pair {} and {} on neighbor changed", pos, neighbor);
-		return Direction.DOWN;
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	@Deprecated
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos, isMoving);
-		if (!worldIn.isClientSide()) {
-			if (worldIn.getBlockEntity(pos) instanceof ChannelBlockEntity te) {
-				te.removeCachedNeighbor(fromOffset(pos, fromPos));
-			}
-		}
-	}
+	// neighbor changes need nothing here: the capability caches of the channel follow the neighbors themselves
 
 	@Override
 	protected void activateTileEntity(BlockState state, Level world, BlockPos pos, Direction side) {
@@ -94,17 +75,22 @@ public class FlowingChannelBlock extends ChannelBlock implements ICrackableBlock
 	}
 
 	@Override
-	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-		if (crackable) {
-			ICrackableBlock.onBlockPlacedBy(worldIn, pos, stack);
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		if (crackable && ICrackableBlock.tryRepair(world, pos, player, hand)) {
+			return InteractionResult.SUCCESS;
 		}
+		return super.useItemOn(stack, state, world, pos, player, hand, hit);
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if (crackable && ICrackableBlock.tryRepair(world, pos, player, hand)) {
-			return ItemInteractionResult.sidedSuccess(world.isClientSide);
-		}
-		return super.useItemOn(stack, state, world, pos, player, hand, hit);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
+		builder.add(CRACKS);
+	}
+
+	@Nullable
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return withItemCracks(super.getStateForPlacement(context), context);
 	}
 }

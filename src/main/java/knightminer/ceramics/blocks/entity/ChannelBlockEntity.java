@@ -1,6 +1,6 @@
 package knightminer.ceramics.blocks.entity;
 
-import knightminer.ceramics.Registration;
+import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 import knightminer.ceramics.blocks.ChannelBlock;
 import knightminer.ceramics.blocks.ChannelBlock.ChannelConnection;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlockEntity;
@@ -11,28 +11,28 @@ import knightminer.ceramics.network.FluidUpdatePacket.FluidUpdater;
 import knightminer.ceramics.util.tank.ChannelSideTank;
 import knightminer.ceramics.util.tank.ChannelTank;
 import knightminer.ceramics.util.tank.FillOnlyFluidHandler;
-import net.minecraft.Util;
+import com.mojang.serialization.Codec;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
-import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
+import net.neoforged.neoforge.transfer.EmptyResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -44,22 +44,22 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	/** Channel internal tank */
 	private final ChannelTank tank = new ChannelTank(FaucetBlockEntity.MB_PER_TICK * 4, this);
 	/** Handler to return from channel top */
-	private final IFluidHandler topHandler = new FillOnlyFluidHandler(tank);
+	private final ResourceHandler<FluidResource> topHandler = new FillOnlyFluidHandler(tank);
 	/** Tanks for inserting on each side */
-	private final Map<Direction,IFluidHandler> sideTanks = Util.make(new EnumMap<>(Direction.class), map -> {
+	private final Map<Direction,ResourceHandler<FluidResource>> sideTanks = Util.make(new EnumMap<>(Direction.class), map -> {
 		for (Direction direction : Plane.HORIZONTAL) {
 			map.put(direction, new ChannelSideTank(this, tank, direction));
 		}
 	});
 	/** Cache of tanks on all neighboring sides, server only */
-	private final Map<Direction,BlockCapabilityCache<IFluidHandler,Direction>> neighborTanks = new EnumMap<>(Direction.class);
+	private final Map<Direction,BlockCapabilityCache<ResourceHandler<FluidResource>,Direction>> neighborTanks = new EnumMap<>(Direction.class);
 	/** Stores if the channel is currently flowing, set to 2 to allow a small buffer */
 	private final byte[] isFlowing = new byte[5];
 	/** Crackable handling */
 	private final CrackableBlockEntityHandler cracksHandler;
 
 	public ChannelBlockEntity(BlockPos pos, BlockState state, boolean crackable) {
-		super(Registration.CHANNEL_BLOCK_ENTITY.get(), pos, state);
+		super(knightminer.ceramics.Registration.CHANNEL_BLOCK_ENTITY.get(), pos, state);
 		cracksHandler = new CrackableBlockEntityHandler(this, crackable);
 	}
 
@@ -80,12 +80,6 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 		return cracksHandler;
 	}
 
-	@Nonnull
-	@Override
-	public ModelData getModelData() {
-		return cracksHandler.getModelData();
-	}
-
 
 	/* Fluid handlers */
 
@@ -95,7 +89,7 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	 * @return  Fluid handler, or null if the side has none
 	 */
 	@Nullable
-	public IFluidHandler getFluidHandler(@Nullable Direction side) {
+	public ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side) {
 		// top side gets the insert direct
 		if (side == null || side == Direction.UP) {
 			return topHandler;
@@ -109,7 +103,7 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 			// for out, return an empty fluid handler so the block we are pouring into knows we support fluids, even though we disallow any interaction
 			// this will get invalidated when the connection goes back to in later
 			if (connection == ChannelConnection.OUT) {
-				return EmptyFluidHandler.INSTANCE;
+				return EmptyResourceHandler.instance();
 			}
 		}
 		return null;
@@ -119,7 +113,7 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	public void setBlockState(BlockState state) {
 		super.setBlockState(state);
 		// the handlers exposed on each side depend on the connections, so let neighbors query again
-		if (level != null && !level.isClientSide) {
+		if (level != null && !level.isClientSide()) {
 			level.invalidateCapabilities(worldPosition);
 		}
 	}
@@ -130,22 +124,14 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	 * @return  Fluid handler, or null
 	 */
 	@Nullable
-	protected IFluidHandler getNeighborHandler(Direction side) {
+	protected ResourceHandler<FluidResource> getNeighborHandler(Direction side) {
 		if (!(level instanceof ServerLevel server)) {
 			return null;
 		}
 		return neighborTanks.computeIfAbsent(side, s -> BlockCapabilityCache.create(
-			Capabilities.FluidHandler.BLOCK, server, worldPosition.relative(s), s.getOpposite(), () -> !this.isRemoved(), () -> {})).getCapability();
+			Capabilities.Fluid.BLOCK, server, worldPosition.relative(s), s.getOpposite(), () -> !this.isRemoved(), () -> {})).getCapability();
 	}
 
-	/**
-	 * Removes a cached handler from the given neighbor
-	 * @param side  Side to remove
-	 */
-	public void removeCachedNeighbor(Direction side) {
-		// nothing to do: the capability caches follow the neighbors themselves. Recreating them here would register a new
-		// listener on every neighbor update.
-	}
 
 	/**
 	 * Refreshes a neighbor based on the new connection
@@ -154,7 +140,7 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	 */
 	public void refreshNeighbor(BlockState state, Direction side) {
 		// capability caches update themselves, just make sure neighbors notice the new connection
-		if (level != null && !level.isClientSide) {
+		if (level != null && !level.isClientSide()) {
 			level.invalidateCapabilities(worldPosition);
 		}
 	}
@@ -195,7 +181,7 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 		boolean wasFlowing = isFlowing[index] > 0;
 		isFlowing[index] = (byte)(flowing ? 2 : 0);
 		// send packet to client if it changed
-		if(wasFlowing != flowing && level != null && !level.isClientSide) {
+		if(wasFlowing != flowing && level != null && !level.isClientSide()) {
 			syncFlowToClient(side, flowing);
 		}
 	}
@@ -314,7 +300,7 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 		}
 
 		// get the handler on the side, try filling
-		IFluidHandler handler = getNeighborHandler(side);
+		ResourceHandler<FluidResource> handler = getNeighborHandler(side);
 		return handler != null && fill(side, handler, flowRate);
 	}
 
@@ -325,18 +311,12 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	 * @param amount   Amount to fill
 	 * @return  True if the side successfully filled something
 	 */
-	protected boolean fill(Direction side, IFluidHandler handler, int amount) {
+	protected boolean fill(Direction side, ResourceHandler<FluidResource> handler, int amount) {
 		// make sure we do not allow more than the fluid allows, should not happen but just in case
 		int usable = Math.min(tank.getMaxUsable(), amount);
 		if (usable > 0) {
-			// see how much works
-			FluidStack fluid = tank.drain(usable, FluidAction.SIMULATE);
-			int filled = handler.fill(fluid, FluidAction.SIMULATE);
-			if (filled > 0) {
-				// drain the amount that worked
-				fluid = tank.drain(filled, FluidAction.EXECUTE);
-				handler.fill(fluid, FluidAction.EXECUTE);
-
+			// move as much as the neighbor takes in one transaction
+			if (ResourceHandlerUtil.move(tank, handler, resource -> true, usable, null) > 0) {
 				// mark that the side is flowing
 				setFlow(side, true);
 				return true;
@@ -352,12 +332,15 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	/* NBT and sync */
 	private static final String TAG_IS_FLOWING = "is_flowing";
 	private static final String TAG_TANK = "tank";
+	/** Keys of the NeoForge 1.21.1 FluidTank, kept for old worlds */
+	private static final String TAG_FLUID = "Fluid";
+	private static final String TAG_LOCKED = "locked";
 
 	/**
 	 * Sends a fluid update to the client with the current fluid
 	 */
 	public void sendFluidUpdate() {
-		if (level != null && !level.isClientSide) {
+		if (level != null && !level.isClientSide()) {
 			CeramicsNetwork.sendToClientsAround(new FluidUpdatePacket(worldPosition, getFluid(), false), level, worldPosition);
 		}
 	}
@@ -373,52 +356,42 @@ public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableB
 	}
 
 	@Override
-	protected void saveSynced(CompoundTag nbt, HolderLookup.Provider registries) {
-		super.saveSynced(nbt, registries);
-		nbt.putByteArray(TAG_IS_FLOWING, isFlowing);
-		nbt.put(TAG_TANK, tank.writeToNBT(registries, new CompoundTag()));
-		cracksHandler.writeNBT(nbt);
+	protected void saveSynced(ValueOutput output) {
+		super.saveSynced(output);
+		output.store(TAG_IS_FLOWING, Codec.BYTE_BUFFER, ByteBuffer.wrap(isFlowing.clone()));
+		ValueOutput tankOutput = output.child(TAG_TANK);
+		if (!tank.isEmpty()) {
+			tankOutput.store(TAG_FLUID, FluidStack.CODEC, tank.getFluid());
+		}
+		tankOutput.putInt(TAG_LOCKED, tank.getLocked());
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-		super.loadAdditional(nbt, registries);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
 		// isFlowing
-		if (nbt.contains(TAG_IS_FLOWING)) {
-			byte[] nbtFlowing = nbt.getByteArray(TAG_IS_FLOWING);
-			int max = Math.min(5, nbtFlowing.length);
+		input.read(TAG_IS_FLOWING, Codec.BYTE_BUFFER).ifPresent(buffer -> {
+			int max = Math.min(5, buffer.remaining());
 			for (int i = 0; i < max; i++) {
-				byte b = nbtFlowing[i];
-				if (b > 2) {
-					isFlowing[i] = 2;
-				} else if (b < 0) {
-					isFlowing[i] = 0;
-				} else {
-					isFlowing[i] = b;
-				}
+				isFlowing[i] = (byte) Mth.clamp(buffer.get(buffer.position() + i), 0, 2);
 			}
-		}
+		});
 		// tank
-		CompoundTag tankTag = nbt.getCompound(TAG_TANK);
-		tank.readFromNBT(registries, tankTag);
-		cracksHandler.readNBT(getBlockState(), nbt);
+		ValueInput tankInput = input.childOrEmpty(TAG_TANK);
+		tank.setFluid(tankInput.read(TAG_FLUID, FluidStack.CODEC).orElse(FluidStack.EMPTY));
+		tank.setLocked(tankInput.getIntOr(TAG_LOCKED, 0));
+		cracksHandler.read(getBlockState(), input);
+	}
+
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		cracksHandler.applyLegacyCracks();
 	}
 
 	@Override
 	protected void collectImplicitComponents(DataComponentMap.Builder builder) {
 		super.collectImplicitComponents(builder);
 		cracksHandler.collectImplicitComponents(builder);
-	}
-
-	@Override
-	protected void applyImplicitComponents(DataComponentInput input) {
-		super.applyImplicitComponents(input);
-		cracksHandler.applyImplicitComponents(input.get(Registration.CRACKS));
-	}
-
-	@Override
-	public void removeComponentsFromTag(CompoundTag tag) {
-		super.removeComponentsFromTag(tag);
-		tag.remove(CrackableBlockEntityHandler.TAG_CRACKS);
 	}
 }

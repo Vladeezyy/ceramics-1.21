@@ -8,15 +8,18 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements.Strategy;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
+import java.util.List;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -36,7 +39,8 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 	private final Item item;
 	private final Ingredient repairIngredient;
 	public CrackedClayRepairRecipe(ItemLike item, Ingredient repairIngredient) {
-		super(Ceramics.locationName("clay_repair"), CraftingBookCategory.MISC, new ItemStack(item), NonNullList.of(Ingredient.EMPTY, Ingredient.of(setCracks(new ItemStack(item), 3)), repairIngredient));
+		// any stack of the item, matches only accepts cracked ones
+		super(Ceramics.locationName("clay_repair"), CraftingBookCategory.MISC, new ItemStack(item), List.of(Ingredient.of(item), repairIngredient));
 		this.item = item.asItem();
 		this.repairIngredient = repairIngredient;
 	}
@@ -76,15 +80,16 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return Registration.CLAY_REPAIR_RECIPE_SERIALIZER.get();
+	@SuppressWarnings("unchecked")
+	public RecipeSerializer<ShapelessRecipe> getSerializer() {
+		return (RecipeSerializer<ShapelessRecipe>) (RecipeSerializer<?>) Registration.CLAY_REPAIR_RECIPE_SERIALIZER.get();
 	}
 
 	/** Serializer class for this recipe */
 	public static class Serializer implements RecipeSerializer<CrackedClayRepairRecipe> {
 		private static final MapCodec<CrackedClayRepairRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
 			BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(CrackedClayRepairRecipe::getItem),
-			Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CrackedClayRepairRecipe::getRepairIngredient)
+			Ingredient.CODEC.fieldOf("ingredient").forGetter(CrackedClayRepairRecipe::getRepairIngredient)
 		).apply(inst, CrackedClayRepairRecipe::new));
 		private static final StreamCodec<RegistryFriendlyByteBuf, CrackedClayRepairRecipe> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.registry(net.minecraft.core.registries.Registries.ITEM), CrackedClayRepairRecipe::getItem,
@@ -110,7 +115,8 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 	 * @param ingredient Repair ingredient
 	 * @param criteria   Criteria to unlock the recipe, null for no advancement
 	 */
-	public static void save(RecipeOutput output, ResourceLocation id, ItemLike item, Ingredient ingredient, @Nullable Criterion<?> criteria) {
+	public static void save(RecipeOutput output, Identifier location, ItemLike item, Ingredient ingredient, @Nullable Criterion<?> criteria) {
+		ResourceKey<Recipe<?>> id = ResourceKey.create(Registries.RECIPE, location);
 		CrackedClayRepairRecipe recipe = new CrackedClayRepairRecipe(item, ingredient);
 		if (criteria != null) {
 			Advancement.Builder advancement = output.advancement()
@@ -118,7 +124,7 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
 				.rewards(AdvancementRewards.Builder.recipe(id))
 				.requirements(Strategy.OR);
-			output.accept(id, recipe, advancement.build(id.withPrefix("recipes/clay_repair/")));
+			output.accept(id, recipe, advancement.build(location.withPrefix("recipes/clay_repair/")));
 		} else {
 			output.accept(id, recipe, null);
 		}

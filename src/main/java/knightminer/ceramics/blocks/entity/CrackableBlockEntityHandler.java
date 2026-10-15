@@ -1,46 +1,45 @@
 package knightminer.ceramics.blocks.entity;
 
-import net.minecraft.core.component.DataComponentMap;
-import knightminer.ceramics.Registration;
-import javax.annotation.Nullable;
+import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 import knightminer.ceramics.items.BaseClayBucketItem;
 import knightminer.ceramics.items.CrackableBlockItem;
-import knightminer.ceramics.network.CeramicsNetwork;
-import knightminer.ceramics.network.CrackableCrackPacket;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
+import net.minecraft.world.level.storage.ValueInput;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 
-/** Common logic for all crackable fluid blocks */
+import javax.annotation.Nullable;
+
+/**
+ * Common logic for all crackable fluid blocks. Since 1.21.11 the cracks are the {@link ICrackableBlock#CRACKS} block
+ * state property (synced and drawn by plain block models) instead of block entity data with a custom model.
+ */
 public class CrackableBlockEntityHandler {
-	/** Shared model property for the different cracked blocks */
-	public static final ModelProperty<Integer> CRACKS = new ModelProperty<>(i -> i >= 0 && i <= 5);
-	/** Tag for NBT */
+	/** Tag of 1.20 and 1.21.1 block entities, read once from old worlds */
 	public static final String TAG_CRACKS = "cracks";
 
-	/** Parent tile entity */
+	/** Parent block entity */
 	private final SyncedBlockEntity parent;
-	/** Current cracks value. Once it reaches 6 the block breaks */
-	private int cracks = 0;
 	/** Whether to use crackable logic, used to allow one class to handle both cases */
 	private boolean active;
+	/** Cracks from an old world, applied to the block state once loaded */
+	private int legacyCracks = 0;
 
 	public CrackableBlockEntityHandler(SyncedBlockEntity parent, boolean active) {
 		this.parent = parent;
@@ -59,7 +58,7 @@ public class CrackableBlockEntityHandler {
 	 * @param fluid  Fluid added
 	 */
 	public void fluidAdded(FluidStack fluid) {
-		if (active && cracks == 0 && BaseClayBucketItem.doesCrack(fluid.getFluid())) {
+		if (active && getCracks() == 0 && BaseClayBucketItem.doesCrack(fluid.getFluid())) {
 			setCracks(1);
 		}
 	}
@@ -77,159 +76,91 @@ public class CrackableBlockEntityHandler {
 	 * @param fluid  Fluid in block
 	 */
 	public void updateCracks(Fluid fluid, int relevantAmount) {
-		if (active) {
-			if (BaseClayBucketItem.doesCrack(fluid)) {
-				// after 5, break the block
-				if (cracks >= 5) {
-					Level world = parent.getLevel();
-					if (world != null) {
-						world.destroyBlock(parent.getBlockPos(), false);
-						// if we have at least a bucket of fluid, place in world if possible
-						if (relevantAmount > FluidType.BUCKET_VOLUME) {
-							BlockState state = fluid.defaultFluidState().createLegacyBlock();
-							if (state.getBlock() != Blocks.AIR) {
-								world.setBlockAndUpdate(parent.getBlockPos(), state);
-							}
-							// if less, try to place a flowing fluid
-						} else if (fluid instanceof FlowingFluid) {
-							int level = Math.max(1, relevantAmount * 8 / FluidType.BUCKET_VOLUME);
-							BlockState state = ((FlowingFluid) fluid).getFlowing(level, false).createLegacyBlock();
+		if (active && BaseClayBucketItem.doesCrack(fluid)) {
+			int cracks = getCracks();
+			// after 5, break the block
+			if (cracks >= 5) {
+				Level world = parent.getLevel();
+				if (world != null) {
+					world.destroyBlock(parent.getBlockPos(), false);
+					// if we have at least a bucket of fluid, place in world if possible
+					if (relevantAmount > FluidType.BUCKET_VOLUME) {
+						BlockState state = fluid.defaultFluidState().createLegacyBlock();
+						if (state.getBlock() != Blocks.AIR) {
 							world.setBlockAndUpdate(parent.getBlockPos(), state);
 						}
+						// if less, try to place a flowing fluid
+					} else if (fluid instanceof FlowingFluid flowing) {
+						int level = Math.max(1, relevantAmount * 8 / FluidType.BUCKET_VOLUME);
+						world.setBlockAndUpdate(parent.getBlockPos(), flowing.getFlowing(level, false).createLegacyBlock());
 					}
-				} else {
-					// just increase by 1
-					setCracks(cracks + 1);
 				}
-			}
-		}
-	}
-
-	/**
-	 * Internal method to safely set cracks, updating relevant properties
-	 * @param cracks  New cracks value
-	 * @return  True if something changed
-	 */
-	private boolean setCracksRaw(int cracks) {
-		if (cracks < 0) cracks = 0;
-		if (cracks > 5) cracks = 5;
-		if (cracks != this.cracks) {
-			this.cracks = cracks;
-			this.parent.requestModelDataUpdate();
-			return true;
-		}
-		return false;
-	}
-
-	/** Updates the cracks state of this block */
-	public void setCracks(int cracks) {
-		if (active && setCracksRaw(cracks)) {
-			this.parent.setChangedFast();
-
-			// if client, refresh block, if server sync to client
-			Level world = parent.getLevel();
-			if (world != null) {
-				BlockPos pos = parent.getBlockPos();
-				if (world.isClientSide()) {
-					BlockState state = parent.getBlockState();
-					world.sendBlockUpdated(pos, state, state, 3);
-				} else {
-					CeramicsNetwork.sendToClientsAround(new CrackableCrackPacket(pos, this.cracks), world, pos);
-				}
+			} else {
+				// just increase by 1
+				setCracks(cracks + 1);
 			}
 		}
 	}
 
 	/** Gets the current cracks value of this block */
 	public int getCracks() {
-		return cracks;
+		BlockState state = parent.getBlockState();
+		return state.hasProperty(ICrackableBlock.CRACKS) ? state.getValue(ICrackableBlock.CRACKS) : 0;
 	}
 
-	/** Gets the model data for this TE */
-	public ModelData getModelData() {
-		return ModelData.builder().with(CRACKS, cracks).build();
+	/** Updates the cracks state of this block, on the server */
+	public void setCracks(int cracks) {
+		Level world = parent.getLevel();
+		BlockState state = parent.getBlockState();
+		if (active && world != null && !world.isClientSide() && state.hasProperty(ICrackableBlock.CRACKS)) {
+			cracks = Math.max(0, Math.min(5, cracks));
+			if (state.getValue(ICrackableBlock.CRACKS) != cracks) {
+				world.setBlock(parent.getBlockPos(), state.setValue(ICrackableBlock.CRACKS, cracks), Block.UPDATE_ALL);
+			}
+		}
 	}
 
 	/* Items */
 
-	/**
-	 * Sets the cracked state of the block
-	 * @param stack  Stack to crack
-	 */
-	public void setItemNBT(ItemStack stack) {
-		if (active && cracks > 0) {
-			CrackableBlockItem.setCracks(stack, cracks);
-		}
-	}
-
-	/**
-	 * Adds the cracks to the components of the block entity, used for drops and pick block
-	 * @param builder  Component builder
-	 */
+	/** Adds the cracks to the components of the block entity, used for drops and pick block */
 	public void collectImplicitComponents(DataComponentMap.Builder builder) {
+		int cracks = getCracks();
 		if (active && cracks > 0) {
-			builder.set(Registration.CRACKS.get(), cracks);
+			builder.set(knightminer.ceramics.Registration.CRACKS.get(), cracks);
 		}
 	}
 
-	/**
-	 * Reads the cracks from the components of the placed item
-	 * @param cracks  Cracks component, null if missing
-	 */
-	public void applyImplicitComponents(@Nullable Integer cracks) {
-		if (active) {
-			setCracksRaw(cracks == null ? 0 : cracks);
-		}
+	/* Saving */
+
+	/** Reads the activity from the block, and cracks saved by older versions */
+	public void read(BlockState state, ValueInput input) {
+		this.active = state.getBlock() instanceof ICrackableBlock crackable && crackable.isCrackable();
+		this.legacyCracks = active ? input.getIntOr(TAG_CRACKS, 0) : 0;
 	}
 
-	/**
-	 * Sets the cracks state from the item stack
-	 * @param stack  Stack
-	 */
-	public void setCracks(ItemStack stack) {
-		if (active) {
-			setCracksRaw(CrackableBlockItem.getCracks(stack));
+	/** Moves cracks from an old world into the block state, call once the block entity has a level */
+	public void applyLegacyCracks() {
+		if (legacyCracks > 0 && getCracks() == 0) {
+			setCracks(legacyCracks);
 		}
-	}
-
-
-	/* NBT */
-
-	/**
-	 * Reads cracks data from NBT
-	 * @param nbt  NBT
-	 */
-	public void readNBT(BlockState state, CompoundTag nbt) {
-		Block block = state.getBlock();
-		if (block instanceof ICrackableBlock && ((ICrackableBlock)block).isCrackable()) {
-			this.active = true;
-			setCracksRaw(nbt.getInt(TAG_CRACKS));
-		} else {
-			this.active = false;
-			this.cracks = 0;
-		}
-	}
-
-	/**
-	 * Writes cracks data to NBT
-	 * @param nbt  NBT
-	 */
-	public void writeNBT(CompoundTag nbt) {
-		if (active && cracks > 0) {
-			nbt.putInt(TAG_CRACKS, cracks);
-		}
+		legacyCracks = 0;
 	}
 
 	/** Interface to allow blocks to opt out of cracking behavior on some variants */
 	public interface ICrackableBlock {
+		/** Cracks of the block, 0 to 5, drawn by the block model */
+		IntegerProperty CRACKS = IntegerProperty.create("cracks", 0, 5);
+
 		/** Determines if this version of the block is crackable */
 		boolean isCrackable();
 
-		/** Helper to avoid having to write this line multiple times */
-		static void onBlockPlacedBy(LevelAccessor world, BlockPos pos, ItemStack stack) {
-			if (world.getBlockEntity(pos) instanceof ICrackableBlockEntity crackable) {
-				crackable.getCracksHandler().setCracks(stack);
+		/** Applies the cracks of the placed item to the state */
+		@Nullable
+		default BlockState withItemCracks(@Nullable BlockState state, BlockPlaceContext context) {
+			if (state != null && isCrackable() && state.hasProperty(CRACKS)) {
+				return state.setValue(CRACKS, CrackableBlockItem.getCracks(context.getItemInHand()));
 			}
+			return state;
 		}
 
 		/**
@@ -248,7 +179,6 @@ public class CrackableBlockEntityHandler {
 				if (handler.isActive() && cracks > 0) {
 					// play sound
 					world.playSound(player, pos, SoundType.GRAVEL.getPlaceSound(), SoundSource.BLOCKS, 1, 1);
-
 					if (!world.isClientSide()) {
 						// repair halfway
 						handler.setCracks(Math.max(0, cracks - 3));
@@ -258,7 +188,6 @@ public class CrackableBlockEntityHandler {
 							player.setItemInHand(hand, held);
 						}
 					}
-
 					return true;
 				}
 			}
@@ -268,7 +197,7 @@ public class CrackableBlockEntityHandler {
 
 	/** Interface to make syncing easier */
 	public interface ICrackableBlockEntity {
-		/** Gets the cracks handler for this TE */
+		/** Gets the cracks handler for this block entity */
 		CrackableBlockEntityHandler getCracksHandler();
 	}
 }

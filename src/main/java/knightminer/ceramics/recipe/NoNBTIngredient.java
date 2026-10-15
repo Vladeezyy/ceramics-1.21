@@ -5,13 +5,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import knightminer.ceramics.Registration;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
  */
 public record NoNBTIngredient(Ingredient ingredient) implements ICustomIngredient {
 	public static final MapCodec<NoNBTIngredient> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-		Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(NoNBTIngredient::ingredient)
+		Ingredient.CODEC.fieldOf("ingredient").forGetter(NoNBTIngredient::ingredient)
 	).apply(inst, NoNBTIngredient::new));
 	public static final StreamCodec<RegistryFriendlyByteBuf, NoNBTIngredient> STREAM_CODEC = Ingredient.CONTENTS_STREAM_CODEC.map(NoNBTIngredient::new, NoNBTIngredient::ingredient);
 
@@ -35,8 +36,8 @@ public record NoNBTIngredient(Ingredient ingredient) implements ICustomIngredien
 	}
 
 	@Override
-	public Stream<ItemStack> getItems() {
-		return Arrays.stream(ingredient.getItems());
+	public Stream<Holder<Item>> items() {
+		return ingredient.items();
 	}
 
 	@Override

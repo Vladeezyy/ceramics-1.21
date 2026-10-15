@@ -3,6 +3,7 @@ package knightminer.ceramics.datagen;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -28,7 +29,7 @@ public class BlockLootTables extends BlockLootSubProvider {
   @Override
   protected Iterable<Block> getKnownBlocks() {
     return BuiltInRegistries.BLOCK.entrySet().stream()
-      .filter(entry -> Ceramics.MOD_ID.equals(entry.getKey().location().getNamespace()))
+      .filter(entry -> Ceramics.MOD_ID.equals(entry.getKey().identifier().getNamespace()))
       .map(Entry::getValue)
       .collect(Collectors.toList());
   }
@@ -37,7 +38,7 @@ public class BlockLootTables extends BlockLootSubProvider {
   protected void generate() {
     IntFunction<Function<Block,Builder>> dropClay = count -> block -> createSingleItemTableWithSilkTouch(block, Items.CLAY_BALL, ConstantValue.exactly(count));
     IntFunction<Function<Block,Builder>> dropPorcelain = count -> block -> createSingleItemTableWithSilkTouch(block, Registration.UNFIRED_PORCELAIN, ConstantValue.exactly(count));
-    Function<Block,Builder> dropSelfWithCracks = block -> createSingleItemTable(block).apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY).include(Registration.CRACKS.get()));
+    Function<Block,Builder> dropSelfWithCracks = block -> createSingleItemTable(block).apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY).include(Registration.CRACKS.get()));
 
     // unfired porcelain drops 4 of the item form
     add(Registration.UNFIRED_PORCELAIN_BLOCK.get(), dropPorcelain.apply(4));

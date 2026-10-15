@@ -1,17 +1,13 @@
 package knightminer.ceramics.items;
 
 import net.neoforged.neoforge.common.NeoForgeMod;
-import net.neoforged.neoforge.common.EffectCures;
+import net.minecraft.world.level.Level;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -24,26 +20,12 @@ public class MilkClayBucketItem extends BaseClayBucketItem {
     super(isCracked, props);
   }
 
-  @Override
-  public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, InteractionHand hand) {
-    player.startUsingItem(hand);
-    return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
-  }
-
-  @Override
-  public UseAnim getUseAnimation(ItemStack stack) {
-    return UseAnim.DRINK;
-  }
-
-  @Override
-  public int getUseDuration(ItemStack stack, LivingEntity entity) {
-    return 32;
-  }
+  // drinking (animation, duration and sound) comes from the consumable component since 1.21.2, see Registration
 
   @Override
   public ItemStack finishUsingItem(ItemStack stack, Level worldIn, LivingEntity entity) {
     if (!worldIn.isClientSide()) {
-      entity.removeEffectsCuredBy(EffectCures.MILK);
+      entity.removeAllEffects();
     }
     // update stats
     if (entity instanceof ServerPlayer serverPlayer) {
@@ -55,7 +37,7 @@ public class MilkClayBucketItem extends BaseClayBucketItem {
       if (isCracked) {
         renderBrokenItem(player, stack);
       }
-      return updateBucket(stack, player, stack.getCraftingRemainingItem());
+      return updateBucket(stack, player, stack.getCraftingRemainder());
     }
     return stack;
   }

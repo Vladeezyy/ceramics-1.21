@@ -9,14 +9,17 @@ import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /** BlockItem for crackable blocks to show cracked amount */
 public class CrackableBlockItem extends FixedTooltipBlockItem {
@@ -39,10 +42,7 @@ public class CrackableBlockItem extends FixedTooltipBlockItem {
 		// block item from a 1.20 world: the world upgrade keeps the old tag as custom data
 		CustomData data = stack.get(DataComponents.CUSTOM_DATA);
 		if (data != null) {
-			CompoundTag nbt = data.getUnsafe();
-			if (nbt.contains(CrackableBlockEntityHandler.TAG_CRACKS, Tag.TAG_ANY_NUMERIC)) {
-				return Mth.clamp(nbt.getInt(CrackableBlockEntityHandler.TAG_CRACKS), 0, 5);
-			}
+			return data.copyTag().getInt(CrackableBlockEntityHandler.TAG_CRACKS).map(value -> Mth.clamp(value, 0, 5)).orElse(0);
 		}
 		return 0;
 	}
@@ -77,9 +77,9 @@ public class CrackableBlockItem extends FixedTooltipBlockItem {
 	}
 
 	@Override
-	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+	public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
 		// convert 1.20 cracks into the component
-		if (!level.isClientSide && !stack.has(Registration.CRACKS)) {
+		if (!stack.has(Registration.CRACKS)) {
 			CustomData data = stack.get(DataComponents.CUSTOM_DATA);
 			if (data != null && data.contains(CrackableBlockEntityHandler.TAG_CRACKS)) {
 				setCracks(stack, getCracks(stack));
@@ -88,13 +88,13 @@ public class CrackableBlockItem extends FixedTooltipBlockItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
 		int cracks = getCracks(stack);
 		if (cracks > 0) {
-			tooltip.add(Component.translatable(TOOLTIP_KEY, 6 - cracks, 6));
+			tooltip.accept(Component.translatable(TOOLTIP_KEY, 6 - cracks, 6));
 		}
-		super.appendHoverText(stack, context, tooltip, flag);
-		tooltip.add(CRACKABLE);
+		super.appendHoverText(stack, context, display, tooltip, flag);
+		tooltip.accept(CRACKABLE);
 	}
 
 	@Override

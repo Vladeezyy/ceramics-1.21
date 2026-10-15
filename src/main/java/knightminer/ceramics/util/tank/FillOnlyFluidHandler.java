@@ -1,56 +1,51 @@
 package knightminer.ceramics.util.tank;
 
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import javax.annotation.Nonnull;
-
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * Fluid handler wrapper that only allows filling
  */
-public class FillOnlyFluidHandler implements IFluidHandler {
-	private final IFluidHandler parent;
-	public FillOnlyFluidHandler(IFluidHandler parent) {
-		this.parent = parent;
-	}
+public class FillOnlyFluidHandler implements ResourceHandler<FluidResource> {
+  private final ResourceHandler<FluidResource> parent;
 
-	@Override
-	public int getTanks() {
-		return parent.getTanks();
-	}
+  public FillOnlyFluidHandler(ResourceHandler<FluidResource> parent) {
+    this.parent = parent;
+  }
 
-	@Nonnull
-	@Override
-	public FluidStack getFluidInTank(int tank) {
-		return parent.getFluidInTank(tank);
-	}
+  @Override
+  public int size() {
+    return parent.size();
+  }
 
-	@Override
-	public int getTankCapacity(int tank) {
-		return parent.getTankCapacity(tank);
-	}
+  @Override
+  public FluidResource getResource(int index) {
+    return parent.getResource(index);
+  }
 
-	@Override
-	public boolean isFluidValid(int tank, FluidStack stack) {
-		return false;
-	}
+  @Override
+  public long getAmountAsLong(int index) {
+    return parent.getAmountAsLong(index);
+  }
 
-	@Override
-	public int fill(FluidStack resource, FluidAction action) {
-		return parent.fill(resource, action);
-	}
+  @Override
+  public long getCapacityAsLong(int index, FluidResource resource) {
+    return parent.getCapacityAsLong(index, resource);
+  }
 
-	@Nonnull
-	@Override
-	public FluidStack drain(FluidStack resource, FluidAction action) {
-		return FluidStack.EMPTY;
-	}
+  @Override
+  public boolean isValid(int index, FluidResource resource) {
+    return parent.isValid(index, resource);
+  }
 
-	@Nonnull
-	@Override
-	public FluidStack drain(int maxDrain, FluidAction action) {
-		return FluidStack.EMPTY;
-	}
+  @Override
+  public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+    return parent.insert(index, resource, amount, transaction);
+  }
+
+  @Override
+  public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+    return 0;
+  }
 }
