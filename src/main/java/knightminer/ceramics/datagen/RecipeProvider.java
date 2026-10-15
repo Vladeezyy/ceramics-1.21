@@ -12,7 +12,8 @@ import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.data.PackOutput;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.core.HolderLookup;
 import java.util.concurrent.CompletableFuture;
@@ -45,25 +46,9 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
   /** Vanilla bricks as a building block object */
   private static final BuildingBlocks BRICKS = new BuildingBlocks(() -> Blocks.BRICKS, () -> Blocks.BRICK_SLAB, () -> Blocks.BRICK_STAIRS, () -> Blocks.BRICK_WALL);
 
-  protected RecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-    super(registries, output);
-  }
-
-  /** Runs the provider, since 1.21.2 the provider itself is created per run with the registries */
-  public static class Runner extends net.minecraft.data.recipes.RecipeProvider.Runner {
-    public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
-      super(packOutput, registries);
-    }
-
-    @Override
-    protected net.minecraft.data.recipes.RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-      return new RecipeProvider(registries, output);
-    }
-
-    @Override
-    public String getName() {
-      return "Ceramics Recipes";
-    }
+  /** Since 26.3 recipes and their advancements are datapack registry entries, see Ceramics#gatherRegistries */
+  public RecipeProvider(BootstrapContext<Recipe<?>> recipes, BootstrapContext<Advancement> advancements) {
+    super(recipes, advancements);
   }
 
   @Override

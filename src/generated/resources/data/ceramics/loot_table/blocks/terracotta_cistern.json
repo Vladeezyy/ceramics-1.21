@@ -1,28 +1,24 @@
 {
   "type": "minecraft:block",
-  "functions": [
-    {
-      "function": "minecraft:copy_components",
-      "include": [
-        "ceramics:cracks"
-      ],
-      "source": "block_entity"
-    }
-  ],
+  "modifier": {
+    "type": "minecraft:copy_components",
+    "include": [
+      "ceramics:cracks"
+    ],
+    "source": "block_entity"
+  },
   "pools": [
     {
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ],
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
       "entries": [
         {
           "type": "minecraft:item",
           "name": "ceramics:terracotta_cistern"
         }
       ],
-      "rolls": 1.0
+      "rolls": 1
     }
   ],
   "random_sequence": "ceramics:blocks/terracotta_cistern"

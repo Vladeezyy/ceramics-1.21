@@ -1,5 +1,6 @@
 {
   "type": "ceramics:kiln",
+  "cookingtime": 100,
   "experience": 0.2,
   "ingredient": "ceramics:empty_clay_bucket",
   "result": {

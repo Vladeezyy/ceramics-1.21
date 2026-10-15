@@ -216,7 +216,7 @@ public class SelfTest {
     check("cauldron interactions registered", () -> CauldronInteractions.WATER.get(new ItemStack(Registration.EMPTY_CLAY_BUCKET.get())) != CauldronInteraction.DEFAULT
       && CauldronInteractions.EMPTY.get(new ItemStack(Registration.FLUID_CLAY_BUCKET.get())) != CauldronInteraction.DEFAULT
       && CauldronInteractions.LAVA.get(new ItemStack(Registration.CRACKED_EMPTY_CLAY_BUCKET.get())) != CauldronInteraction.DEFAULT);
-    check("lava clay bucket burns 20000 ticks", () -> BaseClayBucketItem.withFluid(Fluids.LAVA, false).getBurnTime(RecipeType.SMELTING, server.fuelValues()) == 20000);
+    check("lava clay bucket burns as a lava bucket", () -> java.util.Objects.equals(BaseClayBucketItem.withFluid(Fluids.LAVA, false).get(DataComponents.COOKING_FUEL), new ItemStack(Items.LAVA_BUCKET).get(DataComponents.COOKING_FUEL)) && BaseClayBucketItem.withFluid(Fluids.LAVA, false).has(DataComponents.COOKING_FUEL));
 
     // data saved by 1.20: the world upgrade keeps unknown item NBT as custom data
     check("1.20 fluid bucket is read and converted", () -> {

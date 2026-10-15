@@ -150,8 +150,9 @@ public class ClayBucketItemModel implements ItemModel {
 
       // contents next, only the front and back
       boolean emissive = light > 0;
+      RenderTypes types = renderTypes(contentsMaterial, emissive);
       BakedQuad.MaterialInfo info = baker.interner().materialInfo(new BakedQuad.MaterialInfo(
-        contentsMaterial.sprite(), ChunkSectionLayer.SOLID, renderType(contentsMaterial, emissive), 0, !emissive, light, !emissive));
+        contentsMaterial.sprite(), ChunkSectionLayer.SOLID, types.item, types.glint, types.glintSpecial, 0, emissive ? Direction.UP : null, light, !emissive));
       QuadCollection masked = UnbakedElementsHelper.bakeItemMaskQuads(baker, mask, info, new ComposedModelState(state, FLUID_TRANSFORM), ExtraFaceData.DEFAULT);
       QuadCollection.Builder contentQuads = new QuadCollection.Builder();
       for (BakedQuad quad : masked.getAll()) {
@@ -164,19 +165,27 @@ public class ClayBucketItemModel implements ItemModel {
     return new CompositeModel(parts);
   }
 
-  /** Render type of the contents, they are on the block atlas while the bucket is on the item atlas */
-  private static RenderType renderType(Material.Baked material, boolean emissive) {
+  /** Render types of an item quad, with and without enchantment glint */
+  private record RenderTypes(RenderType item, RenderType glint, RenderType glintSpecial) {}
+
+  /** Render types of the contents, they are on the block atlas while the bucket is on the item atlas */
+  private static RenderTypes renderTypes(Material.Baked material, boolean emissive) {
     boolean translucent = material.forceTranslucent() || material.sprite().transparency().hasTranslucent();
+    Identifier atlas = TextureAtlas.LOCATION_BLOCKS;
     if (translucent) {
-      return emissive ? NeoForgeRenderTypes.getItemTranslucentUnlit(TextureAtlas.LOCATION_BLOCKS) : Sheets.translucentBlockItemSheet();
+      return emissive
+        ? new RenderTypes(NeoForgeRenderTypes.getItemTranslucentUnlit(atlas), NeoForgeRenderTypes.getItemGlintTranslucentUnlit(atlas), NeoForgeRenderTypes.getItemGlintSpecialTranslucentUnlit(atlas))
+        : new RenderTypes(Sheets.translucentBlockItemSheet(), Sheets.translucentBlockItemGlintSheet(), Sheets.translucentBlockItemGlintSpecialSheet());
     }
-    return emissive ? NeoForgeRenderTypes.getItemCutoutUnlit(TextureAtlas.LOCATION_BLOCKS) : Sheets.cutoutBlockItemSheet();
+    return emissive
+      ? new RenderTypes(NeoForgeRenderTypes.getItemCutoutUnlit(atlas), NeoForgeRenderTypes.getItemGlintCutoutUnlit(atlas), NeoForgeRenderTypes.getItemGlintSpecialCutoutUnlit(atlas))
+      : new RenderTypes(Sheets.cutoutBlockItemSheet(), Sheets.cutoutBlockItemGlintSheet(), Sheets.cutoutBlockItemGlintSpecialSheet());
   }
 
-  /** A single front face covering the item, untinted */
+  /** A single front face covering the item, untinted and lit as a top face (unshaded) */
   private static CuboidModelElement flatElement() {
     CuboidFace face = new CuboidFace(null, -1, "layer0", new CuboidFace.UVs(0, 0, 16, 16), Quadrant.R0);
-    return new CuboidModelElement(new Vector3f(0, 0, 8.5f), new Vector3f(16, 16, 8.5f), Map.of(Direction.SOUTH, face), null, false, 0);
+    return new CuboidModelElement(new Vector3f(0, 0, 8.5f), new Vector3f(16, 16, 8.5f), Map.of(Direction.SOUTH, face), null, Direction.UP, 0);
   }
 
   @Override

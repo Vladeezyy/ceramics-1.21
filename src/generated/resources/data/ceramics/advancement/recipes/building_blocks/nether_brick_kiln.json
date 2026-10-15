@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:nether_brick_kiln"
+        "recipes": "ceramics:nether_brick_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

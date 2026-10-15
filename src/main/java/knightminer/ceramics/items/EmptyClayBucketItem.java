@@ -131,28 +131,11 @@ public class EmptyClayBucketItem extends BaseClayBucketItem {
 	private static void copyExtraComponents(ItemStack pickupStack, ItemStack result) {
 		DataComponentPatch patch = pickupStack.getComponentsPatch();
 		if (!patch.isEmpty()) {
-			DataComponentPatch.Builder builder = DataComponentPatch.builder();
-			for (Map.Entry<DataComponentType<?>, Optional<?>> entry : patch.entrySet()) {
-				DataComponentType<?> type = entry.getKey();
-				if (type != Registration.BUCKET_FLUID.get() && type != Registration.BUCKET_BLOCK.get() && type != DataComponents.MAX_STACK_SIZE) {
-					copyEntry(builder, entry);
-				}
-			}
-			result.applyComponents(builder.build());
+			// skip our own bucket contents and the stack size, keep the rest
+			result.applyComponents(patch.forget(type -> type == Registration.BUCKET_FLUID.get() || type == Registration.BUCKET_BLOCK.get() || type == DataComponents.MAX_STACK_SIZE));
 		}
 	}
 
-	/** Copies a single entry of the patch, generics helper */
-	@SuppressWarnings("unchecked")
-	private static <T> void copyEntry(DataComponentPatch.Builder builder, Map.Entry<DataComponentType<?>, Optional<?>> entry) {
-		DataComponentType<T> type = (DataComponentType<T>) entry.getKey();
-		Optional<?> value = entry.getValue();
-		if (value.isPresent()) {
-			builder.set(type, (T) value.get());
-		} else {
-			builder.remove(type);
-		}
-	}
 
 
 	/* Stack properties */

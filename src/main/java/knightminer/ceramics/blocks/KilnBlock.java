@@ -1,6 +1,5 @@
 package knightminer.ceramics.blocks;
 
-import com.mojang.serialization.MapCodec;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.entity.KilnBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -22,15 +21,8 @@ import javax.annotation.Nullable;
 
 public class KilnBlock extends AbstractFurnaceBlock {
 
-  public static final MapCodec<KilnBlock> CODEC = simpleCodec(KilnBlock::new);
-
   public KilnBlock(Properties props) {
     super(props);
-  }
-
-  @Override
-  protected MapCodec<? extends AbstractFurnaceBlock> codec() {
-    return CODEC;
   }
 
   @Nullable

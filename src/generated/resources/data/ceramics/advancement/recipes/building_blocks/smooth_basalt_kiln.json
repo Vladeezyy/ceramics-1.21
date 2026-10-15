@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:smooth_basalt_kiln"
+        "recipes": "ceramics:smooth_basalt_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:empty_clay_bucket_smelting"
+        "recipes": "ceramics:empty_clay_bucket_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

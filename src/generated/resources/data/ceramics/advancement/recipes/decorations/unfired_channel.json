@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:unfired_channel"
+        "recipes": "ceramics:unfired_channel"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

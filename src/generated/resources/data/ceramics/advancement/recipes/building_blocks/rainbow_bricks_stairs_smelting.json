@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:rainbow_bricks_stairs_smelting"
+        "recipes": "ceramics:rainbow_bricks_stairs_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

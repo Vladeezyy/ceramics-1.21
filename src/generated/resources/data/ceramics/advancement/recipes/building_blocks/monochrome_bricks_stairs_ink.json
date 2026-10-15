@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:monochrome_bricks_stairs_ink"
+        "recipes": "ceramics:monochrome_bricks_stairs_ink"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

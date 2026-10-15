@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:clay_chestplate"
+        "recipes": "ceramics:clay_chestplate"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -1,5 +1,6 @@
 {
   "type": "ceramics:kiln",
+  "cookingtime": 100,
   "experience": 0.1,
   "ingredient": "minecraft:netherrack",
   "result": {

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:marine_bricks_wall_prismarine"
+        "recipes": "ceramics:marine_bricks_wall_prismarine"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

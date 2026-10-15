@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:dark_bricks_stairs_stonecutter"
+        "recipes": "ceramics:dark_bricks_stairs_stonecutter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

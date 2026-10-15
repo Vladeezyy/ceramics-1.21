@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:light_gray_porcelain_cistern"
+        "recipes": "ceramics:light_gray_porcelain_cistern"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

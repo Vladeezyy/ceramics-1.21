@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:white_porcelain_smelting"
+        "recipes": "ceramics:white_porcelain_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

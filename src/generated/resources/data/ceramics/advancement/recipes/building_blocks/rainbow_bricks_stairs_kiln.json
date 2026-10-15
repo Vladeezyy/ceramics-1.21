@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:rainbow_bricks_stairs_kiln"
+        "recipes": "ceramics:rainbow_bricks_stairs_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

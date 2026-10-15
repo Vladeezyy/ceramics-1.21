@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:clay_channel"
+        "recipes": "ceramics:clay_channel"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

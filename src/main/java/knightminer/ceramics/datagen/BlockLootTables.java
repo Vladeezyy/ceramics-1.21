@@ -11,7 +11,8 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable.Builder;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.data.loot.LootTableSubProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import dev.vladeezyy.kilnwork.registration.BuildingBlocks;
 
 import java.util.Map.Entry;
@@ -22,8 +23,8 @@ import java.util.stream.Collectors;
 
 
 public class BlockLootTables extends BlockLootSubProvider {
-  protected BlockLootTables(HolderLookup.Provider registries) {
-    super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
+  public BlockLootTables(LootTableSubProvider.Context output) {
+    super(Set.of(), FeatureFlags.REGISTRY.allFlags(), output);
   }
 
   @Override
@@ -36,8 +37,8 @@ public class BlockLootTables extends BlockLootSubProvider {
 
   @Override
   protected void generate() {
-    IntFunction<Function<Block,Builder>> dropClay = count -> block -> createSingleItemTableWithSilkTouch(block, Items.CLAY_BALL, ConstantValue.exactly(count));
-    IntFunction<Function<Block,Builder>> dropPorcelain = count -> block -> createSingleItemTableWithSilkTouch(block, Registration.UNFIRED_PORCELAIN, ConstantValue.exactly(count));
+    IntFunction<Function<Block,Builder>> dropClay = count -> block -> createSingleItemTableWithSilkTouch(block, Items.CLAY_BALL, ContextIntProviders.exactly(count));
+    IntFunction<Function<Block,Builder>> dropPorcelain = count -> block -> createSingleItemTableWithSilkTouch(block, Registration.UNFIRED_PORCELAIN, ContextIntProviders.exactly(count));
     Function<Block,Builder> dropSelfWithCracks = block -> createSingleItemTable(block).apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY).include(Registration.CRACKS.get()));
 
     // unfired porcelain drops 4 of the item form

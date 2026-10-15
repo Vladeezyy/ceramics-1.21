@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:clay_cistern"
+        "recipes": "ceramics:clay_cistern"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
