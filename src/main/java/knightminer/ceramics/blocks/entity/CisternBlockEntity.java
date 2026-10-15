@@ -23,12 +23,12 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import slimeknights.mantle.block.entity.MantleBlockEntity;
+import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CisternBlockEntity extends MantleBlockEntity implements ICrackableBlockEntity, FluidUpdater {
+public class CisternBlockEntity extends SyncedBlockEntity implements ICrackableBlockEntity, FluidUpdater {
   /** Max capacity per cistern block */
   private static final String TAG_FLUID = "fluid";
   private static final String TAG_EXTENSIONS = "extensions";

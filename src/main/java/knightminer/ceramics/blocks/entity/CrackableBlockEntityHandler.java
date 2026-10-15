@@ -26,7 +26,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import slimeknights.mantle.block.entity.MantleBlockEntity;
+import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 
 /** Common logic for all crackable fluid blocks */
 public class CrackableBlockEntityHandler {
@@ -36,13 +36,13 @@ public class CrackableBlockEntityHandler {
 	public static final String TAG_CRACKS = "cracks";
 
 	/** Parent tile entity */
-	private final MantleBlockEntity parent;
+	private final SyncedBlockEntity parent;
 	/** Current cracks value. Once it reaches 6 the block breaks */
 	private int cracks = 0;
 	/** Whether to use crackable logic, used to allow one class to handle both cases */
 	private boolean active;
 
-	public CrackableBlockEntityHandler(MantleBlockEntity parent, boolean active) {
+	public CrackableBlockEntityHandler(SyncedBlockEntity parent, boolean active) {
 		this.parent = parent;
 		this.active = active;
 	}

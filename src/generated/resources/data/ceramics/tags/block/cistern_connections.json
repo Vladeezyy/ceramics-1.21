@@ -8,6 +8,6 @@
     "ceramics:unfired_channel",
     "ceramics:terracotta_channel",
     "ceramics:porcelain_channel",
-    "#mantle:gauges/attached"
+    "#kilnwork:gauges/attached"
   ]
 }

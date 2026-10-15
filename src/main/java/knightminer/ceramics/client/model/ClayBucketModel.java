@@ -16,6 +16,7 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,10 +42,9 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import slimeknights.mantle.client.model.util.ColoredBlockModel;
-import slimeknights.mantle.client.model.util.MantleItemLayerModel;
-import slimeknights.mantle.client.model.util.ModelHelper;
-import slimeknights.mantle.data.loadable.Loadables;
+import dev.vladeezyy.kilnwork.client.model.ModelHelpers;
+import dev.vladeezyy.kilnwork.client.model.ModelHelpers;
+import dev.vladeezyy.kilnwork.client.model.ModelHelpers;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public abstract class ClayBucketModel<T> implements IUnbakedGeometry<ClayBucketM
 
   /** Deserializes a fluid model from JSON */
   public static ClayBucketModel<?> deserializeFluid(JsonObject json, JsonDeserializationContext context) {
-    Fluid fluid = Loadables.FLUID.getOrDefault(json, "fluid", Fluids.EMPTY);
+    Fluid fluid = json.has("fluid") ? BuiltInRegistries.FLUID.get(ResourceLocation.parse(GsonHelper.getAsString(json, "fluid"))) : Fluids.EMPTY;
 
     // if true, flips gasses in the bucket
     boolean flip = GsonHelper.getAsBoolean(json, "flip_gas", false);
@@ -79,7 +79,7 @@ public abstract class ClayBucketModel<T> implements IUnbakedGeometry<ClayBucketM
 
   /** Deserializes a block model from JSON */
   public static ClayBucketModel<?> deserializeSolid(JsonObject json, JsonDeserializationContext context) {
-    Block block = Loadables.BLOCK.getOrDefault(json, "block", Blocks.AIR);
+    Block block = json.has("block") ? BuiltInRegistries.BLOCK.get(ResourceLocation.parse(GsonHelper.getAsString(json, "block"))) : Blocks.AIR;
     return new SolidBucket(block);
   }
 
@@ -193,7 +193,7 @@ public abstract class ClayBucketModel<T> implements IUnbakedGeometry<ClayBucketM
       // needs to be about a pixel back or in hand it gets cut off
       // inventory will not see this regardless
       if (innerSprite != null) {
-        modelBuilder.addQuads(renderTypes, MantleItemLayerModel.getQuadForGui(-1, -1, innerSprite, INNER_TRANSFORM, 0));
+        modelBuilder.addQuads(renderTypes, ModelHelpers.flatItemQuad(-1, innerSprite, INNER_TRANSFORM));
       }
 
       // fluid is next one in
@@ -216,7 +216,7 @@ public abstract class ClayBucketModel<T> implements IUnbakedGeometry<ClayBucketM
         // apply color
         int color = getColor();
         if (color != -1) {
-          ColoredBlockModel.applyColorQuadTransformer(color).processInPlace(quads);
+          ModelHelpers.color(color).processInPlace(quads);
         }
         modelBuilder.addQuads(fluidRenderTypes, quads);
       }
@@ -303,7 +303,7 @@ public abstract class ClayBucketModel<T> implements IUnbakedGeometry<ClayBucketM
 
     @Override
     protected ResourceLocation getTexture() {
-      return ModelHelper.getParticleTexture(contents);
+      return ModelHelpers.getParticleTexture(contents);
     }
 
     @SuppressWarnings("deprecation")  // don't have world context

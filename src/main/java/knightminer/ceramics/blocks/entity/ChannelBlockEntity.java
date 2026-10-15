@@ -29,7 +29,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
-import slimeknights.mantle.block.entity.MantleBlockEntity;
+import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Logic for channel fluid transfer
  */
-public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableBlockEntity, FluidUpdater {
+public class ChannelBlockEntity extends SyncedBlockEntity implements ICrackableBlockEntity, FluidUpdater {
 	public static final BlockEntityTicker<ChannelBlockEntity> SERVER_TICKER = (level, pos, state, te) -> te.tick(state);
 	/** Channel internal tank */
 	private final ChannelTank tank = new ChannelTank(FaucetBlockEntity.MB_PER_TICK * 4, this);

@@ -1,5 +1,6 @@
 package knightminer.ceramics.util;
 
+import net.minecraft.tags.FluidTags;
 import net.neoforged.neoforge.common.SoundActions;
 import knightminer.ceramics.items.FluidClayBucketItem;
 import knightminer.ceramics.recipe.CeramicsTags;
@@ -10,7 +11,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import slimeknights.mantle.datagen.MantleTags;
+import dev.vladeezyy.kilnwork.tag.KilnworkTags;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -38,10 +39,10 @@ public class EmptyFluidBucketCauldronInteraction extends EmptyClayBucketCauldron
 	@Override
 	@Nullable
 	protected BlockState getFullCauldron(Fluid fluid) {
-		if (fluid.is(MantleTags.Fluids.WATER)) {
+		if (fluid.is(FluidTags.WATER)) {
 			return Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3);
 		}
-		if (fluid.is(MantleTags.Fluids.LAVA)) {
+		if (fluid.is(FluidTags.LAVA)) {
 			return Blocks.LAVA_CAULDRON.defaultBlockState();
 		}
 		if (fluid.is(CeramicsTags.Fluids.POWDERED_SNOW)) {

@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Block;
 import java.util.List;
 
 /**
- * Adds a specific tooltip to a block, instead of basing it off the translation key as {@link slimeknights.mantle.item.BlockTooltipItem} does
+ * Adds a specific tooltip to a block, instead of basing it off the translation key as {@link dev.vladeezyy.kilnwork.item.BlockTooltipItem} does
  */
 public class FixedTooltipBlockItem extends BlockItem {
 	private final Component tooltipComponent;

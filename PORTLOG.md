@@ -71,3 +71,15 @@ the vanilla 1.21.1 translations), ko_kr, tr_tr, zh_cn, zh_tw kept from the origi
   faucet pouring, channel flowing down, cracking with lava, drops with cracks, save/load.
 - `tools/scenetest.sh`: dev client, scene with screenshots (`run/screenshots/scene_*.png`) and checks of item models,
   names, faucet/channel sync and JEI kiln recipes.
+
+## 1.8.0.1: Kilnwork instead of Mantle
+
+Mantle has no builds for Minecraft after 1.21.1, so the parts Ceramics uses were rewritten as a separate library,
+[Kilnwork](https://github.com/Vladeezyy/kilnwork) (LGPL-3.0-only, based on Mantle, MIT), shipped inside the jar.
+- Registration: `BlockRegister`, `EnumObject`, `BuildingBlocks` instead of Mantle's deferred registers and objects.
+- `SyncedBlockEntity`, `GaugeBlock`, gauge tooltip, `FluidTransferHelper` with data driven transfers, tags
+  `kilnwork:gauges/*` and `kilnwork:hides_gauge_amount` (were `mantle:`).
+- Fluid shapes: same JSON format, folders `kilnwork/block_fluids`, `kilnwork/faucet_fluid`, `kilnwork/channel_fluids`.
+  They were written by Mantle datagen providers; now they are plain JSON in `src/main/resources` (no datagen needed).
+- Fluid rendering on the vanilla translucent entity render type instead of Mantle's shader.
+- Behavior unchanged: self-test 44/44, client scene 7/7.

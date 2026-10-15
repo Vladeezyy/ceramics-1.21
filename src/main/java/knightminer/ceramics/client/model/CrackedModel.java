@@ -29,10 +29,10 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
 import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
-import slimeknights.mantle.client.model.util.ColoredBlockModel;
-import slimeknights.mantle.client.model.util.DynamicBakedWrapper;
-import slimeknights.mantle.client.model.util.ExtraTextureContext;
-import slimeknights.mantle.client.model.util.SimpleBlockModel;
+import dev.vladeezyy.kilnwork.client.model.ModelHelpers;
+import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import dev.vladeezyy.kilnwork.client.model.ExtraTextureContext;
+import dev.vladeezyy.kilnwork.client.model.SimpleBlockModel;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
 
 	/** Deserializes the model from JSON */
 	public static CrackedModel deserialize(JsonObject json, JsonDeserializationContext context) {
-		return new CrackedModel(ColoredBlockModel.deserialize(json, context));
+		return new CrackedModel(SimpleBlockModel.deserialize(json, context));
 	}
 
 	private final SimpleBlockModel model;
@@ -90,7 +90,7 @@ public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
 	}
 
 	/** Baked model for this */
-	private static class Baked extends DynamicBakedWrapper<BakedModel> {
+	private static class Baked extends BakedModelWrapper<BakedModel> {
 		private final BakedModel[] crackedModels;
 		private final IGeometryBakingContext owner;
 		private final List<BlockElement> elements;
@@ -129,6 +129,12 @@ public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
 				return getModel(cracks).getQuads(state, side, random, data, renderType);
 			}
 			return originalModel.getQuads(state, side, random, data, renderType);
+		}
+
+		@Override
+		@SuppressWarnings("deprecation")
+		public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource random) {
+			return getQuads(state, side, random, ModelData.EMPTY, null);
 		}
 
 		@Override

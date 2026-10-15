@@ -1,5 +1,6 @@
 package knightminer.ceramics.datagen;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.RainbowPorcelain;
@@ -29,9 +30,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
-import slimeknights.mantle.data.loadable.Loadables;
-import slimeknights.mantle.registration.object.BuildingBlockObject;
-import slimeknights.mantle.registration.object.WallBuildingBlockObject;
+import dev.vladeezyy.kilnwork.registration.BuildingBlocks;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -42,7 +41,7 @@ import java.util.function.Consumer;
 public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
   /** Vanilla bricks as a building block object */
-  private static final WallBuildingBlockObject BRICKS = new WallBuildingBlockObject(new BuildingBlockObject(Blocks.BRICKS.builtInRegistryHolder(), Blocks.BRICK_SLAB.builtInRegistryHolder(), Blocks.BRICK_STAIRS.builtInRegistryHolder()), Blocks.BRICK_WALL.builtInRegistryHolder());
+  private static final BuildingBlocks BRICKS = new BuildingBlocks(() -> Blocks.BRICKS, () -> Blocks.BRICK_SLAB, () -> Blocks.BRICK_STAIRS, () -> Blocks.BRICK_WALL);
 
   public RecipeProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
     super(packOutput, registries);
@@ -457,7 +456,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
   /** Gets the ID of an item */
   private static ResourceLocation id(ItemLike item) {
-    return Loadables.ITEM.getKey(item.asItem());
+    return BuiltInRegistries.ITEM.getKey(item.asItem());
   }
 
   /** Gets the ID of an item as a Ceramics location */
@@ -533,7 +532,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param output     Recipe output for consumer
    * @param consumer   Consumer to create recipes
    */
-  private void eachBuilding(WallBuildingBlockObject input, WallBuildingBlockObject output, BiConsumer<ItemLike,ItemLike> consumer) {
+  private void eachBuilding(BuildingBlocks input, BuildingBlocks output, BiConsumer<ItemLike,ItemLike> consumer) {
     consumer.accept(input.asItem(), output.asItem());
     consumer.accept(input.getSlab(), output.getSlab());
     consumer.accept(input.getStairs(), output.getStairs());
@@ -545,7 +544,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param consumer  Recipe consumer
    * @param building  Building object instance
    */
-  private void registerSlabStairWall(RecipeOutput consumer, WallBuildingBlockObject building) {
+  private void registerSlabStairWall(RecipeOutput consumer, BuildingBlocks building) {
     Item item = building.asItem();
     ResourceLocation location = id(item);
     Criterion<?> hasBuilding = inventoryTrigger(ItemPredicate.Builder.item().of(item).build());
@@ -607,7 +606,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param to          Output bricks
    * @param name        Recipe name
    */
-  private void addBrickRecipe(RecipeOutput consumer, WallBuildingBlockObject from, Item ingredient, WallBuildingBlockObject to, String name) {
+  private void addBrickRecipe(RecipeOutput consumer, BuildingBlocks from, Item ingredient, BuildingBlocks to, String name) {
     Criterion<?> criteria = has(ingredient);
     eachBuilding(from, to, (input, output) ->
       ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, output, 8)

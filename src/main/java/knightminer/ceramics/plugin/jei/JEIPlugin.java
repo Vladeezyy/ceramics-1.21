@@ -27,7 +27,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ItemLike;
-import slimeknights.mantle.util.RegistryHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -105,7 +104,7 @@ public class JEIPlugin implements IModPlugin {
     registration.addRecipes(KilnCategory.TYPE, results);
 
     // clay repair info
-    List<ItemStack> clayRepair = RegistryHelper.getTagValueStream(BuiltInRegistries.ITEM, CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).map(ItemStack::new).toList();
+    List<ItemStack> clayRepair = BuiltInRegistries.ITEM.getTag(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).stream().flatMap(set -> set.stream()).map(ItemStack::new).toList();
     registration.addIngredientInfo(clayRepair, VanillaTypes.ITEM_STACK, Ceramics.component("jei", "clay_repair"));
   }
 

@@ -6,7 +6,7 @@
 
 [![Minecraft 1.21.1](https://img.shields.io/badge/Minecraft-1.21.1-3c8527)](https://www.minecraft.net)
 [![NeoForge 21.1](https://img.shields.io/badge/NeoForge-21.1.197%2B-e0682b)](https://neoforged.net)
-[![Mantle bundled](https://img.shields.io/badge/Mantle-bundled-8a5cf6)](#installation)
+[![Kilnwork bundled](https://img.shields.io/badge/Kilnwork-bundled-8a5cf6)](https://github.com/Vladeezyy/kilnwork)
 [![License LGPL-3.0](https://img.shields.io/badge/license-LGPL--3.0-blue)](LICENSE)
 
 An unofficial port of **[Ceramics](https://www.curseforge.com/minecraft/mc-mods/ceramics)** 1.8.0 by **KnightMiner**
@@ -28,7 +28,8 @@ from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.1**, with all of its content.
 
 | Version | Minecraft | Loader | Java |
 | --- | --- | --- | --- |
-| 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer | 21 |
+| 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer | 21 |
+| 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer (Mantle inside) | 21 |
 
 Releases: [GitHub releases](../../releases).
 
@@ -36,8 +37,9 @@ Releases: [GitHub releases](../../releases).
 
 - **Singleplayer:** put the jar into `mods/` of a NeoForge 1.21.1 instance.
 - **Server:** put the same jar into `mods/` of the server **and** of every client.
-- **Mantle is included.** Ceramics needs the library Mantle by SlimeKnights, and Mantle for 1.21.1 has no public
-  release yet, so it ships inside the jar. If another mod brings a newer Mantle, NeoForge uses the newer one.
+- **Nothing else to install.** The original Ceramics needs the library Mantle by SlimeKnights, which has no release
+  for new Minecraft versions. This port uses [Kilnwork](https://github.com/Vladeezyy/kilnwork) instead, a library
+  built from the parts of Mantle that Ceramics needs, and it ships inside the jar.
 - [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) is optional: it shows the kiln recipes.
 
 ## Features
@@ -70,7 +72,7 @@ Releases: [GitHub releases](../../releases).
 | A Russian typo; Czech translation and Korean updates from pull requests that were never merged | [#87](https://github.com/KnightMiner/Ceramics/pull/87), [#84](https://github.com/KnightMiner/Ceramics/pull/84) |
 
 Found during the port and fixed: fluids in cisterns, faucets and channels drew a piece of the texture atlas
-(a bug of Mantle 1.21.1, Ceramics renders them itself now), and golden bricks could be mined with a wooden pickaxe.
+(a bug of Mantle 1.21.1; Kilnwork renders them correctly), and golden bricks could be mined with a wooden pickaxe.
 
 **Worlds from 1.20.1:** clay buckets keep their fluid or block and cracked blocks keep their cracks when the world is
 opened in 1.21.1.
@@ -92,8 +94,8 @@ Problems of this port go to the [issues of this repository](../../issues), not t
 
 - **Ceramics** by [KnightMiner](https://github.com/KnightMiner/Ceramics), MIT
   ([licenses/LICENSE-MIT](licenses/LICENSE-MIT)).
-- **Mantle** by [SlimeKnights](https://github.com/SlimeKnights/Mantle), MIT, included in the jar
-  ([licenses/LICENSE-MANTLE](licenses/LICENSE-MANTLE)).
+- **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), included in the jar,
+  based on parts of **Mantle** by [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Czech translation: RomanPlayer22. Korean: mindy15963 and the original translators.
 - Port to NeoForge 1.21.1: Vladeezyy.
 
@@ -110,7 +112,8 @@ same license, with credit to the authors. Please download the mod only from the 
 
 | Версия | Minecraft | Загрузчик | Java |
 | --- | --- | --- | --- |
-| 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее | 21 |
+| 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее | 21 |
+| 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее (Mantle внутри) | 21 |
 
 Релизы: [GitHub releases](../../releases).
 
@@ -118,8 +121,9 @@ same license, with credit to the authors. Please download the mod only from the 
 
 - **Одиночная игра:** положите jar в папку `mods/` сборки NeoForge 1.21.1.
 - **Сервер:** тот же jar кладётся в `mods/` сервера **и** каждого клиента.
-- **Mantle уже внутри.** Ceramics нужна библиотека Mantle от SlimeKnights, а у Mantle для 1.21.1 пока нет публичного
-  релиза, поэтому она встроена в jar. Если другой мод принесёт более новый Mantle, NeoForge возьмёт его.
+- **Больше ничего ставить не нужно.** Оригиналу нужна библиотека Mantle от SlimeKnights, у которой нет версий под
+  новые Minecraft. Порт использует вместо неё [Kilnwork](https://github.com/Vladeezyy/kilnwork) — библиотеку из тех
+  частей Mantle, которые нужны Ceramics, и она встроена в jar.
 - [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) по желанию: в нём видны рецепты печи для обжига.
 
 ## Возможности
@@ -152,7 +156,7 @@ same license, with credit to the authors. Please download the mod only from the 
 | Опечатка в русском; чешский перевод и обновление корейского из так и не принятых pull request | [#87](https://github.com/KnightMiner/Ceramics/pull/87), [#84](https://github.com/KnightMiner/Ceramics/pull/84) |
 
 Найдено при порте и исправлено: жидкости в бочках, кранах и жёлобах рисовались куском атласа текстур (баг Mantle
-1.21.1, теперь Ceramics рисует их сам), а золотые кирпичи добывались деревянной киркой.
+1.21.1; Kilnwork рисует их правильно), а золотые кирпичи добывались деревянной киркой.
 
 **Миры из 1.20.1:** глиняные вёдра сохраняют жидкость или блок, а треснувшие блоки — трещины при открытии мира в
 1.21.1.
@@ -173,8 +177,8 @@ same license, with credit to the authors. Please download the mod only from the 
 ## Авторы и лицензия
 
 - **Ceramics** — [KnightMiner](https://github.com/KnightMiner/Ceramics), MIT ([licenses/LICENSE-MIT](licenses/LICENSE-MIT)).
-- **Mantle** — [SlimeKnights](https://github.com/SlimeKnights/Mantle), MIT, встроена в jar
-  ([licenses/LICENSE-MANTLE](licenses/LICENSE-MANTLE)).
+- **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), встроена в jar, основана
+  на частях **Mantle** от [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Чешский перевод: RomanPlayer22. Корейский: mindy15963 и переводчики оригинала.
 - Порт на NeoForge 1.21.1: Vladeezyy.
 

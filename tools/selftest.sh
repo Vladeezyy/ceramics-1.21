@@ -17,3 +17,6 @@ echo "--- errors / warnings (vanilla dev noise filtered)"
 grep -E '/(ERROR|FATAL|WARN)\]|Caused by|Exception' build-selftest.log \
   | grep -vE 'Ceramics selftest|server.properties|uses unexpected schema|OFFLINE/INSECURE|online-mode|hackers to connect|no attempt to authenticate|LanServerPinger|UnixException|Ambiguity between arguments' \
   | sed -E 's/^\[[^]]*\] //' | cut -c1-300 | sort | uniq -c | sort -rn | head -40
+
+# result: 0 if all checks passed
+grep -q "Ceramics selftest\] PASS" build-selftest.log

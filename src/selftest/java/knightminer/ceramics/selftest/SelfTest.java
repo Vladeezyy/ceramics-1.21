@@ -214,7 +214,7 @@ public class SelfTest {
     // tags
     check("golden bricks need a stone tool or better", () -> Registration.GOLDEN_BRICKS.get().defaultBlockState().is(BlockTags.INCORRECT_FOR_WOODEN_TOOL));
     check("terracotta cistern is mineable with a pickaxe", () -> Registration.TERRACOTTA_CISTERN.get().defaultBlockState().is(BlockTags.MINEABLE_WITH_PICKAXE));
-    check("faucet hides the gauge amount", () -> Registration.TERRACOTTA_FAUCET.get().defaultBlockState().is(slimeknights.mantle.datagen.MantleTags.Blocks.HIDES_GAUGE_AMOUNT));
+    check("faucet hides the gauge amount", () -> Registration.TERRACOTTA_FAUCET.get().defaultBlockState().is(dev.vladeezyy.kilnwork.tag.KilnworkTags.Blocks.HIDES_GAUGE_AMOUNT));
 
     // creative tab (the original listed empty buckets twice and no solid buckets)
     check("creative tab has solid buckets and one empty bucket", () -> {

@@ -1,5 +1,7 @@
 package knightminer.ceramics.client.renderer;
 
+import dev.vladeezyy.kilnwork.client.render.KilnworkFluidModels;
+import dev.vladeezyy.kilnwork.client.render.FluidCuboidRenderer;
 import net.minecraft.world.phys.AABB;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -17,11 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import slimeknights.mantle.client.render.ChannelFluids;
-import slimeknights.mantle.client.render.FluidCuboid;
-import slimeknights.mantle.client.render.FluidRenderer;
-import slimeknights.mantle.client.render.MantleRenderTypes;
-import slimeknights.mantle.client.render.RenderingHelper;
+import dev.vladeezyy.kilnwork.client.render.ChannelFluids;
+import dev.vladeezyy.kilnwork.client.render.FluidCuboid;
 
 public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBlockEntity> {
 	public ChannelBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
@@ -48,18 +47,18 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 		}
 		BlockPos pos = te.getBlockPos();
 		BlockState state = te.getBlockState();
-		ChannelFluids model = ChannelFluids.REGISTRY.get(state.getBlock());
+		ChannelFluids model = KilnworkFluidModels.CHANNEL_FLUIDS.get(state.getBlock());
 		if (model == null) {
 			return;
 		}
 
 		// fluid attributes
 		IClientFluidTypeExtensions client = IClientFluidTypeExtensions.of(fluid.getFluid());
-		TextureAtlasSprite still = FluidRenderer.getBlockSprite(client.getStillTexture(fluid));
-		TextureAtlasSprite flowing = FluidRenderer.getBlockSprite(client.getFlowingTexture(fluid));
-		VertexConsumer builder = buffer.getBuffer(MantleRenderTypes.FLUID);
+		TextureAtlasSprite still = FluidCuboidRenderer.getBlockSprite(client.getStillTexture(fluid));
+		TextureAtlasSprite flowing = FluidCuboidRenderer.getBlockSprite(client.getFlowingTexture(fluid));
+		VertexConsumer builder = FluidCuboidRenderer.getBuffer(buffer);
 		int color = client.getTintColor(fluid);
-		light = FluidRenderer.withBlockLight(light, fluid.getFluid().getFluidType().getLightLevel(fluid));
+		light = FluidCuboidRenderer.withBlockLight(light, fluid.getFluid().getFluidType().getLightLevel(fluid));
 
 		// render sides first, while doing so we will determine center "flow"
 		FluidCuboid cube;
@@ -70,7 +69,7 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 			ChannelConnection connection = state.getValue(ChannelBlock.DIRECTION_MAP.get(direction));
 			if (connection.canFlow()) {
 				// apply rotation for the side
-				isRotated = RenderingHelper.applyRotation(matrices, direction);
+				isRotated = FluidCuboidRenderer.applyRotation(matrices, direction);
 				// get the relevant fluid model, render it
 				if (te.isFlowing(direction)) {
 					cube = model.side().flow(connection == ChannelConnection.OUT);
@@ -106,7 +105,7 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 			cube = model.center(false);
 		} else {
 			cube = model.center(true);
-			isRotated = RenderingHelper.applyRotation(matrices, centerFlow);
+			isRotated = FluidCuboidRenderer.applyRotation(matrices, centerFlow);
 		}
 		// render the cube and pop back
 		FluidCuboidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);

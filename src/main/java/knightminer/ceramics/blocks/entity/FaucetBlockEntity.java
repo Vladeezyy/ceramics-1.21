@@ -21,13 +21,13 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
-import slimeknights.mantle.block.entity.MantleBlockEntity;
+import dev.vladeezyy.kilnwork.block.SyncedBlockEntity;
 
 import javax.annotation.Nonnull;
 
 import static knightminer.ceramics.blocks.FaucetBlock.FACING;
 
-public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBlockEntity, FluidUpdater {
+public class FaucetBlockEntity extends SyncedBlockEntity implements ICrackableBlockEntity, FluidUpdater {
   public static final BlockEntityTicker<FaucetBlockEntity> SERVER_TICKER = (level, pos, state, entity) -> entity.tick();
   /** Transfer rate of the faucet */
   public static final int MB_PER_TICK = 25;

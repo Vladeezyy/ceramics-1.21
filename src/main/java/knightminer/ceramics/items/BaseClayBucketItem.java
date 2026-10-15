@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import slimeknights.mantle.util.RegistryHelper;
 
 import java.util.function.Consumer;
 
@@ -219,7 +218,7 @@ public abstract class BaseClayBucketItem extends Item {
    */
   public static ItemStack withBlock(Block block, boolean isCracked) {
     return SolidClayBucketItem.setBlock(new ItemStack(
-        isCracked || RegistryHelper.contains(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS, block)
+        isCracked || block.defaultBlockState().is(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS)
         ? Registration.CRACKED_SOLID_CLAY_BUCKET.get()
         : Registration.SOLID_CLAY_BUCKET.get()
     ), block);

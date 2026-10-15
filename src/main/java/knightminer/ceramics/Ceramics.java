@@ -5,9 +5,6 @@ import knightminer.ceramics.datagen.FluidTagProvider;
 import knightminer.ceramics.datagen.ItemTagProvider;
 import knightminer.ceramics.datagen.LootTableProvider;
 import knightminer.ceramics.datagen.RecipeProvider;
-import knightminer.ceramics.datagen.client.CisternFluidProvider;
-import knightminer.ceramics.datagen.client.FaucetFluidProvider;
-import knightminer.ceramics.datagen.client.RenderFluidProvider;
 import knightminer.ceramics.network.CeramicsNetwork;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.core.HolderLookup.Provider;
@@ -52,11 +49,7 @@ public class Ceramics {
 		gen.addProvider(server, new FluidTagProvider(packOutput, lookupProvider, helper));
 		gen.addProvider(server, new RecipeProvider(packOutput, lookupProvider));
 		gen.addProvider(server, new LootTableProvider(packOutput, lookupProvider));
-
-		boolean client = event.includeClient();
-		gen.addProvider(client, new RenderFluidProvider(packOutput));
-		gen.addProvider(client, new FaucetFluidProvider(packOutput));
-		gen.addProvider(client, new CisternFluidProvider(packOutput));
+		// the fluid shapes of faucets, channels and cisterns are plain JSON in src/main/resources (were Mantle datagen)
 	}
 
 

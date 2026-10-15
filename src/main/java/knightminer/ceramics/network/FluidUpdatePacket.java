@@ -9,8 +9,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import slimeknights.mantle.client.SafeClientAccess;
-import slimeknights.mantle.util.BlockEntityHelper;
+import dev.vladeezyy.kilnwork.client.KilnworkClient;
+import dev.vladeezyy.kilnwork.util.BlockEntityHelper;
 
 /**
  * Base class for fluid updating behavior
@@ -46,7 +46,7 @@ public record FluidUpdatePacket(BlockPos pos, FluidStack fluid, boolean data) im
 
 	private static class HandleClient {
 		private static void handle(FluidUpdatePacket packet) {
-			Level level = SafeClientAccess.getLevel();
+			Level level = KilnworkClient.getLevel();
 			if (BlockEntityHelper.isBlockLoaded(level, packet.pos) && level.getBlockEntity(packet.pos) instanceof FluidUpdater updater) {
 				updater.updateFluid(packet.fluid, packet.data);
 			}

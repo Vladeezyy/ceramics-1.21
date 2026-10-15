@@ -7,7 +7,7 @@ import knightminer.ceramics.util.ConstantFluidContainerWrapper;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import slimeknights.mantle.recipe.helper.TagPreference;
+import dev.vladeezyy.kilnwork.tag.TagPreference;
 import java.util.Optional;
 import com.mojang.serialization.Codec;
 import knightminer.ceramics.blocks.ChannelBlock;
@@ -86,15 +86,14 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import slimeknights.mantle.block.GaugeBlock;
-import slimeknights.mantle.item.tooltip.BlockTooltipItem;
-import slimeknights.mantle.registration.deferred.BlockDeferredRegister;
-import slimeknights.mantle.registration.deferred.BlockEntityTypeDeferredRegister;
-import slimeknights.mantle.registration.deferred.ItemDeferredRegister;
-import slimeknights.mantle.registration.deferred.MenuTypeDeferredRegister;
-import slimeknights.mantle.registration.object.EnumObject;
-import slimeknights.mantle.registration.object.MultiObject;
-import slimeknights.mantle.registration.object.WallBuildingBlockObject;
+import dev.vladeezyy.kilnwork.block.GaugeBlock;
+import dev.vladeezyy.kilnwork.item.BlockTooltipItem;
+import dev.vladeezyy.kilnwork.registration.BlockRegister;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import java.util.Set;
+import java.util.function.Supplier;
+import dev.vladeezyy.kilnwork.registration.EnumObject;
+import dev.vladeezyy.kilnwork.registration.BuildingBlocks;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -102,10 +101,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class Registration {
-  private static final BlockDeferredRegister BLOCKS = new BlockDeferredRegister(Ceramics.MOD_ID);
-  private static final ItemDeferredRegister ITEMS = new ItemDeferredRegister(Ceramics.MOD_ID);
-  private static final MenuTypeDeferredRegister MENUS = new MenuTypeDeferredRegister(Ceramics.MOD_ID);
-  private static final BlockEntityTypeDeferredRegister BLOCK_ENTITIES = new BlockEntityTypeDeferredRegister(Ceramics.MOD_ID);
+  private static final BlockRegister BLOCKS = new BlockRegister(Ceramics.MOD_ID);
+  private static final DeferredRegister.Items ITEMS = BLOCKS.items();
+  private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, Ceramics.MOD_ID);
+  private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Ceramics.MOD_ID);
   private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, Ceramics.MOD_ID);
   private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, Ceramics.MOD_ID);
   private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Ceramics.MOD_ID);
@@ -118,7 +117,6 @@ public class Registration {
    */
   static void init(IEventBus bus) {
     BLOCKS.register(bus);
-    ITEMS.register(bus);
     MENUS.register(bus);
     BLOCK_ENTITIES.register(bus);
     RECIPE_SERIALIZERS.register(bus);
@@ -160,49 +158,49 @@ public class Registration {
   /**
    * Mapping for terracotta to make registration easier
    */
-  public static final EnumObject<DyeColor, Block> TERRACOTTA = new EnumObject.Builder<DyeColor, Block>(DyeColor.class)
-    .put(DyeColor.WHITE, Blocks.WHITE_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.ORANGE, Blocks.ORANGE_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.MAGENTA, Blocks.MAGENTA_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.LIGHT_BLUE, Blocks.LIGHT_BLUE_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.YELLOW, Blocks.YELLOW_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.LIME, Blocks.LIME_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.PINK, Blocks.PINK_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.GRAY, Blocks.GRAY_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.LIGHT_GRAY, Blocks.LIGHT_GRAY_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.CYAN, Blocks.CYAN_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.PURPLE, Blocks.PURPLE_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.BLUE, Blocks.BLUE_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.BROWN, Blocks.BROWN_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.GREEN, Blocks.GREEN_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.RED, Blocks.RED_TERRACOTTA.builtInRegistryHolder())
-    .put(DyeColor.BLACK, Blocks.BLACK_TERRACOTTA.builtInRegistryHolder())
+  public static final EnumObject<DyeColor, Block> TERRACOTTA = EnumObject.<DyeColor, Block>builder(DyeColor.class)
+    .put(DyeColor.WHITE, () -> Blocks.WHITE_TERRACOTTA)
+    .put(DyeColor.ORANGE, () -> Blocks.ORANGE_TERRACOTTA)
+    .put(DyeColor.MAGENTA, () -> Blocks.MAGENTA_TERRACOTTA)
+    .put(DyeColor.LIGHT_BLUE, () -> Blocks.LIGHT_BLUE_TERRACOTTA)
+    .put(DyeColor.YELLOW, () -> Blocks.YELLOW_TERRACOTTA)
+    .put(DyeColor.LIME, () -> Blocks.LIME_TERRACOTTA)
+    .put(DyeColor.PINK, () -> Blocks.PINK_TERRACOTTA)
+    .put(DyeColor.GRAY, () -> Blocks.GRAY_TERRACOTTA)
+    .put(DyeColor.LIGHT_GRAY, () -> Blocks.LIGHT_GRAY_TERRACOTTA)
+    .put(DyeColor.CYAN, () -> Blocks.CYAN_TERRACOTTA)
+    .put(DyeColor.PURPLE, () -> Blocks.PURPLE_TERRACOTTA)
+    .put(DyeColor.BLUE, () -> Blocks.BLUE_TERRACOTTA)
+    .put(DyeColor.BROWN, () -> Blocks.BROWN_TERRACOTTA)
+    .put(DyeColor.GREEN, () -> Blocks.GREEN_TERRACOTTA)
+    .put(DyeColor.RED, () -> Blocks.RED_TERRACOTTA)
+    .put(DyeColor.BLACK, () -> Blocks.BLACK_TERRACOTTA)
     .build();
 
   /* Building blocks */
   public static final DeferredBlock<Block> UNFIRED_PORCELAIN_BLOCK = BLOCKS.register("unfired_porcelain_block", Block.Properties.of().mapColor(MapColor.CLAY).strength(0.6F).sound(SoundType.GRAVEL), DEFAULT_BLOCK_ITEM);
 
   // porcelain
-  public static final EnumObject<DyeColor, Block> PORCELAIN_BLOCK = BLOCKS.registerEnum(DyeColor.values(), "porcelain", color -> new Block(Block.Properties.ofFullCopy(TERRACOTTA.get(color))), DEFAULT_BLOCK_ITEM);
-  public static final EnumObject<RainbowPorcelain, Block> RAINBOW_PORCELAIN = BLOCKS.registerEnum(RainbowPorcelain.values(), "rainbow_porcelain",
+  public static final EnumObject<DyeColor, Block> PORCELAIN_BLOCK = registerEnum(DyeColor.values(), "porcelain", color -> new Block(Block.Properties.ofFullCopy(TERRACOTTA.get(color))), DEFAULT_BLOCK_ITEM);
+  public static final EnumObject<RainbowPorcelain, Block> RAINBOW_PORCELAIN = registerEnum(RainbowPorcelain.values(), "rainbow_porcelain",
     color -> new Block(Block.Properties.of().mapColor(color.getColor()).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops()), block -> new BlockTooltipItem(block, new Item.Properties()));
 
   // clay bricks
-  public static final WallBuildingBlockObject DARK_BRICKS = registerWallBuilding("dark_bricks", Block.Properties.of().mapColor(MapColor.COLOR_RED).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final WallBuildingBlockObject LAVA_BRICKS = registerWallBuilding("lava_bricks", Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final WallBuildingBlockObject DRAGON_BRICKS = registerWallBuilding("dragon_bricks", Block.Properties.of().mapColor(MapColor.PODZOL).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks DARK_BRICKS = registerWallBuilding("dark_bricks", Block.Properties.of().mapColor(MapColor.COLOR_RED).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks LAVA_BRICKS = registerWallBuilding("lava_bricks", Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks DRAGON_BRICKS = registerWallBuilding("dragon_bricks", Block.Properties.of().mapColor(MapColor.PODZOL).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
 
   // porcelain bricks
-  public static final WallBuildingBlockObject PORCELAIN_BRICKS = registerWallBuilding("porcelain_bricks", Block.Properties.of().mapColor(MapColor.SNOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final WallBuildingBlockObject MONOCHROME_BRICKS = registerWallBuilding("monochrome_bricks", Block.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final WallBuildingBlockObject GOLDEN_BRICKS = registerWallBuilding("golden_bricks", Block.Properties.of().mapColor(MapColor.COLOR_YELLOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final WallBuildingBlockObject MARINE_BRICKS = registerWallBuilding("marine_bricks", Block.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
-  public static final WallBuildingBlockObject RAINBOW_BRICKS = registerWallBuilding("rainbow_bricks", Block.Properties.of().mapColor(MapColor.COLOR_GREEN).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks PORCELAIN_BRICKS = registerWallBuilding("porcelain_bricks", Block.Properties.of().mapColor(MapColor.SNOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks MONOCHROME_BRICKS = registerWallBuilding("monochrome_bricks", Block.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks GOLDEN_BRICKS = registerWallBuilding("golden_bricks", Block.Properties.of().mapColor(MapColor.COLOR_YELLOW).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks MARINE_BRICKS = registerWallBuilding("marine_bricks", Block.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
+  public static final BuildingBlocks RAINBOW_BRICKS = registerWallBuilding("rainbow_bricks", Block.Properties.of().mapColor(MapColor.COLOR_GREEN).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).requiresCorrectToolForDrops());
 
 
   /* items */
-  public static final DeferredItem<Item> UNFIRED_PORCELAIN = ITEMS.register("unfired_porcelain");
-  public static final DeferredItem<Item> PORCELAIN_BRICK = ITEMS.register("porcelain_brick");
+  public static final DeferredItem<Item> UNFIRED_PORCELAIN = ITEMS.registerSimpleItem("unfired_porcelain");
+  public static final DeferredItem<Item> PORCELAIN_BRICK = ITEMS.registerSimpleItem("porcelain_brick");
 
   // tools
   public static final DeferredItem<Item> UNFIRED_CLAY_BUCKET;
@@ -212,7 +210,7 @@ public class Registration {
   public static final DeferredItem<SolidClayBucketItem> SOLID_CLAY_BUCKET, CRACKED_SOLID_CLAY_BUCKET;
   static {
     // empty
-    UNFIRED_CLAY_BUCKET = ITEMS.register("unfired_clay_bucket", new Item.Properties().stacksTo(16));
+    UNFIRED_CLAY_BUCKET = ITEMS.registerSimpleItem("unfired_clay_bucket", new Item.Properties().stacksTo(16));
     EMPTY_CLAY_BUCKET = ITEMS.register("empty_clay_bucket", () -> new EmptyClayBucketItem(false, new Item.Properties().stacksTo(16)));
     CRACKED_EMPTY_CLAY_BUCKET = ITEMS.register("cracked_empty_clay_bucket", () -> new EmptyClayBucketItem(true, new Item.Properties().stacksTo(16)));
     // uncracked filled
@@ -227,8 +225,8 @@ public class Registration {
 
   // armor
   public static final DeferredHolder<ArmorMaterial,ArmorMaterial> CLAY_ARMOR_MATERIAL = ARMOR_MATERIALS.register("clay", ArmorMaterials::createClay);
-  public static final DeferredItem<Item> UNFIRED_CLAY_PLATE = ITEMS.register("unfired_clay_plate");
-  public static final DeferredItem<Item> CLAY_PLATE = ITEMS.register("clay_plate");
+  public static final DeferredItem<Item> UNFIRED_CLAY_PLATE = ITEMS.registerSimpleItem("unfired_clay_plate");
+  public static final DeferredItem<Item> CLAY_PLATE = ITEMS.registerSimpleItem("clay_plate");
   public static final DeferredItem<ArmorItem> CLAY_HELMET, CLAY_CHESTPLATE, CLAY_LEGGINGS, CLAY_BOOTS;
   static {
     CLAY_HELMET = ITEMS.register("clay_helmet", () -> new ArmorItem(CLAY_ARMOR_MATERIAL, ArmorItem.Type.HELMET, ArmorMaterials.armorProps(ArmorItem.Type.HELMET)));
@@ -239,8 +237,8 @@ public class Registration {
 
   // kiln block
   public static final DeferredBlock<KilnBlock> KILN = BLOCKS.register("kiln", () -> new KilnBlock(terracottaProps(MapColor.COLOR_ORANGE).lightLevel(s -> s.getValue(KilnBlock.LIT) ? 13 : 0)), DEFAULT_BLOCK_ITEM);
-  public static final DeferredHolder<MenuType<?>,MenuType<KilnMenu>> KILN_MENU = MENUS.register("kiln", KilnMenu::new);
-  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<KilnBlockEntity>> KILN_BLOCK_ENTITY = BLOCK_ENTITIES.register("kiln", KilnBlockEntity::new, KILN);
+  public static final DeferredHolder<MenuType<?>,MenuType<KilnMenu>> KILN_MENU = MENUS.register("kiln", () -> IMenuTypeExtension.create(KilnMenu::new));
+  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<KilnBlockEntity>> KILN_BLOCK_ENTITY = blockEntity("kiln", KilnBlockEntity::new, () -> Set.of(KILN.get()));
   // kiln recipes
   public static final DeferredHolder<RecipeType<?>,RecipeType<KilnRecipe>> KILN_RECIPE = RECIPE_TYPES.register("kiln", () -> RecipeType.simple(Ceramics.getResource("kiln")));
   public static final DeferredHolder<RecipeSerializer<?>,SimpleCookingSerializer<KilnRecipe>> KILN_SERIALIZER = RECIPE_SERIALIZERS.register("kiln", () -> new SimpleCookingSerializer<>(KilnRecipe::new, 100));
@@ -257,8 +255,7 @@ public class Registration {
     TERRACOTTA_GAUGE = BLOCKS.register("terracotta_gauge", () -> new GaugeBlock(GAUGE_PROPERTIES), GAUGE_BLOCK_ITEM);
     PORCELAIN_GAUGE = BLOCKS.register("porcelain_gauge", () -> new GaugeBlock(GAUGE_PROPERTIES), GAUGE_BLOCK_ITEM);
     // the 1.16 gauge was renamed to the terracotta gauge, keep old worlds working
-    BLOCKS.addAlias(Ceramics.getResource("gauge"), Ceramics.getResource("terracotta_gauge"));
-    ITEMS.addAlias(Ceramics.getResource("gauge"), Ceramics.getResource("terracotta_gauge"));
+    BLOCKS.addAlias("gauge", "terracotta_gauge");
   }
 
   // raw clay blocks
@@ -282,21 +279,23 @@ public class Registration {
   public static final DeferredBlock<FluidCisternBlock> TERRACOTTA_CISTERN = BLOCKS.register("terracotta_cistern", () -> new FluidCisternBlock(terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), true), TERRACOTTA_CISTERN_BLOCK_ITEM);
   public static final EnumObject<DyeColor, FluidCisternBlock> COLORED_CISTERN = registerEnum(DyeColor.values(), "terracotta_cistern", (color) -> new FluidCisternBlock(terracottaProps(getTerracottaColor(color)).noOcclusion().randomTicks(), true), TERRACOTTA_CISTERN_BLOCK_ITEM);
   public static final EnumObject<DyeColor, FluidCisternBlock> PORCELAIN_CISTERN = registerEnum(DyeColor.values(), "porcelain_cistern", (color) -> new FluidCisternBlock(terracottaProps(getTerracottaColor(color)).noOcclusion(), false), PORCELAIN_CISTERN_BLOCK_ITEM);
-  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CisternBlockEntity>> CISTERN_BLOCK_ENTITY = BLOCK_ENTITIES.register("cistern", CisternBlockEntity::new, builder -> {
-    builder.add(TERRACOTTA_CISTERN.get());
-    builder.addAll(COLORED_CISTERN.values());
-    builder.addAll(PORCELAIN_CISTERN.values());
+  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CisternBlockEntity>> CISTERN_BLOCK_ENTITY = blockEntity("cistern", CisternBlockEntity::new, () -> {
+    Set<Block> blocks = new java.util.HashSet<>();
+    blocks.add(TERRACOTTA_CISTERN.get());
+    blocks.addAll(COLORED_CISTERN.values());
+    blocks.addAll(PORCELAIN_CISTERN.values());
+    return blocks;
   });
 
   // faucet
   public static final DeferredBlock<PouringFaucetBlock> TERRACOTTA_FAUCET = BLOCKS.register("terracotta_faucet", () -> new PouringFaucetBlock(terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), true), CRACKABLE_BLOCK_ITEM.apply("faucet.tooltip"));
   public static final DeferredBlock<PouringFaucetBlock> PORCELAIN_FAUCET = BLOCKS.register("porcelain_faucet", () -> new PouringFaucetBlock(terracottaProps(MapColor.TERRACOTTA_WHITE).noOcclusion(), false), HEAT_RESISTANT.apply("faucet.tooltip"));
-  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<FaucetBlockEntity>> FAUCET_BLOCK_ENTITY = BLOCK_ENTITIES.register("faucet", FaucetBlockEntity::new, builder -> builder.add(TERRACOTTA_FAUCET.get(), PORCELAIN_FAUCET.get()));
+  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<FaucetBlockEntity>> FAUCET_BLOCK_ENTITY = blockEntity("faucet", FaucetBlockEntity::new, () -> Set.of(TERRACOTTA_FAUCET.get(), PORCELAIN_FAUCET.get()));
 
   // channel
   public static final DeferredBlock<FlowingChannelBlock> TERRACOTTA_CHANNEL = BLOCKS.register("terracotta_channel", () -> new FlowingChannelBlock(terracottaProps(MapColor.COLOR_ORANGE).noOcclusion().randomTicks(), true), CRACKABLE_BLOCK_ITEM.apply("channel.tooltip"));
   public static final DeferredBlock<FlowingChannelBlock> PORCELAIN_CHANNEL = BLOCKS.register("porcelain_channel", () -> new FlowingChannelBlock(terracottaProps(MapColor.TERRACOTTA_WHITE).noOcclusion(), false), HEAT_RESISTANT.apply("channel.tooltip"));
-  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ChannelBlockEntity>> CHANNEL_BLOCK_ENTITY = BLOCK_ENTITIES.register("channel", ChannelBlockEntity::new, builder -> builder.add(TERRACOTTA_CHANNEL.get(), PORCELAIN_CHANNEL.get()));
+  public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ChannelBlockEntity>> CHANNEL_BLOCK_ENTITY = blockEntity("channel", ChannelBlockEntity::new, () -> Set.of(TERRACOTTA_CHANNEL.get(), PORCELAIN_CHANNEL.get()));
 
   // clay repair
   public static final DeferredHolder<RecipeSerializer<?>,RecipeSerializer<CrackedClayRepairRecipe>> CLAY_REPAIR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("cracked_clay_repair", CrackedClayRepairRecipe.Serializer::new);
@@ -425,19 +424,28 @@ public class Registration {
   }
 
   /** Adds all members of an enum object to the given creative tab */
-  private static void accept(Output output, MultiObject<? extends ItemLike> object) {
-    object.forEach(output::accept);
+  private static void accept(Output output, EnumObject<?, ? extends ItemLike> object) {
+    object.forEachItem(output::accept);
+  }
+
+  /** Adds a block with its slab, stairs and wall to the creative tab */
+  private static void accept(Output output, BuildingBlocks object) {
+    object.values().forEach(output::accept);
+  }
+
+  /** Registers a block entity type for the given blocks, resolved once the blocks exist */
+  private static <T extends net.minecraft.world.level.block.entity.BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> blockEntity(String name, BlockEntityType.BlockEntitySupplier<T> factory, Supplier<Set<Block>> blocks) {
+    return BLOCK_ENTITIES.register(name, () -> new BlockEntityType<>(factory, blocks.get(), null));
   }
 
   /** Registers a block with slab, stairs and wall, all using the default block item */
-  private static WallBuildingBlockObject registerWallBuilding(String name, BlockBehaviour.Properties props) {
-    return BLOCKS.registerBuilding(name, props).item(DEFAULT_BLOCK_ITEM).wall();
+  private static BuildingBlocks registerWallBuilding(String name, BlockBehaviour.Properties props) {
+    return BLOCKS.registerBuilding(name, props, DEFAULT_BLOCK_ITEM);
   }
 
-  /** Registers an enum of blocks keeping the block class, as Mantle 1.21 only returns plain blocks */
-  @SuppressWarnings("unchecked")
+  /** Registers one block per enum value */
   private static <E extends Enum<E>, B extends Block> EnumObject<E, B> registerEnum(E[] values, String name, Function<E, B> mapper, Function<Block, BlockItem> item) {
-    return (EnumObject<E, B>) (EnumObject<E, ?>) BLOCKS.registerEnum(values, name, mapper, item);
+    return BLOCKS.registerEnum(values, name, mapper, item);
   }
 
   /**

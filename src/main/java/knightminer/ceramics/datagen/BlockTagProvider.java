@@ -13,10 +13,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import slimeknights.mantle.datagen.MantleTags;
-import slimeknights.mantle.registration.object.EnumObject;
+import dev.vladeezyy.kilnwork.tag.KilnworkTags;
+import dev.vladeezyy.kilnwork.registration.EnumObject;
 import net.neoforged.neoforge.registries.DeferredBlock;
-import slimeknights.mantle.registration.object.WallBuildingBlockObject;
+import dev.vladeezyy.kilnwork.registration.BuildingBlocks;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -84,7 +84,7 @@ public class BlockTagProvider extends BlockTagsProvider {
     this.tag(CeramicsTags.Blocks.CISTERN_CONNECTIONS)
         .add(Registration.CLAY_FAUCET.get(), Registration.UNFIRED_FAUCET.get(), Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(),
              Registration.CLAY_CHANNEL.get(), Registration.UNFIRED_CHANNEL.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get())
-      .addTag(MantleTags.Blocks.ATTACHED_GAUGES);
+      .addTag(KilnworkTags.Blocks.ATTACHED_GAUGES);
     // list of all terracotta cisterns
     IntrinsicTagAppender<Block> terracottaCisterns = this.tag(CeramicsTags.Blocks.TERRACOTTA_CISTERNS)
                                                          .add(Registration.TERRACOTTA_CISTERN.get());
@@ -92,9 +92,9 @@ public class BlockTagProvider extends BlockTagsProvider {
     IntrinsicTagAppender<Block> porcelainCisterns = this.tag(CeramicsTags.Blocks.PORCELAIN_CISTERNS);
     Registration.PORCELAIN_CISTERN.forEach(block -> porcelainCisterns.add(block));
 
-    this.tag(MantleTags.Blocks.ATTACHED_GAUGES).add(Registration.TERRACOTTA_GAUGE.get(), Registration.PORCELAIN_GAUGE.get());
+    this.tag(KilnworkTags.Blocks.ATTACHED_GAUGES).add(Registration.TERRACOTTA_GAUGE.get(), Registration.PORCELAIN_GAUGE.get());
     // channels and faucets do not sync the full fluid amount, in 1.20 this was a block entity tag
-    this.tag(MantleTags.Blocks.HIDES_GAUGE_AMOUNT).add(Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get());
+    this.tag(KilnworkTags.Blocks.HIDES_GAUGE_AMOUNT).add(Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get());
 
     // pickaxe
     addTag(BlockTags.MINEABLE_WITH_PICKAXE, Registration.PORCELAIN_BLOCK, Registration.RAINBOW_PORCELAIN);
@@ -135,9 +135,9 @@ public class BlockTagProvider extends BlockTagsProvider {
     }
   }
 
-  private void addTag(TagKey<Block> tag, WallBuildingBlockObject... blocks) {
+  private void addTag(TagKey<Block> tag, BuildingBlocks... blocks) {
     IntrinsicTagAppender<Block> appender = this.tag(tag);
-    for (WallBuildingBlockObject object : blocks) {
+    for (BuildingBlocks object : blocks) {
       object.values().forEach(appender::add);
     }
   }

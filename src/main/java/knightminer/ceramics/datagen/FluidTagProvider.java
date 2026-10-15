@@ -1,5 +1,6 @@
 package knightminer.ceramics.datagen;
 
+import dev.vladeezyy.kilnwork.tag.KilnworkTags;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.core.HolderLookup.Provider;
@@ -7,7 +8,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import slimeknights.mantle.Mantle;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +27,7 @@ public class FluidTagProvider extends FluidTagsProvider {
 		// water and lava are handled by the temperature check, so just make empty tags
 		this.tag(CeramicsTags.Fluids.COOL_FLUIDS);
 		this.tag(CeramicsTags.Fluids.HOT_FLUIDS);
-		this.tag(CeramicsTags.Fluids.BUCKET_BLACKLIST).addOptionalTag(Mantle.commonResource("potion"));
+		this.tag(CeramicsTags.Fluids.BUCKET_BLACKLIST).addOptionalTag(KilnworkTags.Fluids.POTION.location());
 		this.tag(CeramicsTags.Fluids.HIDE_IN_BUCKET)
 			.addTag(CeramicsTags.Fluids.BUCKET_BLACKLIST)
 			.addOptionalTag(CeramicsTags.Fluids.POWDERED_SNOW.location())

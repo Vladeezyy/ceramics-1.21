@@ -29,8 +29,8 @@ Mod adding additional early game and vanilla-like tools made of clay. Includes f
     side="BOTH"
 
 [[dependencies.${mod_id}]]
-    modId="mantle"
+    modId="kilnwork"
     type="required"
-    versionRange="${mantle_range}"
+    versionRange="${kilnwork_range}"
     ordering="NONE"
     side="BOTH"

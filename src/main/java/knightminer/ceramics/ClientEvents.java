@@ -18,16 +18,13 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import slimeknights.mantle.client.render.ChannelFluids;
-import slimeknights.mantle.client.render.FaucetFluid;
 
 @SuppressWarnings("unused")
 @EventBusSubscriber(modid=Ceramics.MOD_ID, bus=Bus.MOD, value=Dist.CLIENT)
 public class ClientEvents {
   @SubscribeEvent
   static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
-    FaucetFluid.initialize(event);
-    ChannelFluids.initialize(event);
+    // faucet and channel fluid shapes are loaded by Kilnwork
     event.registerReloadListener(CisternFluids.REGISTRY);
   }
 

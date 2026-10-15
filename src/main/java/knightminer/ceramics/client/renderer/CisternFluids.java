@@ -1,25 +1,22 @@
 package knightminer.ceramics.client.renderer;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.vladeezyy.kilnwork.client.render.FluidCuboid;
+import dev.vladeezyy.kilnwork.data.BlockDataLoader;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.Block;
-import slimeknights.mantle.client.render.FluidCuboid;
-import slimeknights.mantle.data.datamap.RegistryDataMapLoader;
-import slimeknights.mantle.data.loadable.primitive.EnumLoadable;
-import slimeknights.mantle.data.loadable.record.RecordLoadable;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
-/** JSON element representing fluids in a cistern */
+/** JSON element representing fluids in a cistern, {@code assets/<namespace>/ceramics/cistern_fluids/<block>.json} */
 public record CisternFluids(FluidCuboid center, FluidCuboid extension, Map<Direction,FluidCuboid> sides) {
-  public static final RecordLoadable<CisternFluids> LOADABLE = RecordLoadable.create(
-    FluidCuboid.LOADABLE.requiredField("center", CisternFluids::center),
-    FluidCuboid.LOADABLE.requiredField("extension", CisternFluids::extension),
-    EnumLoadable.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST).mapWithValues(FluidCuboid.LOADABLE).requiredField("sides", CisternFluids::sides),
-    CisternFluids::new);
-  @SuppressWarnings("deprecation")
-  public static final RegistryDataMapLoader<Block, CisternFluids> REGISTRY = new RegistryDataMapLoader<>("Channel fluids", "ceramics/cistern_fluids", BuiltInRegistries.BLOCK, LOADABLE);
+  public static final Codec<CisternFluids> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    FluidCuboid.CODEC.fieldOf("center").forGetter(CisternFluids::center),
+    FluidCuboid.CODEC.fieldOf("extension").forGetter(CisternFluids::extension),
+    Codec.unboundedMap(Direction.CODEC, FluidCuboid.CODEC).fieldOf("sides").forGetter(CisternFluids::sides)
+  ).apply(inst, CisternFluids::new));
+  public static final BlockDataLoader<CisternFluids> REGISTRY = new BlockDataLoader<>("cistern fluids", "ceramics/cistern_fluids", CODEC);
 
   /** Gets a side fluid */
   @Nullable

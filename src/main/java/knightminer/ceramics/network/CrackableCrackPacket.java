@@ -9,8 +9,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import slimeknights.mantle.client.SafeClientAccess;
-import slimeknights.mantle.util.BlockEntityHelper;
+import dev.vladeezyy.kilnwork.client.KilnworkClient;
+import dev.vladeezyy.kilnwork.util.BlockEntityHelper;
 
 public record CrackableCrackPacket(BlockPos pos, int cracks) implements CustomPacketPayload {
 	public static final Type<CrackableCrackPacket> TYPE = new Type<>(Ceramics.getResource("crackable_crack"));
@@ -31,7 +31,7 @@ public record CrackableCrackPacket(BlockPos pos, int cracks) implements CustomPa
 
 	private static class HandleClient {
 		private static void handle(CrackableCrackPacket packet) {
-			Level level = SafeClientAccess.getLevel();
+			Level level = KilnworkClient.getLevel();
 			if (BlockEntityHelper.isBlockLoaded(level, packet.pos) && level.getBlockEntity(packet.pos) instanceof ICrackableBlockEntity crackable) {
 				crackable.getCracksHandler().setCracks(packet.cracks);
 			}

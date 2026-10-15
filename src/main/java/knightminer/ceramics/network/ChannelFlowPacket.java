@@ -10,8 +10,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import slimeknights.mantle.client.SafeClientAccess;
-import slimeknights.mantle.util.BlockEntityHelper;
+import dev.vladeezyy.kilnwork.client.KilnworkClient;
+import dev.vladeezyy.kilnwork.util.BlockEntityHelper;
 
 /** Packet for when the flowing state changes on a channel side */
 public record ChannelFlowPacket(BlockPos pos, Direction side, boolean flow) implements CustomPacketPayload {
@@ -34,7 +34,7 @@ public record ChannelFlowPacket(BlockPos pos, Direction side, boolean flow) impl
 
 	private static class HandleClient {
 		private static void handle(ChannelFlowPacket packet) {
-			Level level = SafeClientAccess.getLevel();
+			Level level = KilnworkClient.getLevel();
 			if (BlockEntityHelper.isBlockLoaded(level, packet.pos) && level.getBlockEntity(packet.pos) instanceof ChannelBlockEntity channel) {
 				channel.setFlow(packet.side, packet.flow);
 			}

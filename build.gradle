@@ -12,7 +12,7 @@ base {
 }
 
 repositories {
-    maven { url = 'https://dvs1.progwml6.com/files/maven/' } // Mantle
+    mavenLocal() // Kilnwork (./gradlew publishToMavenLocal in the kilnwork repository)
     maven { url = 'https://maven.blamejared.com/' } // JEI
 }
 
@@ -62,7 +62,7 @@ neoForge {
         data {
             data()
             programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').absolutePath,
-                    '--existing', file('src/main/resources/').absolutePath, '--existing-mod', 'mantle'
+                    '--existing', file('src/main/resources/').absolutePath
         }
         configureEach {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
@@ -83,13 +83,12 @@ configurations {
 }
 
 dependencies {
-    implementation "slimeknights.mantle:Mantle:${mantle_version}"
-    // Mantle 1.21.1 has no public release (only dev builds on the SlimeKnights maven), so it ships inside the jar.
-    // NeoForge picks the newest Mantle if another mod also brings one.
-    jarJar("slimeknights.mantle:Mantle") {
+    implementation "dev.vladeezyy:kilnwork:${kilnwork_version}"
+    // Kilnwork ships inside the jar, NeoForge picks the newest copy if another mod brings one
+    jarJar("dev.vladeezyy:kilnwork") {
         version {
-            strictly "[${mantle_version},)"
-            prefer mantle_version
+            strictly "[${kilnwork_version},)"
+            prefer kilnwork_version
         }
     }
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
@@ -102,7 +101,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
             neo_version_range      : neo_version_range,
-            mantle_range           : mantle_range,
+            kilnwork_range         : kilnwork_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,

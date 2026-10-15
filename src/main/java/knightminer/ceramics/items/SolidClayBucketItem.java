@@ -20,8 +20,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import slimeknights.mantle.data.loadable.Loadables;
-import slimeknights.mantle.util.RegistryHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -124,7 +122,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 		} else {
 			// if the specific block is translatable, use that
 			String key = this.getDescriptionId(stack);
-			ResourceLocation location = Loadables.BLOCK.getKey(block);
+			ResourceLocation location = BuiltInRegistries.BLOCK.getKey(block);
 			String blockKey = String.format("%s.%s.%s", key, location.getNamespace(), location.getPath());
 			if (Language.getInstance().has(blockKey)) {
 				component = Component.translatable(blockKey);
@@ -139,7 +137,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 	@Override
 	public void addVariants(Consumer<ItemStack> consumer) {
 		for (Block block : BUCKETABLE_BLOCKS) {
-			if (isCracked == RegistryHelper.contains(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS, block)) {
+			if (isCracked == block.defaultBlockState().is(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS)) {
 				consumer.accept(setBlock(new ItemStack(this), block));
 			}
 		}
@@ -149,7 +147,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 	public String getCreatorModId(ItemStack stack) {
 		Block block = getBlock(stack);
 		if (block != Blocks.AIR) {
-			String namespace = Loadables.BLOCK.getKey(block).getNamespace();
+			String namespace = BuiltInRegistries.BLOCK.getKey(block).getNamespace();
 			if (!"minecraft".equals(namespace)) {
 				return namespace;
 			}

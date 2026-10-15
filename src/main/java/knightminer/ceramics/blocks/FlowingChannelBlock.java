@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import slimeknights.mantle.util.BlockEntityHelper;
+import dev.vladeezyy.kilnwork.util.BlockEntityHelper;
 
 import javax.annotation.Nullable;
 

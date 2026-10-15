@@ -1,5 +1,6 @@
 package knightminer.ceramics.client.renderer;
 
+import dev.vladeezyy.kilnwork.client.render.FluidCuboidRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import knightminer.ceramics.blocks.CisternBlock;
@@ -14,9 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Vector3f;
-import slimeknights.mantle.client.render.FluidCuboid;
-import slimeknights.mantle.client.render.FluidRenderer;
-import slimeknights.mantle.client.render.MantleRenderTypes;
+import dev.vladeezyy.kilnwork.client.render.FluidCuboid;
 
 /**
  * Renderer for cistern blocks
@@ -39,11 +38,11 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
         if (model != null) {
           // fetch textures and attributes
           IClientFluidTypeExtensions client = IClientFluidTypeExtensions.of(fluid.getFluid());
-          TextureAtlasSprite still = FluidRenderer.getBlockSprite(client.getStillTexture(fluid));
-          TextureAtlasSprite flowing = FluidRenderer.getBlockSprite(client.getFlowingTexture(fluid));
-          VertexConsumer builder = buffer.getBuffer(MantleRenderTypes.FLUID);
+          TextureAtlasSprite still = FluidCuboidRenderer.getBlockSprite(client.getStillTexture(fluid));
+          TextureAtlasSprite flowing = FluidCuboidRenderer.getBlockSprite(client.getFlowingTexture(fluid));
+          VertexConsumer builder = FluidCuboidRenderer.getBuffer(buffer);
           int color = client.getTintColor(fluid);
-          light = FluidRenderer.withBlockLight(light, fluid.getFluid().getFluidType().getLightLevel(fluid));
+          light = FluidCuboidRenderer.withBlockLight(light, fluid.getFluid().getFluidType().getLightLevel(fluid));
 
           // if full, just render all full sides
           int capacityPerLayer = tileEntity.capacityPerLayer();

@@ -1,5 +1,6 @@
 package knightminer.ceramics.recipe;
 
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import knightminer.ceramics.Ceramics;
@@ -10,7 +11,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import slimeknights.mantle.Mantle;
 
 import java.util.function.Consumer;
 
@@ -72,7 +72,7 @@ public class CeramicsTags {
     }
 
     private static TagKey<Item> commonTag(String id) {
-      return ItemTags.create(Mantle.commonResource(id));
+      return ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", id));
     }
   }
 
@@ -88,7 +88,7 @@ public class CeramicsTags {
     /** Fluids in this tag won't show in the creative filled buckets. Unlike {@link #BUCKET_BLACKLIST}, will not prevent filling the bucket */
     public static final TagKey<Fluid> HIDE_IN_BUCKET = ceramicsTag("hide_in_bucket");
     /** Powdered snow in fluid form */
-    public static final TagKey<Fluid> POWDERED_SNOW = FluidTags.create(Mantle.commonResource("powdered_snow"));
+    public static final TagKey<Fluid> POWDERED_SNOW = FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "powdered_snow"));
 
     private static TagKey<Fluid> ceramicsTag(String id) {
       return FluidTags.create(Ceramics.getResource(id));

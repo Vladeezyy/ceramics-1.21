@@ -42,7 +42,6 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import slimeknights.mantle.data.loadable.Loadables;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -229,7 +228,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		}
 		// if the specific fluid is translatable, use that
 		String key = this.getDescriptionId(stack);
-		ResourceLocation location = Loadables.FLUID.getKey(fluid);
+		ResourceLocation location = BuiltInRegistries.FLUID.getKey(fluid);
 		String fluidKey = String.format("%s.%s.%s", key, location.getNamespace(), location.getPath());
 		MutableComponent component;
 		if (Language.getInstance().has(fluidKey)) {
@@ -264,7 +263,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	public String getCreatorModId(ItemStack stack) {
 		Fluid fluid = getFluid(stack);
 		if (fluid != Fluids.EMPTY) {
-			String namespace = Loadables.FLUID.getKey(fluid).getNamespace();
+			String namespace = BuiltInRegistries.FLUID.getKey(fluid).getNamespace();
 			if (!"minecraft".equals(namespace)) {
 				return namespace;
 			}

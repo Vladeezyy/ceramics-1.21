@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import slimeknights.mantle.fluid.FluidTransferHelper;
+import dev.vladeezyy.kilnwork.fluid.FluidTransferHelper;
 
 import javax.annotation.Nullable;
 

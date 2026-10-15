@@ -11,7 +11,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable.Builder;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import slimeknights.mantle.registration.object.WallBuildingBlockObject;
+import dev.vladeezyy.kilnwork.registration.BuildingBlocks;
 
 import java.util.Map.Entry;
 import java.util.Set;
@@ -81,7 +81,7 @@ public class BlockLootTables extends BlockLootSubProvider {
    * Registers self loot tables for block, slab, stairs, and wall
    * @param building  Building block object
    */
-  private void registerBuildingLootTable(WallBuildingBlockObject building) {
+  private void registerBuildingLootTable(BuildingBlocks building) {
     dropSelf(building.get());
     add(building.getSlab(), this::createSlabItemTable);
     dropSelf(building.getStairs());
