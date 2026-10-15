@@ -87,12 +87,12 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 					}
 					// render the extra edge against other blocks
 					if (!world.getBlockState(pos.relative(direction)).is(state.getBlock())) {
-						FluidRenderer.renderCuboid(matrices, builder, model.side().edge(), 0, still, flowing, color, light, false);
+						FluidCuboidRenderer.renderCuboid(matrices, builder, model.side().edge(), 0, still, flowing, color, light, false);
 					}
 				} else {
 					cube = model.side().still();
 				}
-				FluidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);
+				FluidCuboidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);
 				// undo rotation
 				if (isRotated) {
 					matrices.popPose();
@@ -109,7 +109,7 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 			isRotated = RenderingHelper.applyRotation(matrices, centerFlow);
 		}
 		// render the cube and pop back
-		FluidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);
+		FluidCuboidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);
 		if (isRotated) {
 			matrices.popPose();
 		}
@@ -117,10 +117,10 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 		// render flow downwards
 		if (state.getValue(ChannelBlock.DOWN) && te.isFlowing(Direction.DOWN)) {
 			cube = model.down();
-			FluidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);
+			FluidCuboidRenderer.renderCuboid(matrices, builder, cube, 0, still, flowing, color, light, false);
 
 			// render into the block(s) below
-			RenderingHelper.renderFaucetFluids(world, pos, Direction.DOWN, matrices, builder, still, flowing, color, light);
+			FluidCuboidRenderer.renderFaucetFluids(world, pos, Direction.DOWN, matrices, builder, still, flowing, color, light);
 		}
 	}
 }

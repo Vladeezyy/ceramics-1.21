@@ -52,7 +52,7 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
               // state and model must contain that direction
               FluidCuboid cuboid = model.side(direction);
               if (cuboid != null && state.getValue(CisternBlock.CONNECTIONS.get(direction))) {
-                FluidRenderer.renderCuboid(matrices, builder, cuboid, still, flowing, cuboid.getFromScaled(), cuboid.getToScaled(), color, light, false);
+                FluidCuboidRenderer.renderCuboid(matrices, builder, cuboid, still, flowing, cuboid.getFromScaled(), cuboid.getToScaled(), color, light, false);
               }
             }
           } else {
@@ -63,7 +63,7 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
             float minY = from.y();
             to.y = minY + amount * (to.y() - minY) / (float)capacityPerLayer;
             // render the center using Mantle's logic
-            FluidRenderer.renderCuboid(matrices, builder, center, still, still, from, to, color, light, false);
+            FluidCuboidRenderer.renderCuboid(matrices, builder, center, still, still, from, to, color, light, false);
 
             // scale the sides based on the center
             for (Direction direction : Plane.HORIZONTAL) {
@@ -79,7 +79,7 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
                     sTo = new Vector3f(sTo);
                     sTo.y = to.y();
                   }
-                  FluidRenderer.renderCuboid(matrices, builder, cuboid, still, still, sFrom, sTo, color, light, false);
+                  FluidCuboidRenderer.renderCuboid(matrices, builder, cuboid, still, still, sFrom, sTo, color, light, false);
                 }
               }
             }

@@ -69,11 +69,11 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
       // render all cubes in the model
       VertexConsumer buffer = bufferIn.getBuffer(MantleRenderTypes.FLUID);
       for (FluidCuboid cube : fluids) {
-        FluidRenderer.renderCuboid(matrices, buffer, cube, 0, still, flowing, color, combinedLightIn, false);
+        FluidCuboidRenderer.renderCuboid(matrices, buffer, cube, 0, still, flowing, color, combinedLightIn, false);
       }
 
       // render into the block(s) below
-      RenderingHelper.renderFaucetFluids(world, tileEntity.getBlockPos(), direction, matrices, buffer, still, flowing, color, combinedLightIn);
+      FluidCuboidRenderer.renderFaucetFluids(world, tileEntity.getBlockPos(), direction, matrices, buffer, still, flowing, color, combinedLightIn);
 
       // if rotated, pop back rotation
       if(isRotated) {

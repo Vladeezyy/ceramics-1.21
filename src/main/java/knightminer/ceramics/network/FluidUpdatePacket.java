@@ -17,6 +17,11 @@ import slimeknights.mantle.util.BlockEntityHelper;
  */
 public record FluidUpdatePacket(BlockPos pos, FluidStack fluid, boolean data) implements CustomPacketPayload {
 	public static final Type<FluidUpdatePacket> TYPE = new Type<>(Ceramics.getResource("fluid_update"));
+
+	public FluidUpdatePacket {
+		// in singleplayer the packet reaches the client without being encoded, so never share the server's stack
+		fluid = fluid.copy();
+	}
 	public static final StreamCodec<RegistryFriendlyByteBuf, FluidUpdatePacket> STREAM_CODEC = StreamCodec.composite(
 		BlockPos.STREAM_CODEC, FluidUpdatePacket::pos,
 		FluidStack.OPTIONAL_STREAM_CODEC, FluidUpdatePacket::fluid,

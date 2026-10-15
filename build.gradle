@@ -48,7 +48,12 @@ neoForge {
             server()
             programArgument '--nogui'
         }
-        // tools/servertest.sh SELFTEST=1: functional checks on a fresh world, then stops (src/selftest)
+        // tools/scenetest.sh: client scene with screenshots in run/screenshots (src/selftest)
+        scene {
+            client()
+            systemProperty 'ceramics.scene', 'true'
+        }
+        // tools/selftest.sh: functional checks on a fresh world, then stops (src/selftest)
         selftest {
             server()
             programArgument '--nogui'
@@ -79,6 +84,14 @@ configurations {
 
 dependencies {
     implementation "slimeknights.mantle:Mantle:${mantle_version}"
+    // Mantle 1.21.1 has no public release (only dev builds on the SlimeKnights maven), so it ships inside the jar.
+    // NeoForge picks the newest Mantle if another mod also brings one.
+    jarJar("slimeknights.mantle:Mantle") {
+        version {
+            strictly "[${mantle_version},)"
+            prefer mantle_version
+        }
+    }
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
