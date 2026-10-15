@@ -28,6 +28,10 @@ from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.1**, with all of its content.
 
 | Version | Minecraft | Loader | Java |
 | --- | --- | --- | --- |
+| 1.8.0.1+26.3 | 26.3 | NeoForge 26.3.0.83 or newer | 25 |
+| 1.8.0.1+26.2 | 26.2 | NeoForge 26.2.0.93 or newer | 25 |
+| 1.8.0.1+26.1.2 | 26.1.2 | NeoForge 26.1.2.121 or newer | 25 |
+| 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 or newer | 21 |
 | 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer | 21 |
 | 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer (Mantle inside) | 21 |
 
@@ -97,7 +101,7 @@ Problems of this port go to the [issues of this repository](../../issues), not t
 - **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), included in the jar,
   based on parts of **Mantle** by [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Czech translation: RomanPlayer22. Korean: mindy15963 and the original translators.
-- Port to NeoForge 1.21.1: Vladeezyy.
+- Port to NeoForge 1.21.1, 1.21.11 and 26.x: Vladeezyy.
 
 This port is released under **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL text in
 [licenses/COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Forks are welcome: they stay open, under the
@@ -112,6 +116,10 @@ same license, with credit to the authors. Please download the mod only from the 
 
 | Версия | Minecraft | Загрузчик | Java |
 | --- | --- | --- | --- |
+| 1.8.0.1+26.3 | 26.3 | NeoForge 26.3.0.83 или новее | 25 |
+| 1.8.0.1+26.2 | 26.2 | NeoForge 26.2.0.93 или новее | 25 |
+| 1.8.0.1+26.1.2 | 26.1.2 | NeoForge 26.1.2.121 или новее | 25 |
+| 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 или новее | 21 |
 | 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее | 21 |
 | 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее (Mantle внутри) | 21 |
 
@@ -180,7 +188,7 @@ same license, with credit to the authors. Please download the mod only from the 
 - **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), встроена в jar, основана
   на частях **Mantle** от [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Чешский перевод: RomanPlayer22. Корейский: mindy15963 и переводчики оригинала.
-- Порт на NeoForge 1.21.1: Vladeezyy.
+- Порт на NeoForge 1.21.1, 1.21.11 и 26.x: Vladeezyy.
 
 Порт распространяется под **LGPL-3.0-only** ([LICENSE](LICENSE), текст GPL в [licenses/COPYING](licenses/COPYING)),
 Copyright (c) 2026 Vladeezyy. Форки приветствуются: они остаются открытыми, под той же лицензией и с указанием
