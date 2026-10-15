@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.3,
-  "ingredient": {
-    "item": "ceramics:unfired_channel"
-  },
+  "ingredient": "ceramics:unfired_channel",
   "result": {
     "count": 1,
     "id": "ceramics:porcelain_channel"

@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:golden_bricks",
   "key": {
-    "B": {
-      "item": "ceramics:golden_bricks_slab"
-    }
+    "B": "ceramics:golden_bricks_slab"
   },
   "pattern": [
     "B",

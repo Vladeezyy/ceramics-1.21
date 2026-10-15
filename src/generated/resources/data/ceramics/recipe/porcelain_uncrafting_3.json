@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "ceramics:porcelain_uncrafting",
   "ingredients": [
-    {
-      "item": "ceramics:unfired_cistern"
-    }
+    "ceramics:unfired_cistern"
   ],
   "result": {
     "count": 3,

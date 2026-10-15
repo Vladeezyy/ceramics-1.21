@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "B": {
-      "item": "ceramics:lava_bricks"
-    }
+    "B": "ceramics:lava_bricks"
   },
   "pattern": [
     "BBB",

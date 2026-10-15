@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "ceramics:clay_uncrafting",
   "ingredients": [
-    {
-      "item": "ceramics:unfired_clay_plate"
-    }
+    "ceramics:unfired_clay_plate"
   ],
   "result": {
     "count": 1,

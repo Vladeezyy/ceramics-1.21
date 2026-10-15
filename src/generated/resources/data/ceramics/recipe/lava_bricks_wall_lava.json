@@ -3,12 +3,8 @@
   "category": "building",
   "group": "ceramics:lava_bricks_wall",
   "key": {
-    "B": {
-      "item": "minecraft:brick_wall"
-    },
-    "i": {
-      "item": "minecraft:lava_bucket"
-    }
+    "B": "minecraft:brick_wall",
+    "i": "minecraft:lava_bucket"
   },
   "pattern": [
     "BBB",

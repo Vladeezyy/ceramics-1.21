@@ -1,0 +1,7 @@
+{
+  "parent": "ceramics:item/terracotta_channel_cracks",
+  "textures": {
+    "cracks": "ceramics:block/terracotta_cracks/5",
+    "particle": "ceramics:block/terracotta_cracks/5"
+  }
+}

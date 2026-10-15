@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:brick"
-    },
-    "F": {
-      "item": "minecraft:furnace"
-    },
-    "H": {
-      "item": "minecraft:terracotta"
-    }
+    "B": "minecraft:brick",
+    "F": "minecraft:furnace",
+    "H": "minecraft:terracotta"
   },
   "pattern": [
     "BBB",

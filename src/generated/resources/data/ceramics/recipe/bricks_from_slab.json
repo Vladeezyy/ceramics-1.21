@@ -3,9 +3,7 @@
   "category": "building",
   "group": "bricks",
   "key": {
-    "B": {
-      "item": "minecraft:brick_slab"
-    }
+    "B": "minecraft:brick_slab"
   },
   "pattern": [
     "B",

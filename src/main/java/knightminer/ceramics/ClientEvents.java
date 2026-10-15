@@ -1,5 +1,6 @@
 package knightminer.ceramics;
 
+import knightminer.ceramics.client.model.ClayBucketItemModel;
 import knightminer.ceramics.client.renderer.ChannelBlockEntityRenderer;
 import knightminer.ceramics.client.renderer.CisternBlockEntityRenderer;
 import knightminer.ceramics.client.renderer.CisternFluids;
@@ -13,12 +14,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 /**
- * Client registration. Since 1.21.4 the clay buckets are plain item model definitions (neoforge:fluid_container for
- * fluids, a select on the block for solids) and since 1.21.11 the cracks are a block state property drawn by the block
- * models, so the custom model loaders of 1.20 are gone. Cutout render types are set in the block model JSON.
+ * Client registration. Since 1.21.4 the clay buckets use the item model type ceramics:clay_bucket, and since 1.21.11
+ * the cracks are a block state property drawn by the block models, so the geometry loaders of 1.20 are gone. Cutout
+ * render types are set in the block model JSON.
  */
 @SuppressWarnings("unused")
 @EventBusSubscriber(modid=Ceramics.MOD_ID, value=Dist.CLIENT)
@@ -33,6 +35,11 @@ public class ClientEvents {
   @SubscribeEvent(priority = EventPriority.HIGH)
   static void onRecipesReceived(RecipesReceivedEvent event) {
     KilnRecipeSync.onRecipesReceived(event);
+  }
+
+  @SubscribeEvent
+  static void registerItemModels(RegisterItemModelsEvent event) {
+    event.register(ClayBucketItemModel.ID, ClayBucketItemModel.Unbaked.MAP_CODEC);
   }
 
   @SubscribeEvent

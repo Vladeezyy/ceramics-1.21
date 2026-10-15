@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "B": {
-      "item": "ceramics:marine_bricks"
-    }
+    "B": "ceramics:marine_bricks"
   },
   "pattern": [
     "BBB",

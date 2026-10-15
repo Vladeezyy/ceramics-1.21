@@ -1,0 +1,68 @@
+{
+  "parent": "ceramics:block/cistern/terracotta/side_full_unconnected",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        3
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#cracks",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        16,
+        3
+      ],
+      "faces": {
+        "south": {
+          "texture": "#cracks"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "ceramics:cracks",
+    "cases": [
+      {
+        "when": 1,
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:item/gray_terracotta_cistern"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:block/cistern/terracotta/item_cracks_1"
+            }
+          ]
+        }
+      },
+      {
+        "when": 2,
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:item/gray_terracotta_cistern"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:block/cistern/terracotta/item_cracks_2"
+            }
+          ]
+        }
+      },
+      {
+        "when": 3,
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:item/gray_terracotta_cistern"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:block/cistern/terracotta/item_cracks_3"
+            }
+          ]
+        }
+      },
+      {
+        "when": 4,
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:item/gray_terracotta_cistern"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:block/cistern/terracotta/item_cracks_4"
+            }
+          ]
+        }
+      },
+      {
+        "when": 5,
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:item/gray_terracotta_cistern"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "ceramics:block/cistern/terracotta/item_cracks_5"
+            }
+          ]
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "ceramics:item/gray_terracotta_cistern"
+    }
+  }
+}

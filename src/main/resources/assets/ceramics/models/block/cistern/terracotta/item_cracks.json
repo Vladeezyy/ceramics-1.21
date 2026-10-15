@@ -1,0 +1,236 @@
+{
+  "parent": "ceramics:block/cistern/terracotta/item",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        2,
+        16,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        3
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        16,
+        13
+      ],
+      "to": [
+        14,
+        16,
+        15
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        16,
+        2
+      ],
+      "to": [
+        3,
+        16,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        16,
+        2
+      ],
+      "to": [
+        15,
+        16,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        14
+      ],
+      "to": [
+        14,
+        16,
+        15
+      ],
+      "faces": {
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        1,
+        2
+      ],
+      "to": [
+        2,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        14,
+        1,
+        2
+      ],
+      "to": [
+        15,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        16,
+        13
+      ],
+      "to": [
+        3,
+        2,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        1,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    }
+  ]
+}

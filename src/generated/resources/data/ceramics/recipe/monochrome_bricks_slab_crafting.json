@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:monochrome_bricks_slab",
   "key": {
-    "B": {
-      "item": "ceramics:monochrome_bricks"
-    }
+    "B": "ceramics:monochrome_bricks"
   },
   "pattern": [
     "BBB"

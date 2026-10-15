@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:marine_bricks_slab",
   "key": {
-    "B": {
-      "item": "ceramics:marine_bricks"
-    }
+    "B": "ceramics:marine_bricks"
   },
   "pattern": [
     "BBB"

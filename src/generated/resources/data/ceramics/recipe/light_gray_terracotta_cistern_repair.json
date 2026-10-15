@@ -1,7 +1,5 @@
 {
   "type": "ceramics:cracked_clay_repair",
-  "ingredient": {
-    "tag": "ceramics:terracotta_crack_repair"
-  },
+  "ingredient": "#ceramics:terracotta_crack_repair",
   "item": "ceramics:light_gray_terracotta_cistern"
 }

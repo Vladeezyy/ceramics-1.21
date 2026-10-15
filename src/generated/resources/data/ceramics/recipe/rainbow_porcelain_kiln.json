@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 100,
   "experience": 0.1,
-  "ingredient": {
-    "tag": "ceramics:colored_porcelain"
-  },
+  "ingredient": "#ceramics:colored_porcelain",
   "result": {
     "count": 1,
     "id": "ceramics:red_rainbow_porcelain"

@@ -4,12 +4,8 @@
   "group": "ceramics:porcelain_uncrafting",
   "ingredients": [
     [
-      {
-        "item": "ceramics:unfired_faucet"
-      },
-      {
-        "item": "ceramics:unfired_channel"
-      }
+      "ceramics:unfired_faucet",
+      "ceramics:unfired_channel"
     ]
   ],
   "result": {

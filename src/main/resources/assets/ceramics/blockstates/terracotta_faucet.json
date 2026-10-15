@@ -1,9 +1,287 @@
 {
-    "variants": {
-        "facing=north": { "model": "ceramics:block/faucet/terracotta_side" },
-        "facing=south": { "model": "ceramics:block/faucet/terracotta_side", "y": 180 },
-        "facing=west":  { "model": "ceramics:block/faucet/terracotta_side", "y": 270 },
-        "facing=east":  { "model": "ceramics:block/faucet/terracotta_side", "y":  90 },
-        "facing=down":  { "model": "ceramics:block/faucet/terracotta_top" }
+  "multipart": [
+    {
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side"
+      },
+      "when": {
+        "facing": "north"
+      }
+    },
+    {
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side",
+        "y": 180
+      },
+      "when": {
+        "facing": "south"
+      }
+    },
+    {
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side",
+        "y": 270
+      },
+      "when": {
+        "facing": "west"
+      }
+    },
+    {
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side",
+        "y": 90
+      },
+      "when": {
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_top"
+      },
+      "when": {
+        "facing": "down"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_1"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_2"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_3"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_4"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_5"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_4",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_5",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_4",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_5",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_4",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_side_cracks_5",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "down",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_top_cracks_1"
+      }
+    },
+    {
+      "when": {
+        "facing": "down",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_top_cracks_2"
+      }
+    },
+    {
+      "when": {
+        "facing": "down",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_top_cracks_3"
+      }
+    },
+    {
+      "when": {
+        "facing": "down",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_top_cracks_4"
+      }
+    },
+    {
+      "when": {
+        "facing": "down",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/faucet/terracotta_top_cracks_5"
+      }
     }
+  ]
 }

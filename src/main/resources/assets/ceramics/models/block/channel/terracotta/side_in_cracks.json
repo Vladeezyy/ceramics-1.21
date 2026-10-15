@@ -1,0 +1,104 @@
+{
+  "parent": "ceramics:block/channel/terracotta/side_in",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        6,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        6,
+        0
+      ],
+      "to": [
+        10,
+        6,
+        6
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        6,
+        0
+      ],
+      "to": [
+        12,
+        9,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        6,
+        0
+      ],
+      "to": [
+        6,
+        9,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    }
+  ]
+}

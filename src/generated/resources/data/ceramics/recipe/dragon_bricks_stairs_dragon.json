@@ -3,12 +3,8 @@
   "category": "building",
   "group": "ceramics:dragon_bricks_stairs",
   "key": {
-    "B": {
-      "item": "minecraft:brick_stairs"
-    },
-    "i": {
-      "item": "minecraft:dragon_breath"
-    }
+    "B": "minecraft:brick_stairs",
+    "i": "minecraft:dragon_breath"
   },
   "pattern": [
     "BBB",

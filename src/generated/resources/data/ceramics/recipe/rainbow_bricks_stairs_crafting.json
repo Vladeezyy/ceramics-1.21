@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:rainbow_bricks_stairs",
   "key": {
-    "B": {
-      "item": "ceramics:rainbow_bricks"
-    }
+    "B": "ceramics:rainbow_bricks"
   },
   "pattern": [
     "B  ",

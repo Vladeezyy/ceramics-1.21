@@ -1,50 +1,872 @@
 {
-    "multipart": [
-        {   "when": { "down": "false" },
-            "apply": { "model": "ceramics:block/channel/terracotta/center" }
-        },
-        {   "when": { "down": "true" },
-            "apply": { "model": "ceramics:block/channel/terracotta/center_out" }
-        },
-        
-        {   "when": { "north": "none" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_wall", "uvlock": true }
-        },
-        {   "when": { "north": "in" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_in", "uvlock": true }
-        },
-        {   "when": { "north": "out" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_out", "uvlock": true }
-        },
-        
-        {   "when": { "east": "none" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_wall", "y": 90, "uvlock": true }
-        },
-        {   "when": { "east": "in" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_in", "y": 90, "uvlock": true }
-        },
-        {   "when": { "east": "out" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_out", "y": 90, "uvlock": true }
-        },
-        
-        {   "when": { "south": "none" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_wall", "y": 180, "uvlock": true }
-        },
-        {   "when": { "south": "in" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_in", "y": 180, "uvlock": true }
-        },
-        {   "when": { "south": "out" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_out", "y": 180, "uvlock": true }
-        },
-        
-        {   "when": { "west": "none" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_wall", "y": 270, "uvlock": true }
-        },
-        {   "when": { "west": "in" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_in", "y": 270, "uvlock": true }
-        },
-        {   "when": { "west": "out" },
-            "apply": { "model": "ceramics:block/channel/terracotta/side_out", "y": 270, "uvlock": true }
-        }
-    ]
+  "multipart": [
+    {
+      "when": {
+        "down": "false"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center"
+      }
+    },
+    {
+      "when": {
+        "down": "true"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_out"
+      }
+    },
+    {
+      "when": {
+        "north": "none"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "in"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "out"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "none"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "in"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "out"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "none"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "in"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "out"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "none"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "in"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "out"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_cracks_1"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_cracks_2"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_cracks_3"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_cracks_4"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_cracks_5"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_out_cracks_1"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_out_cracks_2"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_out_cracks_3"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_out_cracks_4"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/center_out_cracks_5"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_1",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_2",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_3",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_4",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_5",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "in",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_1",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "in",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_2",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "in",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_3",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "in",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_4",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "in",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_5",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "out",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_1",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "out",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_2",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "out",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_3",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "out",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_4",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "out",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_5",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_1",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_2",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_3",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_4",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_5",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "in",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_1",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "in",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_2",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "in",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_3",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "in",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_4",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "in",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_5",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "out",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_1",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "out",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_2",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "out",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_3",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "out",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_4",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "out",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_5",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_1",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_2",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_3",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_4",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_5",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "in",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_1",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "in",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_2",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "in",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_3",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "in",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_4",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "in",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_5",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "out",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_1",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "out",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_2",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "out",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_3",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "out",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_4",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "out",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_5",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_1",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_2",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_3",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_4",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_wall_cracks_5",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "in",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_1",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "in",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_2",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "in",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_3",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "in",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_4",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "in",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_in_cracks_5",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "out",
+        "cracks": "1"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_1",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "out",
+        "cracks": "2"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_2",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "out",
+        "cracks": "3"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_3",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "out",
+        "cracks": "4"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_4",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "out",
+        "cracks": "5"
+      },
+      "apply": {
+        "model": "ceramics:block/channel/terracotta/side_out_cracks_5",
+        "y": 270,
+        "uvlock": true
+      }
+    }
+  ]
 }

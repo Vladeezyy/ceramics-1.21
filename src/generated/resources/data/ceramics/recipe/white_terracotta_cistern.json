@@ -4,14 +4,10 @@
   "group": "ceramics:colored_cisterns",
   "key": {
     "c": {
-      "type": "ceramics:no_nbt",
-      "ingredient": {
-        "tag": "ceramics:terracotta_cisterns"
-      }
+      "neoforge:ingredient_type": "ceramics:no_nbt",
+      "ingredient": "#ceramics:terracotta_cisterns"
     },
-    "d": {
-      "tag": "c:dyes/white"
-    }
+    "d": "#c:dyes/white"
   },
   "pattern": [
     " c ",

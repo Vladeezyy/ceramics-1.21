@@ -1,0 +1,53 @@
+{
+  "parent": "ceramics:block/cistern/terracotta/base",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        1,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        2,
+        13
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    }
+  ]
+}

@@ -3,12 +3,8 @@
   "category": "building",
   "group": "ceramics:golden_bricks_wall",
   "key": {
-    "B": {
-      "item": "ceramics:porcelain_bricks_wall"
-    },
-    "i": {
-      "item": "minecraft:gold_ingot"
-    }
+    "B": "ceramics:porcelain_bricks_wall",
+    "i": "minecraft:gold_ingot"
   },
   "pattern": [
     "BBB",

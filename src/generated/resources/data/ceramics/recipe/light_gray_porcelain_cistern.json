@@ -3,12 +3,8 @@
   "category": "redstone",
   "group": "ceramics:porcelain_cisterns",
   "key": {
-    "c": {
-      "tag": "ceramics:porcelain_cisterns"
-    },
-    "d": {
-      "tag": "c:dyes/light_gray"
-    }
+    "c": "#ceramics:porcelain_cisterns",
+    "d": "#c:dyes/light_gray"
   },
   "pattern": [
     " c ",

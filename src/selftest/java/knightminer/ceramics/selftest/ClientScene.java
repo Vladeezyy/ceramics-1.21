@@ -13,13 +13,14 @@ import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackable
 import knightminer.ceramics.blocks.entity.FaucetBlockEntity;
 import knightminer.ceramics.items.BaseClayBucketItem;
 import knightminer.ceramics.items.CrackableBlockItem;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -28,8 +29,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
@@ -45,9 +45,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlock;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +89,7 @@ public final class ClientScene {
     // hotbar with buckets
     at(405, mc -> server(mc, ClientScene::hotbar));
     at(410, mc -> mc.options.hideGui = false);
-    at(440, mc -> { mc.getToasts().clear(); shot(mc, "buckets"); });
+    at(440, mc -> { mc.getToastManager().clear(); shot(mc, "buckets"); });
     at(445, ClientScene::clientChecks);
     // creative tab
     at(450, mc -> mc.setScreen(new CreativeModeInventoryScreen(mc.player, mc.player.connection.enabledFeatures(), true)));
@@ -96,7 +98,7 @@ public final class ClientScene {
         try {
           var select = CreativeModeInventoryScreen.class.getDeclaredMethod("selectTab", net.minecraft.world.item.CreativeModeTab.class);
           select.setAccessible(true);
-          select.invoke(screen, net.minecraft.core.registries.BuiltInRegistries.CREATIVE_MODE_TAB.get(Ceramics.getResource(Ceramics.MOD_ID)));
+          select.invoke(screen, net.minecraft.core.registries.BuiltInRegistries.CREATIVE_MODE_TAB.getValue(Ceramics.getResource(Ceramics.MOD_ID)));
         } catch (ReflectiveOperationException e) {
           Ceramics.LOG.error("[scene] cannot select the creative tab", e);
         }
@@ -143,7 +145,7 @@ public final class ClientScene {
       if (mc.getLevelSource().levelExists(WORLD)) {
         mc.createWorldOpenFlows().openWorld(WORLD, () -> mc.setScreen(new TitleScreen()));
       } else {
-        LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE, false, Difficulty.PEACEFUL, true, new GameRules(), WorldDataConfiguration.DEFAULT);
+        LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE, false, Difficulty.PEACEFUL, true, new GameRules(WorldDataConfiguration.DEFAULT.enabledFeatures()), WorldDataConfiguration.DEFAULT);
         mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(20261015L, false, false), WorldPresets::createNormalWorldDimensions, new TitleScreen());
       }
       return;
@@ -171,18 +173,19 @@ public final class ClientScene {
   }
 
   private static void shot(Minecraft mc, String name) {
-    Screenshot.grab(mc.gameDirectory, "scene_" + name + ".png", mc.getMainRenderTarget(), c -> Ceramics.LOG.info("[scene] " + c.getString()));
+    Screenshot.grab(mc.gameDirectory, "scene_" + name + ".png", mc.getMainRenderTarget(), 1, c -> Ceramics.LOG.info("[scene] " + c.getString()));
   }
 
   private static void setup(ServerPlayer player) {
-    MinecraftServer server = player.getServer();
+    ServerLevel level = player.level();
+    MinecraftServer server = level.getServer();
     player.setGameMode(GameType.CREATIVE);
-    server.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false, server);
-    server.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, server);
-    server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, server);
-    server.getGameRules().getRule(GameRules.RULE_RANDOMTICKING).set(0, server);
-    player.serverLevel().setDayTime(6000);
-    player.serverLevel().setWeatherParameters(6000, 0, false, false);
+    level.getGameRules().set(GameRules.SPAWN_MOBS, false, server);
+    level.getGameRules().set(GameRules.ADVANCE_TIME, false, server);
+    level.getGameRules().set(GameRules.ADVANCE_WEATHER, false, server);
+    level.getGameRules().set(GameRules.RANDOM_TICK_SPEED, 0, server);
+    level.setDayTime(6000);
+    level.setWeatherParameters(6000, 0, false, false);
   }
 
   private static BlockPos at(int x, int y, int z) {
@@ -200,16 +203,19 @@ public final class ClientScene {
   }
 
   private static void fill(ServerLevel level, BlockPos pos, FluidStack fluid) {
-    IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, Direction.UP);
+    ResourceHandler<FluidResource> handler = level.getCapability(Capabilities.Fluid.BLOCK, pos, Direction.UP);
     if (handler != null) {
-      handler.fill(fluid, FluidAction.EXECUTE);
+      try (Transaction tx = Transaction.openRoot()) {
+        handler.insert(FluidResource.of(fluid), fluid.getAmount(), tx);
+        tx.commit();
+      }
     }
   }
 
   /** Flat stage at spawn, the camera looks north */
   private static void buildStage(ServerPlayer player) {
-    ServerLevel level = player.serverLevel();
-    BlockPos spawn = level.getSharedSpawnPos();
+    ServerLevel level = player.level();
+    BlockPos spawn = level.getRespawnData().pos();
     int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, spawn.getX(), spawn.getZ());
     stage = new BlockPos(spawn.getX(), y, spawn.getZ());
     for (int dx = -10; dx <= 12; dx++) {
@@ -302,7 +308,7 @@ public final class ClientScene {
 
   /** Starts the faucets once the structure exists */
   private static void startFlow(ServerPlayer player) {
-    ServerLevel level = player.serverLevel();
+    ServerLevel level = player.level();
     for (BlockPos pos : List.of(at(5, 1, -2), at(8, 1, 0))) {
       if (level.getBlockEntity(pos) instanceof FaucetBlockEntity faucet) {
         faucet.activate();
@@ -314,8 +320,8 @@ public final class ClientScene {
   private static void flowChecks(Minecraft mc) {
     for (BlockPos pos : List.of(at(-1, 0, -2), at(5, 0, -2), at(-3, 0, -2), at(-3, 2, -2), at(1, 1, -2))) {
       if (mc.level.getBlockEntity(pos) instanceof knightminer.ceramics.blocks.entity.CisternBlockEntity cistern) {
-        Ceramics.LOG.info("[scene] client cistern {} fluid {} x{} index {} state {}", pos.subtract(stage), cistern.getPublicHandler().getFluidInTank(0).getFluid(),
-          cistern.getPublicHandler().getFluidInTank(0).getAmount(), cistern.getRenderIndex(), mc.level.getBlockState(pos));
+        Ceramics.LOG.info("[scene] client cistern {} fluid {} x{} index {} state {}", pos.subtract(stage), cistern.getFluid().getFluid(),
+          cistern.getFluid().getAmount(), cistern.getRenderIndex(), mc.level.getBlockState(pos));
       }
     }
     check("faucet is pouring on the client", mc.level.getBlockEntity(at(5, 1, -2)) instanceof FaucetBlockEntity faucet && faucet.isPouring() && !faucet.getRenderFluid().isEmpty());
@@ -331,7 +337,7 @@ public final class ClientScene {
   }
 
   private static void look(ServerPlayer player, double x, double y, double z, float yaw, float pitch) {
-    player.teleportTo(player.serverLevel(), stage.getX() + x, stage.getY() + y, stage.getZ() + z, yaw, pitch);
+    player.teleportTo(player.level(), stage.getX() + x, stage.getY() + y, stage.getZ() + z, java.util.Set.of(), yaw, pitch, true);
   }
 
   private static void hotbar(ServerPlayer player) {
@@ -349,21 +355,28 @@ public final class ClientScene {
     for (int i = 0; i < items.size(); i++) {
       player.getInventory().setItem(i, items.get(i));
     }
-    player.getInventory().selected = 1;
+    player.getInventory().setSelectedSlot(1);
   }
 
   private static void clientChecks(Minecraft mc) {
-    var renderer = mc.getItemRenderer();
-    BakedModel empty = renderer.getModel(new ItemStack(Registration.FLUID_CLAY_BUCKET.get()), mc.level, mc.player, 0);
-    BakedModel water = renderer.getModel(BaseClayBucketItem.withFluid(Fluids.WATER, false), mc.level, mc.player, 0);
-    BakedModel snow = renderer.getModel(BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, false), mc.level, mc.player, 0);
-    check("water clay bucket has its own model", water != empty && water != mc.getModelManager().getMissingModel());
-    check("powder snow bucket has its own model", snow != mc.getModelManager().getMissingModel());
-    BakedModel whole = renderer.getModel(new ItemStack(Registration.TERRACOTTA_CISTERN), mc.level, mc.player, 0);
-    BakedModel cracked = renderer.getModel(CrackableBlockItem.setCracks(new ItemStack(Registration.TERRACOTTA_CISTERN), 3), mc.level, mc.player, 0);
-    check("cracked cistern item uses the cracked model", whole != cracked);
+    Object empty = model(mc, new ItemStack(Registration.FLUID_CLAY_BUCKET.get()));
+    Object water = model(mc, BaseClayBucketItem.withFluid(Fluids.WATER, false));
+    Object snow = model(mc, BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, false));
+    check("water clay bucket has its own model", !water.equals(empty));
+    check("powder snow bucket has its own model", !snow.equals(empty));
+    Object whole = model(mc, new ItemStack(Registration.TERRACOTTA_CISTERN));
+    Object cracked = model(mc, CrackableBlockItem.setCracks(new ItemStack(Registration.TERRACOTTA_CISTERN), 3));
+    check("cracked cistern item uses the cracked model", !whole.equals(cracked));
+    check("cracks reached the client block state", mc.level.getBlockState(at(-4, 0, 0)).getValue(ICrackableBlock.CRACKS) == 5);
     check("bucket names resolve", !BaseClayBucketItem.withFluid(Fluids.WATER, false).getHoverName().getString().contains("ceramics")
       && !new ItemStack(Registration.CRACKED_EMPTY_CLAY_BUCKET.get()).getHoverName().getString().contains("ceramics"));
+  }
+
+  /** Identity of the item model, differs when the stack draws differently */
+  private static Object model(Minecraft mc, ItemStack stack) {
+    TrackingItemStackRenderState state = new TrackingItemStackRenderState();
+    mc.getItemModelResolver().updateForTopItem(state, stack, ItemDisplayContext.GUI, mc.level, mc.player, 0);
+    return state.getModelIdentity();
   }
 
   private static void showJei(Minecraft mc) {
@@ -371,7 +384,7 @@ public final class ClientScene {
       check("JEI runtime available", false);
       return;
     }
-    RecipeType<RecipeHolder<knightminer.ceramics.recipe.KilnRecipe>> type = RecipeType.createRecipeHolderType(Ceramics.getResource("kiln"));
+    IRecipeHolderType<knightminer.ceramics.recipe.KilnRecipe> type = IRecipeHolderType.create(Ceramics.getResource("kiln"));
     long count = SceneJeiPlugin.runtime.getRecipeManager().createRecipeLookup(type).get().count();
     check("JEI shows kiln recipes (" + count + ")", count > 50);
     SceneJeiPlugin.runtime.getRecipesGui().showTypes(List.of(type));

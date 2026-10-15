@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "c": {
-      "item": "ceramics:unfired_porcelain"
-    }
+    "c": "ceramics:unfired_porcelain"
   },
   "pattern": [
     "ccc",

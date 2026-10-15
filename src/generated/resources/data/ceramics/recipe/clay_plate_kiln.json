@@ -3,9 +3,7 @@
   "category": "misc",
   "cookingtime": 100,
   "experience": 0.3,
-  "ingredient": {
-    "item": "ceramics:unfired_clay_plate"
-  },
+  "ingredient": "ceramics:unfired_clay_plate",
   "result": {
     "count": 1,
     "id": "ceramics:clay_plate"

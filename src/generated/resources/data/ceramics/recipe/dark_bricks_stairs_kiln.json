@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 100,
   "experience": 0.1,
-  "ingredient": {
-    "item": "minecraft:brick_stairs"
-  },
+  "ingredient": "minecraft:brick_stairs",
   "result": {
     "count": 1,
     "id": "ceramics:dark_bricks_stairs"

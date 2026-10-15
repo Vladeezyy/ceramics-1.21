@@ -3,9 +3,7 @@
   "category": "misc",
   "cookingtime": 200,
   "experience": 0.2,
-  "ingredient": {
-    "item": "ceramics:empty_clay_bucket"
-  },
+  "ingredient": "ceramics:empty_clay_bucket",
   "result": {
     "count": 1,
     "id": "ceramics:cracked_empty_clay_bucket"

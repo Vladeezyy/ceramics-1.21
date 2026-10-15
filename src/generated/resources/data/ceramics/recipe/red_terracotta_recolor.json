@@ -3,12 +3,8 @@
   "category": "building",
   "group": "stained_terracotta",
   "key": {
-    "B": {
-      "tag": "ceramics:colored_terracotta"
-    },
-    "D": {
-      "tag": "c:dyes/red"
-    }
+    "B": "#ceramics:colored_terracotta",
+    "D": "#c:dyes/red"
   },
   "pattern": [
     "BBB",

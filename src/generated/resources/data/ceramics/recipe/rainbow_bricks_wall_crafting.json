@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "B": {
-      "item": "ceramics:rainbow_bricks"
-    }
+    "B": "ceramics:rainbow_bricks"
   },
   "pattern": [
     "BBB",

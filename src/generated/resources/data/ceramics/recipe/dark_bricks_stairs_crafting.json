@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:dark_bricks_stairs",
   "key": {
-    "B": {
-      "item": "ceramics:dark_bricks"
-    }
+    "B": "ceramics:dark_bricks"
   },
   "pattern": [
     "B  ",

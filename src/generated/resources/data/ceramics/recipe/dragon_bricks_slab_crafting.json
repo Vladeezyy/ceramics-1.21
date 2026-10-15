@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:dragon_bricks_slab",
   "key": {
-    "B": {
-      "item": "ceramics:dragon_bricks"
-    }
+    "B": "ceramics:dragon_bricks"
   },
   "pattern": [
     "BBB"

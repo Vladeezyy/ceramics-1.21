@@ -1,0 +1,146 @@
+{
+  "parent": "ceramics:block/faucet/terracotta_top",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        4,
+        10,
+        4
+      ],
+      "to": [
+        12,
+        16,
+        6
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks",
+          "rotation": 180
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks",
+          "rotation": 180
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        10,
+        10
+      ],
+      "to": [
+        12,
+        16,
+        12
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks",
+          "rotation": 180
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks",
+          "rotation": 180
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        10,
+        6
+      ],
+      "to": [
+        6,
+        16,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks",
+          "rotation": 180
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks",
+          "rotation": 180
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        10,
+        6
+      ],
+      "to": [
+        12,
+        16,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks",
+          "rotation": 180
+        },
+        "south": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks",
+          "rotation": 180
+        }
+      }
+    }
+  ]
+}

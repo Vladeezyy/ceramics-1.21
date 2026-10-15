@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "ceramics:clay_bucket",
+    "contents": "block",
+    "textures": {
+      "base": "ceramics:item/clay_bucket/normal_cover",
+      "inner": "ceramics:item/clay_bucket/normal_inner",
+      "fluid": "ceramics:item/clay_bucket/normal_fluid"
+    }
+  }
+}

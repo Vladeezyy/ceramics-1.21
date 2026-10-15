@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.3,
-  "ingredient": {
-    "item": "ceramics:unfired_porcelain_block"
-  },
+  "ingredient": "ceramics:unfired_porcelain_block",
   "result": {
     "count": 1,
     "id": "ceramics:white_porcelain"

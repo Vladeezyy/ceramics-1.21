@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.3,
-  "ingredient": {
-    "item": "ceramics:clay_faucet"
-  },
+  "ingredient": "ceramics:clay_faucet",
   "result": {
     "count": 1,
     "id": "ceramics:terracotta_faucet"

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "ceramics:clay"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "ceramics:clay"
+      }
+    ]
+  }
+}

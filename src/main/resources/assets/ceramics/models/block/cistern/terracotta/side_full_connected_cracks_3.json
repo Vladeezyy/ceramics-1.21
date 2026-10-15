@@ -1,0 +1,7 @@
+{
+  "parent": "ceramics:block/cistern/terracotta/side_full_connected_cracks",
+  "textures": {
+    "cracks": "ceramics:block/terracotta_cracks/3",
+    "particle": "ceramics:block/terracotta_cracks/3"
+  }
+}

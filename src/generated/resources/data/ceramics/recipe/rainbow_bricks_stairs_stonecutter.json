@@ -1,8 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "ceramics:rainbow_bricks"
-  },
+  "ingredient": "ceramics:rainbow_bricks",
   "result": {
     "count": 1,
     "id": "ceramics:rainbow_bricks_stairs"

@@ -3,12 +3,8 @@
   "category": "building",
   "group": "ceramics:dye_porcelain",
   "key": {
-    "B": {
-      "tag": "ceramics:porcelain_block"
-    },
-    "D": {
-      "tag": "c:dyes/lime"
-    }
+    "B": "#ceramics:porcelain_block",
+    "D": "#c:dyes/lime"
   },
   "pattern": [
     "BBB",

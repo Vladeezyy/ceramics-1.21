@@ -3,12 +3,8 @@
   "category": "building",
   "group": "ceramics:monochrome_bricks_slab",
   "key": {
-    "B": {
-      "item": "ceramics:porcelain_bricks_slab"
-    },
-    "i": {
-      "item": "minecraft:ink_sac"
-    }
+    "B": "ceramics:porcelain_bricks_slab",
+    "i": "minecraft:ink_sac"
   },
   "pattern": [
     "BBB",

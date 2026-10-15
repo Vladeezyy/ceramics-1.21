@@ -54,10 +54,11 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'ceramics.selftest', 'true'
         }
+        // recipes, tags and loot tables, since 1.21.4 server data runs on its own
         data {
-            data()
-            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').absolutePath,
-                    '--existing', file('src/main/resources/').absolutePath
+            serverData()
+            programArguments.addAll "--mod", mod_id, "--all", "--output", file("src/generated/resources/").absolutePath,
+                    "--existing", file("src/main/resources/").absolutePath
         }
         configureEach {
             systemProperty 'forge.logging.markers', 'REGISTRIES'

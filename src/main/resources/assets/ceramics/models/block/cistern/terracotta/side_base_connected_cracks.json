@@ -1,0 +1,305 @@
+{
+  "parent": "ceramics:block/cistern/terracotta/side_base_connected",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        2,
+        16,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        3
+      ],
+      "faces": {
+        "up": {
+          "texture": "#cracks",
+          "cullface": "up"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        2
+      ],
+      "faces": {
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        12,
+        1
+      ],
+      "to": [
+        14,
+        16,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        1
+      ],
+      "to": [
+        14,
+        4,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        4,
+        1
+      ],
+      "to": [
+        4,
+        12,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        4,
+        1
+      ],
+      "to": [
+        14,
+        12,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        11,
+        3
+      ],
+      "to": [
+        13,
+        16,
+        3
+      ],
+      "faces": {
+        "south": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        6,
+        3
+      ],
+      "faces": {
+        "south": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        6,
+        3
+      ],
+      "to": [
+        5,
+        11,
+        3
+      ],
+      "faces": {
+        "south": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        6,
+        3
+      ],
+      "to": [
+        13,
+        11,
+        3
+      ],
+      "faces": {
+        "south": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        11,
+        0
+      ],
+      "to": [
+        11,
+        12,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "up": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        0
+      ],
+      "to": [
+        11,
+        6,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        0
+      ],
+      "to": [
+        5,
+        12,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "up": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        12,
+        1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cracks",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "up": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        11,
+        3
+      ],
+      "to": [
+        5,
+        6,
+        0
+      ],
+      "faces": {
+        "east": {
+          "texture": "#cracks"
+        },
+        "west": {
+          "texture": "#cracks"
+        },
+        "up": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        }
+      }
+    }
+  ]
+}

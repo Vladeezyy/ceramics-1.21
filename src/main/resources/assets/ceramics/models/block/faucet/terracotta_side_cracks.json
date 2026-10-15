@@ -1,0 +1,102 @@
+{
+  "parent": "ceramics:block/faucet/terracotta_side",
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        10
+      ],
+      "to": [
+        12,
+        6,
+        16
+      ],
+      "__comment": "The bottom platform, facing south with the dark texture side",
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        },
+        "down": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        6,
+        10
+      ],
+      "to": [
+        12,
+        10,
+        16
+      ],
+      "__comment": "Left side from front (east)",
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#cracks"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        6,
+        10
+      ],
+      "to": [
+        6,
+        10,
+        16
+      ],
+      "__comment": "Right side from front (west)",
+      "faces": {
+        "up": {
+          "texture": "#cracks"
+        },
+        "north": {
+          "texture": "#cracks"
+        },
+        "east": {
+          "texture": "#cracks"
+        },
+        "south": {
+          "texture": "#cracks",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#cracks"
+        }
+      }
+    }
+  ]
+}

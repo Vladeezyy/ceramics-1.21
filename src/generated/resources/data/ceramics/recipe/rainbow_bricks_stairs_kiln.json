@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 100,
   "experience": 0.1,
-  "ingredient": {
-    "item": "ceramics:porcelain_bricks_stairs"
-  },
+  "ingredient": "ceramics:porcelain_bricks_stairs",
   "result": {
     "count": 1,
     "id": "ceramics:rainbow_bricks_stairs"

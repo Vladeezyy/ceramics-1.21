@@ -3,9 +3,7 @@
   "category": "building",
   "group": "brick_stairs",
   "key": {
-    "b": {
-      "item": "minecraft:brick"
-    }
+    "b": "minecraft:brick"
   },
   "pattern": [
     "b  ",

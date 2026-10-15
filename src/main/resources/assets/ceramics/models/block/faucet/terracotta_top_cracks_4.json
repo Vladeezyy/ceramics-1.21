@@ -1,0 +1,7 @@
+{
+  "parent": "ceramics:block/faucet/terracotta_top_cracks",
+  "textures": {
+    "cracks": "ceramics:block/terracotta_cracks/4",
+    "particle": "ceramics:block/terracotta_cracks/4"
+  }
+}

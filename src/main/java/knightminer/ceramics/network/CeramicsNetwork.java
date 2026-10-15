@@ -27,7 +27,6 @@ public class CeramicsNetwork {
     PayloadRegistrar registrar = event.registrar(VERSION);
     registrar.playToClient(FluidUpdatePacket.TYPE, FluidUpdatePacket.STREAM_CODEC, FluidUpdatePacket::handle);
     registrar.playToClient(ChannelFlowPacket.TYPE, ChannelFlowPacket.STREAM_CODEC, ChannelFlowPacket::handle);
-    registrar.playToClient(CrackableCrackPacket.TYPE, CrackableCrackPacket.STREAM_CODEC, CrackableCrackPacket::handle);
   }
 
   /**

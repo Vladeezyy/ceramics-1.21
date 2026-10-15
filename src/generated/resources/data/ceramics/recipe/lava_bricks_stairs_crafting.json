@@ -3,9 +3,7 @@
   "category": "building",
   "group": "ceramics:lava_bricks_stairs",
   "key": {
-    "B": {
-      "item": "ceramics:lava_bricks"
-    }
+    "B": "ceramics:lava_bricks"
   },
   "pattern": [
     "B  ",

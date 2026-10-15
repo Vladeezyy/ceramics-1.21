@@ -3,12 +3,8 @@
   "category": "building",
   "group": "ceramics:marine_bricks_slab",
   "key": {
-    "B": {
-      "item": "ceramics:porcelain_bricks_slab"
-    },
-    "i": {
-      "item": "minecraft:prismarine_shard"
-    }
+    "B": "ceramics:porcelain_bricks_slab",
+    "i": "minecraft:prismarine_shard"
   },
   "pattern": [
     "BBB",
