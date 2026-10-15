@@ -1,5 +1,6 @@
 package knightminer.ceramics.util;
 
+import net.minecraft.world.ItemInteractionResult;
 import knightminer.ceramics.items.SolidClayBucketItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
@@ -7,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -30,7 +30,7 @@ public class EmptySolidBucketCauldronInteraction extends EmptyClayBucketCauldron
 	}
 
 	@Override
-	public InteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
+	public ItemInteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
 		// fill cauldron from bucket
 		Block block = bucket.getBlock(stack);
 		BlockState cauldron = getFullCauldron(block);
@@ -48,9 +48,9 @@ public class EmptySolidBucketCauldronInteraction extends EmptyClayBucketCauldron
 				level.playSound(null, pos, block.defaultBlockState().getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1.0F, 1.0F);
 				level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
 			}
-			return InteractionResult.sidedSuccess(level.isClientSide);
+			return ItemInteractionResult.sidedSuccess(level.isClientSide);
 		}
-		return InteractionResult.PASS;
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	@Override

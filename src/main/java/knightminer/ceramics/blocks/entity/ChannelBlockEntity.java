@@ -15,23 +15,21 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
 import slimeknights.mantle.block.entity.MantleBlockEntity;
-import slimeknights.mantle.util.WeakConsumerWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,26 +44,17 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	/** Channel internal tank */
 	private final ChannelTank tank = new ChannelTank(FaucetBlockEntity.MB_PER_TICK * 4, this);
 	/** Handler to return from channel top */
-	private final LazyOptional<IFluidHandler> topHandler = LazyOptional.of(() -> new FillOnlyFluidHandler(tank));
+	private final IFluidHandler topHandler = new FillOnlyFluidHandler(tank);
 	/** Tanks for inserting on each side */
 	private final Map<Direction,IFluidHandler> sideTanks = Util.make(new EnumMap<>(Direction.class), map -> {
 		for (Direction direction : Plane.HORIZONTAL) {
 			map.put(direction, new ChannelSideTank(this, tank, direction));
 		}
 	});
-	/** Tanks for inserting on each side */
-	private final Map<Direction,LazyOptional<IFluidHandler>> sideHandlers = new EnumMap<>(Direction.class);
-	/** Tanks for alerting neighbors the given side is present */
-	private final Map<Direction,LazyOptional<IFluidHandler>> emptySideHandler = new EnumMap<>(Direction.class);
-
-	/** Cache of tanks on all neighboring sides */
-	private final Map<Direction,LazyOptional<IFluidHandler>> neighborTanks = new EnumMap<>(Direction.class);
-	/** Consumers to attach to each of the neighbors */
-	private final Map<Direction,NonNullConsumer<LazyOptional<IFluidHandler>>> neighborConsumers = new EnumMap<>(Direction.class);
-
+	/** Cache of tanks on all neighboring sides, server only */
+	private final Map<Direction,BlockCapabilityCache<IFluidHandler,Direction>> neighborTanks = new EnumMap<>(Direction.class);
 	/** Stores if the channel is currently flowing, set to 2 to allow a small buffer */
 	private final byte[] isFlowing = new byte[5];
-
 	/** Crackable handling */
 	private final CrackableBlockEntityHandler cracksHandler;
 
@@ -87,11 +76,6 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	}
 
 	@Override
-	public AABB getRenderBoundingBox() {
-		return new AABB(worldPosition.getX(), worldPosition.getY() - 1, worldPosition.getZ(), worldPosition.getX() + 1, worldPosition.getY() + 1, worldPosition.getZ() + 1);
-	}
-
-	@Override
 	public CrackableBlockEntityHandler getCracksHandler() {
 		return cracksHandler;
 	}
@@ -105,65 +89,53 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 
 	/* Fluid handlers */
 
-	/** Called when a capability invalidates to clear the given side */
-	private void invalidateSide(Direction side, LazyOptional<IFluidHandler> capability) {
-		if (!this.isRemoved()) {
-			if (neighborTanks.get(side) == capability) {
-				neighborTanks.remove(side);
-			}
-		}
-	}
-
-	@Nonnull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
-		if (capability == ForgeCapabilities.FLUID_HANDLER) {
-			// top side gets the insert direct
-			if (side == null || side == Direction.UP) {
-				return topHandler.cast();
-			}
-			// side tanks keep track of which side inserts
-			if (side != Direction.DOWN) {
-				ChannelConnection connection = getBlockState().getValue(ChannelBlock.DIRECTION_MAP.get(side));
-				if (connection == ChannelConnection.IN) {
-					return sideHandlers.computeIfAbsent(side, s -> LazyOptional.of(() -> sideTanks.get(s))).cast();
-				}
-				// for out, return an empty fluid handler so the block we are pouring into knows we support fluids, even though we disallow any interaction
-				// this will get invalidated when the connection goes back to in later
-				if (connection == ChannelConnection.OUT) {
-					return emptySideHandler.computeIfAbsent(side, s -> LazyOptional.of(() -> EmptyFluidHandler.INSTANCE)).cast();
-				}
-			}
-		}
-		return super.getCapability(capability, side);
-	}
-
 	/**
-	 * Gets the fluid handler directly from a neighbor, skipping the cache
-	 * @param side  Side of the neighbor to fetch
-	 * @return  Fluid handler, or empty
+	 * Gets the fluid handler for the given side, registered as the block capability
+	 * @param side  Side queried, null for internal access
+	 * @return  Fluid handler, or null if the side has none
 	 */
-	private LazyOptional<IFluidHandler> getNeighborHandlerUncached(Direction side) {
-		assert level != null;
-		// must have a TE with a fluid handler
-		BlockEntity te = level.getBlockEntity(worldPosition.relative(side));
-		if (te != null) {
-			LazyOptional<IFluidHandler> handler = te.getCapability(ForgeCapabilities.FLUID_HANDLER, side.getOpposite());
-			if (handler.isPresent()) {
-				handler.addListener(neighborConsumers.computeIfAbsent(side, s -> new WeakConsumerWrapper<>(this, (self, lazy) -> self.invalidateSide(s, lazy))));
-				return handler;
+	@Nullable
+	public IFluidHandler getFluidHandler(@Nullable Direction side) {
+		// top side gets the insert direct
+		if (side == null || side == Direction.UP) {
+			return topHandler;
+		}
+		// side tanks keep track of which side inserts
+		if (side != Direction.DOWN) {
+			ChannelConnection connection = getBlockState().getValue(ChannelBlock.DIRECTION_MAP.get(side));
+			if (connection == ChannelConnection.IN) {
+				return sideTanks.get(side);
+			}
+			// for out, return an empty fluid handler so the block we are pouring into knows we support fluids, even though we disallow any interaction
+			// this will get invalidated when the connection goes back to in later
+			if (connection == ChannelConnection.OUT) {
+				return EmptyFluidHandler.INSTANCE;
 			}
 		}
-		return LazyOptional.empty();
+		return null;
+	}
+
+	@Override
+	public void setBlockState(BlockState state) {
+		super.setBlockState(state);
+		// the handlers exposed on each side depend on the connections, so let neighbors query again
+		if (level != null && !level.isClientSide) {
+			level.invalidateCapabilities(worldPosition);
+		}
 	}
 
 	/**
 	 * Gets the fluid handler from a neighbor
 	 * @param side  Side of the neighbor to fetch
-	 * @return  Fluid handler, or empty
+	 * @return  Fluid handler, or null
 	 */
-	protected LazyOptional<IFluidHandler> getNeighborHandler(Direction side) {
-		return neighborTanks.computeIfAbsent(side, this::getNeighborHandlerUncached);
+	@Nullable
+	protected IFluidHandler getNeighborHandler(Direction side) {
+		if (!(level instanceof ServerLevel server)) {
+			return null;
+		}
+		return neighborTanks.computeIfAbsent(side, s -> BlockCapabilityCache.create(
+			Capabilities.FluidHandler.BLOCK, server, worldPosition.relative(s), s.getOpposite(), () -> !this.isRemoved(), () -> {})).getCapability();
 	}
 
 	/**
@@ -171,7 +143,8 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	 * @param side  Side to remove
 	 */
 	public void removeCachedNeighbor(Direction side) {
-		neighborTanks.remove(side);
+		// nothing to do: the capability caches follow the neighbors themselves. Recreating them here would register a new
+		// listener on every neighbor update.
 	}
 
 	/**
@@ -180,45 +153,9 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	 * @param side   Side to update
 	 */
 	public void refreshNeighbor(BlockState state, Direction side) {
-		// for below, only thing that needs to invalidate is if we are no longer connected down, remove the listener below
-		if (side == Direction.DOWN) {
-			if (!state.getValue(ChannelBlock.DOWN)) {
-				neighborTanks.remove(Direction.DOWN);
-			}
-		} else if (side != Direction.UP) {
-			ChannelConnection connection = state.getValue(ChannelBlock.DIRECTION_MAP.get(side));
-			// if no longer flowing out, remove the neighbor tank
-			if (connection != ChannelConnection.OUT) {
-				neighborTanks.remove(Direction.DOWN);
-				// remove the empty handler, mostly so the neighbor knows to update
-				LazyOptional<IFluidHandler> handler = emptySideHandler.remove(side);
-				if (handler != null) {
-					handler.invalidate();
-				}
-			}
-			// remove the side handler, if we changed from out or from in the handler is no longer correct
-			if (connection != ChannelConnection.IN) {
-				LazyOptional<IFluidHandler> handler = sideHandlers.remove(side);
-				if (handler != null) {
-					handler.invalidate();
-				}
-			}
-		}
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		topHandler.invalidate();
-		for (LazyOptional<IFluidHandler> handler : sideHandlers.values()) {
-			if (handler != null) {
-				handler.invalidate();
-			}
-		}
-		for (LazyOptional<IFluidHandler> handler : emptySideHandler.values()) {
-			if (handler != null) {
-				handler.invalidate();
-			}
+		// capability caches update themselves, just make sure neighbors notice the new connection
+		if (level != null && !level.isClientSide) {
+			level.invalidateCapabilities(worldPosition);
 		}
 	}
 
@@ -257,7 +194,6 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 		int index = getFlowIndex(side);
 		boolean wasFlowing = isFlowing[index] > 0;
 		isFlowing[index] = (byte)(flowing ? 2 : 0);
-
 		// send packet to client if it changed
 		if(wasFlowing != flowing && level != null && !level.isClientSide) {
 			syncFlowToClient(side, flowing);
@@ -273,7 +209,6 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 		if (side == Direction.UP) {
 			return false;
 		}
-
 		return isFlowing[getFlowIndex(side)] > 0;
 	}
 
@@ -318,7 +253,7 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	 * @param flowing  Flowing state to sync
 	 */
 	private void syncFlowToClient(Direction side, boolean flowing) {
-		CeramicsNetwork.getInstance().sendToClientsAround(new ChannelFlowPacket(worldPosition, side, flowing), level, worldPosition);
+		CeramicsNetwork.sendToClientsAround(new ChannelFlowPacket(worldPosition, side, flowing), level, worldPosition);
 	}
 
 
@@ -379,8 +314,8 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 		}
 
 		// get the handler on the side, try filling
-		return getNeighborHandler(side).filter(handler -> fill(side, handler, flowRate))
-																	 .isPresent();
+		IFluidHandler handler = getNeighborHandler(side);
+		return handler != null && fill(side, handler, flowRate);
 	}
 
 	/**
@@ -423,7 +358,7 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	 */
 	public void sendFluidUpdate() {
 		if (level != null && !level.isClientSide) {
-			CeramicsNetwork.getInstance().sendToClientsAround(new FluidUpdatePacket(worldPosition, getFluid(), false), level, worldPosition);
+			CeramicsNetwork.sendToClientsAround(new FluidUpdatePacket(worldPosition, getFluid(), false), level, worldPosition);
 		}
 	}
 
@@ -438,17 +373,16 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 	}
 
 	@Override
-	protected void saveSynced(CompoundTag nbt) {
-		super.saveSynced(nbt);
+	protected void saveSynced(CompoundTag nbt, HolderLookup.Provider registries) {
+		super.saveSynced(nbt, registries);
 		nbt.putByteArray(TAG_IS_FLOWING, isFlowing);
-		nbt.put(TAG_TANK, tank.writeToNBT(new CompoundTag()));
+		nbt.put(TAG_TANK, tank.writeToNBT(registries, new CompoundTag()));
 		cracksHandler.writeNBT(nbt);
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-
+	protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+		super.loadAdditional(nbt, registries);
 		// isFlowing
 		if (nbt.contains(TAG_IS_FLOWING)) {
 			byte[] nbtFlowing = nbt.getByteArray(TAG_IS_FLOWING);
@@ -464,10 +398,27 @@ public class ChannelBlockEntity extends MantleBlockEntity implements ICrackableB
 				}
 			}
 		}
-
 		// tank
 		CompoundTag tankTag = nbt.getCompound(TAG_TANK);
-		tank.readFromNBT(tankTag);
+		tank.readFromNBT(registries, tankTag);
 		cracksHandler.readNBT(getBlockState(), nbt);
+	}
+
+	@Override
+	protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+		super.collectImplicitComponents(builder);
+		cracksHandler.collectImplicitComponents(builder);
+	}
+
+	@Override
+	protected void applyImplicitComponents(DataComponentInput input) {
+		super.applyImplicitComponents(input);
+		cracksHandler.applyImplicitComponents(input.get(Registration.CRACKS));
+	}
+
+	@Override
+	public void removeComponentsFromTag(CompoundTag tag) {
+		super.removeComponentsFromTag(tag);
+		tag.remove(CrackableBlockEntityHandler.TAG_CRACKS);
 	}
 }

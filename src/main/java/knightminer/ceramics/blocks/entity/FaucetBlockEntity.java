@@ -1,5 +1,14 @@
 package knightminer.ceramics.blocks.entity;
 
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import javax.annotation.Nullable;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlockEntity;
 import knightminer.ceramics.network.CeramicsNetwork;
@@ -10,20 +19,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import slimeknights.mantle.block.entity.MantleBlockEntity;
-import slimeknights.mantle.util.WeakConsumerWrapper;
 
 import javax.annotation.Nonnull;
 
@@ -53,14 +51,12 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
   /** Used for pulse detection */
   private boolean lastRedstoneState;
 
-  /** Fluid handler of the input to the faucet */
-  private LazyOptional<IFluidHandler> inputHandler;
-  /** Fluid handler of the output from the faucet */
-  private LazyOptional<IFluidHandler> outputHandler;
-  /** Listener for when the input handler is invalidated */
-  private final NonNullConsumer<LazyOptional<IFluidHandler>> inputListener = new WeakConsumerWrapper<>(this, (self, handler) -> self.inputHandler = null);
-  /** Listner for when the output handler is invalidated */
-  private final NonNullConsumer<LazyOptional<IFluidHandler>> outputListener = new WeakConsumerWrapper<>(this, (self, handler) -> self.outputHandler = null);
+  /** Cached fluid handler of the input to the faucet, server only */
+  @Nullable
+  private BlockCapabilityCache<IFluidHandler,Direction> inputHandler;
+  /** Cached fluid handler of the output from the faucet, server only */
+  @Nullable
+  private BlockCapabilityCache<IFluidHandler,Direction> outputHandler;
 
   /** Crackable logic */
   private final CrackableBlockEntityHandler cracksHandler;
@@ -90,44 +86,36 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
    * @param side  Side to check
    * @return  Fluid handler
    */
-  private LazyOptional<IFluidHandler> findFluidHandler(Direction side) {
-    assert level != null;
-    BlockEntity te = level.getBlockEntity(worldPosition.relative(side));
-    if (te != null) {
-      LazyOptional<IFluidHandler> handler = te.getCapability(ForgeCapabilities.FLUID_HANDLER, side.getOpposite());
-      if (handler.isPresent()) {
-        return handler;
-      }
+  @Nullable
+  private BlockCapabilityCache<IFluidHandler,Direction> findFluidHandler(Direction side) {
+    if (level instanceof ServerLevel server) {
+      return BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, server, worldPosition.relative(side), side.getOpposite(), () -> !this.isRemoved(), () -> {});
     }
-    return LazyOptional.empty();
+    return null;
   }
 
   /**
    * Gets the input fluid handler
    * @return  Input fluid handler
    */
-  private LazyOptional<IFluidHandler> getInputHandler() {
+  @Nullable
+  private IFluidHandler getInputHandler() {
     if (inputHandler == null) {
       inputHandler = findFluidHandler(getBlockState().getValue(FACING).getOpposite());
-      if (inputHandler.isPresent()) {
-        inputHandler.addListener(inputListener);
-      }
     }
-    return inputHandler;
+    return inputHandler == null ? null : inputHandler.getCapability();
   }
 
   /**
    * Gets the output fluid handler
    * @return  Output fluid handler
    */
-  private LazyOptional<IFluidHandler> getOutputHandler() {
+  @Nullable
+  private IFluidHandler getOutputHandler() {
     if (outputHandler == null) {
       outputHandler = findFluidHandler(Direction.DOWN);
-      if (outputHandler.isPresent()) {
-        outputHandler.addListener(outputListener);
-      }
     }
-    return outputHandler;
+    return outputHandler == null ? null : outputHandler.getCapability();
   }
 
   /**
@@ -135,13 +123,8 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
    * @param neighbor  Neighbor position that changed
    */
   public void neighborChanged(BlockPos neighbor) {
-    // if the neighbor was below us, remove output
-    if (worldPosition.equals(neighbor.above())) {
-      outputHandler = null;
-      // neighbor behind us
-    } else if (worldPosition.equals(neighbor.relative(getBlockState().getValue(FACING)))) {
-      inputHandler = null;
-    }
+    // nothing to do: the capability caches follow the neighbors themselves. Recreating them here would register a new
+    // listener on every neighbor update.
   }
 
 
@@ -250,15 +233,13 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
    */
   private boolean doTransfer(boolean execute) {
     // still got content left
-    LazyOptional<IFluidHandler> inputOptional = getInputHandler();
-    LazyOptional<IFluidHandler> outputOptional = getOutputHandler();
-    if (inputOptional.isPresent() && outputOptional.isPresent()) {
+    IFluidHandler input = getInputHandler();
+    IFluidHandler output = getOutputHandler();
+    if (input != null && output != null) {
       // can we drain?
-      IFluidHandler input = inputOptional.orElse(EmptyFluidHandler.INSTANCE);
       FluidStack drained = input.drain(PACKET_SIZE, FluidAction.SIMULATE);
       if (!drained.isEmpty()) {
         // can we fill
-        IFluidHandler output = outputOptional.orElse(EmptyFluidHandler.INSTANCE);
         int filled = output.fill(drained, FluidAction.SIMULATE);
         if (filled > 0) {
           // fill if requested
@@ -270,7 +251,7 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
             this.cracksHandler.fluidAdded(this.drained);
 
             // sync to clients if we have changes
-            if (faucetState == FaucetState.OFF || !renderFluid.isFluidEqual(drained)) {
+            if (faucetState == FaucetState.OFF || !FluidStack.isSameFluidSameComponents(renderFluid, drained)) {
               syncToClient(this.drained, true);
             }
             faucetState = FaucetState.POURING;
@@ -285,7 +266,7 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
       // if powered, keep faucet running
       if (lastRedstoneState) {
         // sync if either we were not pouring before (particle effects), or if the client thinks we have fluid
-        if (execute && (faucetState == FaucetState.OFF || !renderFluid.isFluidEqual(FluidStack.EMPTY))) {
+        if (execute && (faucetState == FaucetState.OFF || !renderFluid.isEmpty())) {
           syncToClient(FluidStack.EMPTY, true);
         }
         faucetState = FaucetState.POWERED;
@@ -308,17 +289,15 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
     }
 
     // ensure we have an output
-    LazyOptional<IFluidHandler> outputOptional = getOutputHandler();
-    if (outputOptional.isPresent()) {
-      FluidStack fillStack = drained.copy();
-      fillStack.setAmount(Math.min(drained.getAmount(), MB_PER_TICK));
+        IFluidHandler output = getOutputHandler();
+    if (output != null) {
+      FluidStack fillStack = drained.copyWithAmount(Math.min(drained.getAmount(), MB_PER_TICK));
 
       // can we fill?
-      IFluidHandler output = outputOptional.orElse(EmptyFluidHandler.INSTANCE);
       int filled = output.fill(fillStack, IFluidHandler.FluidAction.SIMULATE);
       if (filled > 0) {
         // update client if they do not think we have fluid
-        if (!renderFluid.isFluidEqual(drained)) {
+        if (!FluidStack.isSameFluidSameComponents(renderFluid, drained)) {
           syncToClient(drained, true);
         }
 
@@ -340,16 +319,13 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
   private void reset() {
     stopPouring = false;
     drained = FluidStack.EMPTY;
-    if (faucetState != FaucetState.OFF || !renderFluid.isFluidEqual(drained)) {
+    if (faucetState != FaucetState.OFF || !renderFluid.isEmpty()) {
       faucetState = FaucetState.OFF;
       syncToClient(FluidStack.EMPTY, false);
     }
   }
 
-  @Override
-  public AABB getRenderBoundingBox() {
-    return new AABB(worldPosition.getX(), worldPosition.getY() - 1, worldPosition.getZ(), worldPosition.getX() + 1, worldPosition.getY() + 1, worldPosition.getZ() + 1);
-  }
+
 
 
   /* NBT and networking */
@@ -362,7 +338,7 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
   private void syncToClient(FluidStack fluid, boolean isPouring) {
     renderFluid = fluid.copy();
     if (level instanceof ServerLevel server) {
-      CeramicsNetwork.getInstance().sendToClientsAround(new FluidUpdatePacket(worldPosition, fluid, isPouring), server, worldPosition);
+      CeramicsNetwork.sendToClientsAround(new FluidUpdatePacket(worldPosition, fluid, isPouring), server, worldPosition);
     }
   }
 
@@ -383,44 +359,62 @@ public class FaucetBlockEntity extends MantleBlockEntity implements ICrackableBl
   }
 
   @Override
-  protected void saveSynced(CompoundTag compound) {
-    super.saveSynced(compound);
+  protected void saveSynced(CompoundTag compound, HolderLookup.Provider registries) {
+    super.saveSynced(compound, registries);
     compound.putByte(TAG_STATE, (byte)faucetState.ordinal());
     if (!renderFluid.isEmpty()) {
-      compound.put(TAG_RENDER_FLUID, renderFluid.writeToNBT(new CompoundTag()));
+      compound.put(TAG_RENDER_FLUID, renderFluid.save(registries));
     }
     cracksHandler.writeNBT(compound);
   }
 
   @Override
-  public void saveAdditional(CompoundTag compound) {
-    super.saveAdditional(compound);
+  public void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+    super.saveAdditional(compound, registries);
     compound.putBoolean(TAG_STOP, stopPouring);
     compound.putBoolean(TAG_LAST_REDSTONE, lastRedstoneState);
     if (!drained.isEmpty()) {
-      compound.put(TAG_DRAINED, drained.writeToNBT(new CompoundTag()));
+      compound.put(TAG_DRAINED, drained.save(registries));
     }
   }
 
   @Override
-  public void load(CompoundTag compound) {
-    super.load(compound);
+  protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+    super.loadAdditional(compound, registries);
 
     faucetState = FaucetState.fromIndex(compound.getByte(TAG_STATE));
     stopPouring = compound.getBoolean(TAG_STOP);
     lastRedstoneState = compound.getBoolean(TAG_LAST_REDSTONE);
     // fluids
     if (compound.contains(TAG_DRAINED, Tag.TAG_COMPOUND)) {
-      drained = FluidStack.loadFluidStackFromNBT(compound.getCompound(TAG_DRAINED));
+      drained = FluidStack.parseOptional(registries, compound.getCompound(TAG_DRAINED));
     } else {
       drained = FluidStack.EMPTY;
     }
     if (compound.contains(TAG_RENDER_FLUID, Tag.TAG_COMPOUND)) {
-      renderFluid = FluidStack.loadFluidStackFromNBT(compound.getCompound(TAG_RENDER_FLUID));
+      renderFluid = FluidStack.parseOptional(registries, compound.getCompound(TAG_RENDER_FLUID));
     } else {
       renderFluid = FluidStack.EMPTY;
     }
     cracksHandler.readNBT(getBlockState(), compound);
+  }
+
+  @Override
+  protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+    super.collectImplicitComponents(builder);
+    cracksHandler.collectImplicitComponents(builder);
+  }
+
+  @Override
+  protected void applyImplicitComponents(DataComponentInput input) {
+    super.applyImplicitComponents(input);
+    cracksHandler.applyImplicitComponents(input.get(Registration.CRACKS));
+  }
+
+  @Override
+  public void removeComponentsFromTag(CompoundTag tag) {
+    super.removeComponentsFromTag(tag);
+    tag.remove(CrackableBlockEntityHandler.TAG_CRACKS);
   }
 
   private enum FaucetState {

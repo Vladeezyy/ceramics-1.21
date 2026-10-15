@@ -124,6 +124,9 @@ public class CisternBlock extends Block {
 
   public CisternBlock(Properties properties) {
     super(properties);
+    // without this the first state is the default, which is an extension with all sides connected
+    this.registerDefaultState(this.stateDefinition.any().setValue(EXTENSION, false)
+      .setValue(NORTH, false).setValue(SOUTH, false).setValue(WEST, false).setValue(EAST, false));
   }
 
 
@@ -140,7 +143,7 @@ public class CisternBlock extends Block {
   @SuppressWarnings("deprecation")
   @Deprecated
   @Override
-  public boolean isPathfindable(BlockState state, BlockGetter worldIn, BlockPos pos, PathComputationType type) {
+  protected boolean isPathfindable(BlockState state, PathComputationType type) {
     return false;
   }
 

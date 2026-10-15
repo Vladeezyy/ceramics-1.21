@@ -1,68 +1,51 @@
 package knightminer.ceramics.recipe;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import knightminer.ceramics.Registration;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IIngredientSerializer;
-import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
+import net.neoforged.neoforge.common.crafting.ICustomIngredient;
+import net.neoforged.neoforge.common.crafting.IngredientType;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import net.minecraft.world.item.crafting.Ingredient.Value;
-
 /**
- * Ingredient extension that only matches if the stack has no NBT
+ * Ingredient that only matches if the stack has no extra data. In 1.20 that meant no NBT, in 1.21 no component changes.
+ * JSON: {"type": "ceramics:no_nbt", "ingredient": ...}
  */
-public class NoNBTIngredient extends Ingredient {
-	public static final Serializer SERIALIZER = new Serializer();
+public record NoNBTIngredient(Ingredient ingredient) implements ICustomIngredient {
+	public static final MapCodec<NoNBTIngredient> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+		Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(NoNBTIngredient::ingredient)
+	).apply(inst, NoNBTIngredient::new));
+	public static final StreamCodec<RegistryFriendlyByteBuf, NoNBTIngredient> STREAM_CODEC = Ingredient.CONTENTS_STREAM_CODEC.map(NoNBTIngredient::new, NoNBTIngredient::ingredient);
 
-	public NoNBTIngredient(Ingredient ingredient) {
-		this(Arrays.stream(ingredient.values));
-	}
-
-	protected NoNBTIngredient(Stream<? extends Value> itemLists) {
-		super(itemLists);
+	/** Creates a vanilla ingredient wrapping this */
+	public static Ingredient of(Ingredient ingredient) {
+		return new NoNBTIngredient(ingredient).toVanilla();
 	}
 
 	@Override
 	public boolean test(@Nullable ItemStack stack) {
-		return stack != null && !stack.hasTag() && super.test(stack);
+		return stack != null && stack.isComponentsPatchEmpty() && ingredient.test(stack);
 	}
 
 	@Override
-	public IIngredientSerializer<? extends Ingredient> getSerializer() {
-		return SERIALIZER;
+	public Stream<ItemStack> getItems() {
+		return Arrays.stream(ingredient.getItems());
 	}
 
 	@Override
-	public JsonElement toJson() {
-		JsonElement element = super.toJson();
-		JsonObject object;
-		if (element.isJsonObject()) {
-			object = element.getAsJsonObject();
-		} else {
-			throw new IllegalStateException("Invalid NoNBTIngredient");
-		}
-		object.addProperty("type", Objects.requireNonNull(CraftingHelper.getID(SERIALIZER)).toString());
-		return object;
+	public boolean isSimple() {
+		return false;
 	}
 
-	/** Serializer logic is basically vanilla */
-	private static class Serializer extends VanillaIngredientSerializer {
-		@Override
-		public NoNBTIngredient parse(FriendlyByteBuf buffer) {
-			return new NoNBTIngredient(super.parse(buffer));
-		}
-
-		@Override
-		public Ingredient parse(JsonObject json) {
-			return new NoNBTIngredient(super.parse(json));
-		}
+	@Override
+	public IngredientType<?> getType() {
+		return Registration.NO_NBT_INGREDIENT.get();
 	}
 }

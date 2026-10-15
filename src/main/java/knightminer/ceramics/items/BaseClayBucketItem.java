@@ -1,5 +1,14 @@
 package knightminer.ceramics.items;
 
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.Entity;
+import javax.annotation.Nullable;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.ChatFormatting;
@@ -19,9 +28,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import slimeknights.mantle.util.RegistryHelper;
 
 import java.util.function.Consumer;
@@ -39,7 +45,7 @@ public abstract class BaseClayBucketItem extends Item {
     super(props);
     this.isCracked = isCracked;
     if (isCracked) {
-      MinecraftForge.EVENT_BUS.addListener(this::onItemDestroyed);
+      NeoForge.EVENT_BUS.addListener(this::onItemDestroyed);
     }
   }
 
@@ -90,7 +96,7 @@ public abstract class BaseClayBucketItem extends Item {
    */
   protected static void renderBrokenItem(Player player, ItemStack stack) {
     // play sound
-    Level world = player.getCommandSenderWorld();
+    Level world = player.level();
     world.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_BREAK, player.getSoundSource(), 0.8F, 0.8F + world.random.nextFloat() * 0.4F, false);
     // add particles
     RandomSource rand = player.getRandom();
@@ -203,7 +209,7 @@ public abstract class BaseClayBucketItem extends Item {
     }
     // return
     ItemLike item = isCracked ? Registration.CRACKED_FLUID_CLAY_BUCKET : Registration.FLUID_CLAY_BUCKET;
-    return FluidClayBucketItem.setFluid(new ItemStack(item), fluid);
+    return FluidClayBucketItem.setFluid(new ItemStack(item.asItem()), fluid);
   }
 
   /**
@@ -214,8 +220,8 @@ public abstract class BaseClayBucketItem extends Item {
   public static ItemStack withBlock(Block block, boolean isCracked) {
     return SolidClayBucketItem.setBlock(new ItemStack(
         isCracked || RegistryHelper.contains(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS, block)
-        ? Registration.CRACKED_SOLID_CLAY_BUCKET
-        : Registration.SOLID_CLAY_BUCKET
+        ? Registration.CRACKED_SOLID_CLAY_BUCKET.get()
+        : Registration.SOLID_CLAY_BUCKET.get()
     ), block);
   }
 
@@ -233,19 +239,54 @@ public abstract class BaseClayBucketItem extends Item {
    * @return  Stack with milk
    */
   protected static ItemStack withMilk(boolean isCracked) {
-    return new ItemStack(isCracked ? Registration.CRACKED_MILK_CLAY_BUCKET : Registration.MILK_CLAY_BUCKET);
+    return new ItemStack(isCracked ? Registration.CRACKED_MILK_CLAY_BUCKET.get() : Registration.MILK_CLAY_BUCKET.get());
+  }
+
+  /* Worlds from 1.20 */
+
+  /**
+   * Reads a string saved by Ceramics for 1.20. The 1.21 world upgrade keeps unknown item NBT as custom data.
+   * @param stack  Stack to read
+   * @param key    Old NBT key
+   * @return  Saved string, or null if missing
+   */
+  @Nullable
+  protected static String getLegacyString(ItemStack stack, String key) {
+    CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+    if (data != null) {
+      CompoundTag tag = data.getUnsafe();
+      if (tag.contains(key, Tag.TAG_STRING)) {
+        return tag.getString(key);
+      }
+    }
+    return null;
   }
 
   /**
-   * Gets a string variant name for the given stack
-   * @param stack  Stack instance to check
-   * @return  String variant name
+   * Removes an old NBT key from the custom data of the stack
+   * @param stack  Stack to update
+   * @param key    Old NBT key
    */
-  public static String getSubtype(ItemStack stack, String key) {
-    if (stack.hasTag()) {
-      assert stack.getTag() != null;
-      return stack.getTag().getString(key);
+  protected static void removeLegacyTag(ItemStack stack, String key) {
+    CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+    if (data != null && data.contains(key)) {
+      CompoundTag tag = data.copyTag();
+      tag.remove(key);
+      if (tag.isEmpty()) {
+        stack.remove(DataComponents.CUSTOM_DATA);
+      } else {
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+      }
     }
-    return "minecraft:empty";
+  }
+
+  /** Converts data saved by Ceramics for 1.20 into components, so old buckets stack and render correctly */
+  protected void migrateLegacy(ItemStack stack) {}
+
+  @Override
+  public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+    if (!level.isClientSide) {
+      migrateLegacy(stack);
+    }
   }
 }

@@ -1,5 +1,8 @@
 package knightminer.ceramics.blocks;
 
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.item.ItemStack;
 import knightminer.ceramics.Ceramics;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -26,7 +29,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
@@ -119,7 +121,7 @@ public class ChannelBlock extends Block {
 		super(props);
 
 		this.registerDefaultState(this.defaultBlockState()
-														 .setValue(DOWN, false)
+														 .setValue(DOWN, false).setValue(POWERED, false)
 														 .setValue(NORTH, ChannelConnection.NONE)
 														 .setValue(SOUTH, ChannelConnection.NONE)
 														 .setValue(WEST, ChannelConnection.NONE)
@@ -149,8 +151,8 @@ public class ChannelBlock extends Block {
 	 * @return  True if its a fluid handler
 	 */
 	private static boolean isFluidHandler(LevelAccessor world, Direction side, BlockPos pos) {
-		BlockEntity te = world.getBlockEntity(pos);
-		return te != null && te.getCapability(ForgeCapabilities.FLUID_HANDLER, side).isPresent();
+		// capabilities are only available on a full level, not during worldgen
+		return world instanceof Level level && level.getCapability(Capabilities.FluidHandler.BLOCK, pos, side) != null;
 	}
 
 	/**
@@ -271,14 +273,20 @@ public class ChannelBlock extends Block {
 	/** Method for the flowing channel block to override, triggered on activation when the channel changes */
 	protected void activateTileEntity(BlockState state, Level world, BlockPos pos, Direction side) { }
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {		// if the player is holding a channel, skip unless we clicked the top
+	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		// if the player is holding a channel, skip unless we clicked the top
 		// they can shift click to place one on the top
-		Direction hitFace = hit.getDirection();
-		if (player.getItemInHand(hand).getItem() == this.asItem() && world.isEmptyBlock(pos.relative(hitFace))) {
-			return InteractionResult.PASS;
+		if (stack.getItem() == this.asItem() && world.isEmptyBlock(pos.relative(hit.getDirection()))) {
+			return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
 		}
+		// any other item toggles the side as with an empty hand, as in 1.20
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	@Override
+	protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+		Direction hitFace = hit.getDirection();
 
 		// default to using the clicked side, though null (is that valid?) and up act as down
 		Direction side = hitFace == Direction.UP ? Direction.DOWN : hitFace;

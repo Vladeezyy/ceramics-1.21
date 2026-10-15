@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "group": "ceramics:colored_cisterns",
+  "key": {
+    "c": {
+      "type": "ceramics:no_nbt",
+      "ingredient": {
+        "tag": "ceramics:terracotta_cisterns"
+      }
+    },
+    "d": {
+      "tag": "c:dyes/yellow"
+    }
+  },
+  "pattern": [
+    " c ",
+    "cdc",
+    " c "
+  ],
+  "result": {
+    "count": 4,
+    "id": "ceramics:yellow_terracotta_cistern"
+  }
+}

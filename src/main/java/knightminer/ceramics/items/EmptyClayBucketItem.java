@@ -1,13 +1,15 @@
 package knightminer.ceramics.items;
 
 import knightminer.ceramics.Ceramics;
+import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
-import knightminer.ceramics.util.FluidClayBucketWrapper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -32,11 +34,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.event.ForgeEventFactory;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class EmptyClayBucketItem extends BaseClayBucketItem {
 	public EmptyClayBucketItem(boolean isCracked, Properties props) {
@@ -50,12 +51,6 @@ public class EmptyClayBucketItem extends BaseClayBucketItem {
 	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		BlockHitResult trace = getPlayerPOVHitResult(world, player, ClipContext.Fluid.SOURCE_ONLY);
-
-		// fire Forge event for bucket use
-		InteractionResultHolder<ItemStack> ret = ForgeEventFactory.onBucketUse(player, world, stack, trace);
-		if (ret != null) {
-			return ret;
-		}
 
 		// if we missed, do nothing
 		if (trace.getType() != Type.BLOCK) {
@@ -72,26 +67,24 @@ public class EmptyClayBucketItem extends BaseClayBucketItem {
 			BlockState state = world.getBlockState(pos);
 			Block block = state.getBlock();
 			// if blacklisted, do nothing
-			if (block instanceof LiquidBlock liquidBlock && liquidBlock.getFluid().is(CeramicsTags.Fluids.BUCKET_BLACKLIST)) {
+			if (block instanceof LiquidBlock liquidBlock && liquidBlock.fluid.is(CeramicsTags.Fluids.BUCKET_BLACKLIST)) {
 				return InteractionResultHolder.fail(stack);
 			}
 			if (block instanceof BucketPickup pickup) {
-				ItemStack pickupStack = pickup.pickupBlock(world, pos, state);
+				ItemStack pickupStack = pickup.pickupBlock(player, world, pos, state);
+				// nothing picked up (e.g. a waterlogged block that refused), nothing to do
+				if (pickupStack.isEmpty()) {
+					return InteractionResultHolder.fail(stack);
+				}
 				ItemStack newStack;
 				if (pickupStack.getItem() instanceof BucketItem bucket) {
-					ItemStack result = withFluid(bucket.getFluid(), isCracked);
-					CompoundTag tag = pickupStack.getTag();
-					if (tag != null && !tag.contains(FluidClayBucketItem.TAG_FLUID)) {
-						result.getOrCreateTag().merge(tag);
-					}
+					ItemStack result = withFluid(bucket.content, isCracked);
+					copyExtraComponents(pickupStack, result);
 					newStack = ItemUtils.createFilledResult(stack, player, result);
 				} else if (pickupStack.getItem() instanceof SolidBucketItem bucket) {
 					world.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
 					ItemStack result = withBlock(bucket.getBlock(), isCracked);
-					CompoundTag tag = pickupStack.getTag();
-					if (tag != null && !tag.contains(SolidClayBucketItem.TAG_BLOCK)) {
-						result.getOrCreateTag().merge(tag);
-					}
+					copyExtraComponents(pickupStack, result);
 					newStack = ItemUtils.createFilledResult(stack, player, result);
 				} else {
 					// unfortunately, nothing we can do in this case, can logically only handle blocks and fluids
@@ -119,7 +112,7 @@ public class EmptyClayBucketItem extends BaseClayBucketItem {
 		if(!player.isCreative() && target instanceof Cow && !target.isBaby()) {
 			// sound
 			player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
-			if (!player.getCommandSenderWorld().isClientSide()) {
+			if (!player.level().isClientSide()) {
 				addItem(player, withMilk(isCracked));
 				stack.shrink(1);
 			}
@@ -128,16 +121,43 @@ public class EmptyClayBucketItem extends BaseClayBucketItem {
 		return InteractionResult.PASS;
 	}
 
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-		return new FluidClayBucketWrapper(stack);
+	/**
+	 * Copies data of a picked up bucket (such as extra data from another mod) onto the clay bucket, skipping our own bucket
+	 * contents and the stack size of the vanilla bucket. Replaces the NBT merge of 1.20.
+	 * @param pickupStack  Bucket returned by the block
+	 * @param result       Clay bucket to update
+	 */
+	private static void copyExtraComponents(ItemStack pickupStack, ItemStack result) {
+		DataComponentPatch patch = pickupStack.getComponentsPatch();
+		if (!patch.isEmpty()) {
+			DataComponentPatch.Builder builder = DataComponentPatch.builder();
+			for (Map.Entry<DataComponentType<?>, Optional<?>> entry : patch.entrySet()) {
+				DataComponentType<?> type = entry.getKey();
+				if (type != Registration.BUCKET_FLUID.get() && type != Registration.BUCKET_BLOCK.get() && type != DataComponents.MAX_STACK_SIZE) {
+					copyEntry(builder, entry);
+				}
+			}
+			result.applyComponents(builder.build());
+		}
+	}
+
+	/** Copies a single entry of the patch, generics helper */
+	@SuppressWarnings("unchecked")
+	private static <T> void copyEntry(DataComponentPatch.Builder builder, Map.Entry<DataComponentType<?>, Optional<?>> entry) {
+		DataComponentType<T> type = (DataComponentType<T>) entry.getKey();
+		Optional<?> value = entry.getValue();
+		if (value.isPresent()) {
+			builder.set(type, (T) value.get());
+		} else {
+			builder.remove(type);
+		}
 	}
 
 
 	/* Stack properties */
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
 		tooltip.add(Component.translatable(this.getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
 	}
 }

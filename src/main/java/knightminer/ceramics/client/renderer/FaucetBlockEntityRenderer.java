@@ -1,5 +1,7 @@
 package knightminer.ceramics.client.renderer;
 
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import knightminer.ceramics.blocks.FaucetBlock;
@@ -14,8 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import slimeknights.mantle.client.render.FluidCuboid;
 import slimeknights.mantle.client.render.FluidRenderer;
 import slimeknights.mantle.client.render.MantleRenderTypes;
@@ -26,6 +28,14 @@ import java.util.function.Function;
 
 public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBlockEntity> {
   public FaucetBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
+
+  @Override
+  public AABB getRenderBoundingBox(FaucetBlockEntity te) {
+    // fluid can render into the block below
+    BlockPos pos = te.getBlockPos();
+    return new AABB(pos.getX(), pos.getY() - 1, pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+  }
+
 
   @Override
   public void render(FaucetBlockEntity tileEntity, float partialTicks, PoseStack matrices, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn) {

@@ -1,8 +1,8 @@
 package knightminer.ceramics.menu;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import knightminer.ceramics.Registration;
 import net.minecraft.client.RecipeBookCategories;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractFurnaceMenu;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class KilnMenu extends AbstractFurnaceMenu {
   @SuppressWarnings("unused")
-  public KilnMenu(int id, Inventory inventory, FriendlyByteBuf buffer) {
+  public KilnMenu(int id, Inventory inventory, RegistryFriendlyByteBuf buffer) {
     super(Registration.KILN_MENU.get(), Registration.KILN_RECIPE.get(), RecipeBookType.FURNACE, id, inventory);
   }
 

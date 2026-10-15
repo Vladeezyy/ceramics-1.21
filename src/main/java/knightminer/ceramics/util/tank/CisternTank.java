@@ -1,10 +1,12 @@
 package knightminer.ceramics.util.tank;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.Tag;
 import knightminer.ceramics.blocks.entity.CisternBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
@@ -70,19 +72,19 @@ public class CisternTank implements IFluidHandler, IFluidTank {
       if (fluid.isEmpty()) {
         return Math.min(capacity, resource.getAmount());
       }
-      if (!fluid.isFluidEqual(resource)) {
+      if (!FluidStack.isSameFluidSameComponents(fluid, resource)) {
         return 0;
       }
       return Math.min(capacity - fluid.getAmount(), resource.getAmount());
     }
     // no existing fluid
     if (fluid.isEmpty()) {
-      fluid = new FluidStack(resource, Math.min(capacity, resource.getAmount()));
+      fluid = resource.copyWithAmount(Math.min(capacity, resource.getAmount()));
       parent.onFluidAdded(fluid.getAmount());
       return fluid.getAmount();
     }
     // wrong type
-    if (!fluid.isFluidEqual(resource)) {
+    if (!FluidStack.isSameFluidSameComponents(fluid, resource)) {
       return 0;
     }
     // limit based on space
@@ -104,7 +106,7 @@ public class CisternTank implements IFluidHandler, IFluidTank {
   @Nonnull
   @Override
   public FluidStack drain(FluidStack resource, FluidAction action) {
-    if (resource.isEmpty() || !resource.isFluidEqual(fluid)) {
+    if (resource.isEmpty() || !FluidStack.isSameFluidSameComponents(resource, fluid)) {
       return FluidStack.EMPTY;
     }
     return drain(resource.getAmount(), action);
@@ -117,7 +119,7 @@ public class CisternTank implements IFluidHandler, IFluidTank {
     if (fluid.getAmount() < drained) {
       drained = fluid.getAmount();
     }
-    FluidStack stack = new FluidStack(fluid, drained);
+    FluidStack stack = fluid.copyWithAmount(drained);
     if (action.execute() && drained > 0) {
       fluid.shrink(drained);
       parent.onTankChanged(false);
@@ -132,8 +134,8 @@ public class CisternTank implements IFluidHandler, IFluidTank {
    * Updates the tank contents from NBT
    * @param nbt  NBT
    */
-  public void readFromNBT(CompoundTag nbt) {
-    FluidStack fluid = FluidStack.loadFluidStackFromNBT(nbt);
+  public void readFromNBT(HolderLookup.Provider registries, CompoundTag nbt) {
+    FluidStack fluid = FluidStack.parseOptional(registries, nbt);
     setFluid(fluid);
   }
 
@@ -141,8 +143,8 @@ public class CisternTank implements IFluidHandler, IFluidTank {
    * Writes the tank contents to NBT
    * @return  Contents as NBT
    */
-  public CompoundTag writeToNBT() {
-    return fluid.writeToNBT(new CompoundTag());
+  public Tag writeToNBT(HolderLookup.Provider registries) {
+    return fluid.saveOptional(registries);
   }
 
 

@@ -2,9 +2,11 @@ package knightminer.ceramics.items;
 
 import com.google.common.collect.ImmutableList;
 import knightminer.ceramics.Ceramics;
+import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -18,21 +20,11 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.ForgeI18n;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.ForgeRegistries;
 import slimeknights.mantle.data.loadable.Loadables;
-import slimeknights.mantle.item.ConstantFluidContainerWrapper;
-import slimeknights.mantle.recipe.helper.TagPreference;
 import slimeknights.mantle.util.RegistryHelper;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class SolidClayBucketItem extends BaseClayBucketItem {
@@ -42,7 +34,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 	/** Loads all bucketable blocks from the item registry */
 	public static void loadBucketableBlocks() {
 		ImmutableList.Builder<Block> builder = ImmutableList.builder();
-		for (Item item : ForgeRegistries.ITEMS) {
+		for (Item item : BuiltInRegistries.ITEM) {
 			if (item instanceof SolidBucketItem solidBucket) {
 				builder.add(solidBucket.getBlock());
 			}
@@ -50,24 +42,11 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 		BUCKETABLE_BLOCKS = builder.build();
 	}
 
-	/** Tag name for block in a bucket */
+	/** Tag name for block in a bucket in 1.20, used to read old worlds */
 	public static final String TAG_BLOCK = "block";
 
 	public SolidClayBucketItem(boolean isCracked, Properties props) {
 		super(isCracked, props);
-	}
-
-	@Nullable
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-		// TODO: can this be extracted to JSON?
-		if (getBlock(stack) == Blocks.POWDER_SNOW) {
-			Optional<Fluid> optional = TagPreference.getPreference(CeramicsTags.Fluids.POWDERED_SNOW);
-			if (optional.isPresent()) {
-				return new ConstantFluidContainerWrapper(new FluidStack(optional.get(), FluidType.BUCKET_VOLUME), stack);
-			}
-		}
-		return null;
 	}
 
 	@Override
@@ -96,12 +75,18 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 	 * @return  Block contained in the container, air if invalid
 	 */
 	public Block getBlock(ItemStack stack) {
-		CompoundTag tags = stack.getTag();
-		if(tags != null) {
-			Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tags.getString(TAG_BLOCK)));
-			return block == null ? Blocks.AIR : block;
+		Block block = stack.get(Registration.BUCKET_BLOCK);
+		if (block != null) {
+			return block;
 		}
-
+		// bucket from a 1.20 world, not converted yet
+		String legacy = getLegacyString(stack, TAG_BLOCK);
+		if (legacy != null) {
+			ResourceLocation location = ResourceLocation.tryParse(legacy);
+			if (location != null) {
+				return BuiltInRegistries.BLOCK.get(location);
+			}
+		}
 		return Blocks.AIR;
 	}
 
@@ -112,18 +97,23 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 	 * @return  Modified stack
 	 */
 	protected static ItemStack setBlock(ItemStack stack, Block block) {
-		stack.getOrCreateTag().putString(TAG_BLOCK, Loadables.BLOCK.getString(block));
+		stack.set(Registration.BUCKET_BLOCK, block);
 		return stack;
+	}
+
+	@Override
+	protected void migrateLegacy(ItemStack stack) {
+		if (getLegacyString(stack, TAG_BLOCK) != null) {
+			Block block = getBlock(stack);
+			removeLegacyTag(stack, TAG_BLOCK);
+			if (block != Blocks.AIR) {
+				setBlock(stack, block);
+			}
+		}
 	}
 
 
 	/* Item stack properties */
-
-	@Override
-	public int getMaxStackSize(ItemStack stack) {
-		// TODO: can we allow larger stack sizes for weird block stuff here?
-		return 1;
-	}
 
 	@Override
 	public Component getName(ItemStack stack) {
@@ -136,10 +126,10 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 			String key = this.getDescriptionId(stack);
 			ResourceLocation location = Loadables.BLOCK.getKey(block);
 			String blockKey = String.format("%s.%s.%s", key, location.getNamespace(), location.getPath());
-			if (ForgeI18n.getPattern(blockKey).equals(blockKey)) {
-				component = Component.translatable(key + ".filled", Component.translatable(block.getDescriptionId()));
-			} else {
+			if (Language.getInstance().has(blockKey)) {
 				component = Component.translatable(blockKey);
+			} else {
+				component = Component.translatable(key + ".filled", Component.translatable(block.getDescriptionId()));
 			}
 		}
 		// display name in red

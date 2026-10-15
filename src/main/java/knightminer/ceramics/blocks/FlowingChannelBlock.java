@@ -1,5 +1,6 @@
 package knightminer.ceramics.blocks;
 
+import net.minecraft.world.ItemInteractionResult;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.entity.ChannelBlockEntity;
@@ -9,7 +10,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -64,8 +64,9 @@ public class FlowingChannelBlock extends ChannelBlock implements ICrackableBlock
 	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
 		super.neighborChanged(state, worldIn, pos, blockIn, fromPos, isMoving);
 		if (!worldIn.isClientSide()) {
-			BlockEntityHelper.get(ChannelBlockEntity.class, worldIn, pos)
-											 .ifPresent(te -> te.removeCachedNeighbor(fromOffset(pos, fromPos)));
+			if (worldIn.getBlockEntity(pos) instanceof ChannelBlockEntity te) {
+				te.removeCachedNeighbor(fromOffset(pos, fromPos));
+			}
 		}
 	}
 
@@ -99,12 +100,11 @@ public class FlowingChannelBlock extends ChannelBlock implements ICrackableBlock
 		}
 	}
 
-	@Deprecated
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (crackable && ICrackableBlock.tryRepair(world, pos, player, hand)) {
-			return InteractionResult.SUCCESS;
+			return ItemInteractionResult.sidedSuccess(world.isClientSide);
 		}
-		return super.use(state, world, pos, player, hand, hit);
+		return super.useItemOn(stack, state, world, pos, player, hand, hit);
 	}
 }

@@ -1,12 +1,12 @@
 package knightminer.ceramics.util;
 
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 import knightminer.ceramics.items.BaseClayBucketItem;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nonnull;
 
@@ -53,6 +53,6 @@ public class FluidClayBucketWrapper extends FluidBucketWrapper {
 
   @Override
   public boolean canFillFluidType(FluidStack fluid) {
-    return !fluid.getFluid().is(CeramicsTags.Fluids.BUCKET_BLACKLIST) && !fluid.hasTag() && super.canFillFluidType(fluid);
+    return !fluid.getFluid().is(CeramicsTags.Fluids.BUCKET_BLACKLIST) && fluid.isComponentsPatchEmpty() && super.canFillFluidType(fluid);
   }
 }

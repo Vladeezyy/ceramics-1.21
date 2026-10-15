@@ -1,5 +1,6 @@
 package knightminer.ceramics.blocks;
 
+import net.minecraft.world.ItemInteractionResult;
 import knightminer.ceramics.blocks.entity.CisternBlockEntity;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlock;
 import net.minecraft.core.BlockPos;
@@ -7,7 +8,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import slimeknights.mantle.fluid.FluidTransferHelper;
-import slimeknights.mantle.util.BlockEntityHelper;
 
 import javax.annotation.Nullable;
 
@@ -45,14 +44,14 @@ public class FluidCisternBlock extends CisternBlock implements ICrackableBlock, 
   @SuppressWarnings("deprecation")
   @Deprecated
   @Override
-  public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+  protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     if (crackable && ICrackableBlock.tryRepair(world, pos, player, hand)) {
-      return InteractionResult.SUCCESS;
+      return ItemInteractionResult.sidedSuccess(world.isClientSide);
     }
     if (FluidTransferHelper.interactWithTank(world, pos, player, hand, hit)) {
-      return InteractionResult.SUCCESS;
+      return ItemInteractionResult.sidedSuccess(world.isClientSide);
     }
-    return InteractionResult.PASS;
+    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
   }
 
 
@@ -113,7 +112,9 @@ public class FluidCisternBlock extends CisternBlock implements ICrackableBlock, 
           base.removeExtension(pos);
         }
       } else {
-        BlockEntityHelper.get(CisternBlockEntity.class, world, pos).ifPresent(te -> te.onBroken(this));
+        if (world.getBlockEntity(pos) instanceof CisternBlockEntity te) {
+          te.onBroken(this);
+        }
       }
       world.removeBlockEntity(pos);
     }
@@ -144,7 +145,9 @@ public class FluidCisternBlock extends CisternBlock implements ICrackableBlock, 
   @Deprecated
   public void randomTick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource random) {
     if (isCrackable() && random.nextInt(5) == 0) {
-      BlockEntityHelper.get(CisternBlockEntity.class, worldIn, pos).ifPresent(CisternBlockEntity::randomTick);
+      if (worldIn.getBlockEntity(pos) instanceof CisternBlockEntity te) {
+        te.randomTick();
+      }
     }
   }
 }

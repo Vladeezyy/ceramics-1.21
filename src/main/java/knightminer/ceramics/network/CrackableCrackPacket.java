@@ -1,27 +1,31 @@
 package knightminer.ceramics.network;
 
+import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import slimeknights.mantle.client.SafeClientAccess;
-import slimeknights.mantle.network.packet.IThreadsafePacket;
 import slimeknights.mantle.util.BlockEntityHelper;
 
-public record CrackableCrackPacket(BlockPos pos, int cracks) implements IThreadsafePacket {
-	public CrackableCrackPacket(FriendlyByteBuf buffer) {
-		this(buffer.readBlockPos(), buffer.readVarInt());
-	}
+public record CrackableCrackPacket(BlockPos pos, int cracks) implements CustomPacketPayload {
+	public static final Type<CrackableCrackPacket> TYPE = new Type<>(Ceramics.getResource("crackable_crack"));
+	public static final StreamCodec<FriendlyByteBuf, CrackableCrackPacket> STREAM_CODEC = StreamCodec.composite(
+		BlockPos.STREAM_CODEC, CrackableCrackPacket::pos,
+		ByteBufCodecs.VAR_INT, CrackableCrackPacket::cracks,
+		CrackableCrackPacket::new);
 
 	@Override
-	public void encode(FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(pos);
-		buffer.writeVarInt(cracks);
+	public Type<CrackableCrackPacket> type() {
+		return TYPE;
 	}
 
-	@Override
-	public void handleThreadsafe(Context context) {
+	/** Handles the packet on the client main thread */
+	public void handle(IPayloadContext context) {
 		HandleClient.handle(this);
 	}
 

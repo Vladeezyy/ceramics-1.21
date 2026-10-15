@@ -14,17 +14,15 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import slimeknights.mantle.client.SafeClientAccess;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
-import java.util.Objects;
 
 /** Category to show kilns in JEI. Basically a copy of the vanilla furnace category */
-public class KilnCategory implements IRecipeCategory<KilnRecipe> {
-  static final RecipeType<KilnRecipe> TYPE = new RecipeType<>(Ceramics.getResource("kiln"), KilnRecipe.class);
+public class KilnCategory implements IRecipeCategory<RecipeHolder<KilnRecipe>> {
+  static final RecipeType<RecipeHolder<KilnRecipe>> TYPE = RecipeType.createRecipeHolderType(Ceramics.getResource("kiln"));
   // slots
   static final int INPUT_SLOT = 0;
   static final int FUEL_SLOT = 1;
@@ -42,7 +40,7 @@ public class KilnCategory implements IRecipeCategory<KilnRecipe> {
   /* Properties */
 
   @Override
-  public RecipeType<KilnRecipe> getRecipeType() {
+  public RecipeType<RecipeHolder<KilnRecipe>> getRecipeType() {
     return TYPE;
   }
 
@@ -71,7 +69,8 @@ public class KilnCategory implements IRecipeCategory<KilnRecipe> {
   /* Recipe */
 
   @Override
-  public void setRecipe(IRecipeLayoutBuilder builder, KilnRecipe recipe, IFocusGroup focuses) {
+  public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<KilnRecipe> holder, IFocusGroup focuses) {
+    KilnRecipe recipe = holder.value();
     // input
     builder.addInputSlot(1, 1)
       .setStandardSlotBackground()
@@ -82,11 +81,12 @@ public class KilnCategory implements IRecipeCategory<KilnRecipe> {
     // output
     builder.addOutputSlot(61, 19)
       .setOutputSlotBackground()
-      .addItemStack(recipe.getResultItem(Objects.requireNonNullElse(SafeClientAccess.getRegistryAccess(), RegistryAccess.EMPTY)));
+      .addItemStack(recipe.getOutput());
   }
 
   @Override
-  public void createRecipeExtras(IRecipeExtrasBuilder builder, KilnRecipe recipe, IFocusGroup focuses) {
+  public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<KilnRecipe> holder, IFocusGroup focuses) {
+    KilnRecipe recipe = holder.value();
     int cookTime = recipe.getCookingTime();
     if (cookTime <= 0) {
       cookTime = 100;
@@ -127,12 +127,7 @@ public class KilnCategory implements IRecipeCategory<KilnRecipe> {
   }
 
   @Override
-  public boolean isHandled(KilnRecipe recipe) {
-    return !recipe.isSpecial();
-  }
-
-  @Override
-  public ResourceLocation getRegistryName(KilnRecipe recipe) {
-    return recipe.getId();
+  public ResourceLocation getRegistryName(RecipeHolder<KilnRecipe> recipe) {
+    return recipe.id();
   }
 }

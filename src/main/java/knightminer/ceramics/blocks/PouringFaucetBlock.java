@@ -1,5 +1,6 @@
 package knightminer.ceramics.blocks;
 
+import net.minecraft.world.ItemInteractionResult;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler.ICrackableBlock;
 import knightminer.ceramics.blocks.entity.FaucetBlockEntity;
@@ -54,10 +55,16 @@ public class PouringFaucetBlock extends FaucetBlock implements ICrackableBlock, 
   @SuppressWarnings("deprecation")
   @Deprecated
   @Override
-  public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+  protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
     if (isCrackable() && ICrackableBlock.tryRepair(worldIn, pos, player, handIn)) {
-      return InteractionResult.SUCCESS;
+      return ItemInteractionResult.sidedSuccess(worldIn.isClientSide);
     }
+    // any other item starts the faucet as with an empty hand, as in 1.20
+    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+  }
+
+  @Override
+  protected InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player, BlockHitResult hit) {
     if (player.isShiftKeyDown()) {
       return InteractionResult.PASS;
     }

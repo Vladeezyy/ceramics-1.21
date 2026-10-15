@@ -1,5 +1,10 @@
 package knightminer.ceramics.items;
 
+import knightminer.ceramics.Registration;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler;
 import net.minecraft.ChatFormatting;
@@ -11,7 +16,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /** BlockItem for crackable blocks to show cracked amount */
@@ -28,9 +32,17 @@ public class CrackableBlockItem extends FixedTooltipBlockItem {
 	 * @return  Cracks
 	 */
 	public static int getCracks(ItemStack stack) {
-		CompoundTag nbt = stack.getTag();
-		if (nbt != null && nbt.contains(CrackableBlockEntityHandler.TAG_CRACKS, Tag.TAG_ANY_NUMERIC)) {
-			return nbt.getInt(CrackableBlockEntityHandler.TAG_CRACKS);
+		Integer cracks = stack.get(Registration.CRACKS);
+		if (cracks != null) {
+			return cracks;
+		}
+		// block item from a 1.20 world: the world upgrade keeps the old tag as custom data
+		CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+		if (data != null) {
+			CompoundTag nbt = data.getUnsafe();
+			if (nbt.contains(CrackableBlockEntityHandler.TAG_CRACKS, Tag.TAG_ANY_NUMERIC)) {
+				return Mth.clamp(nbt.getInt(CrackableBlockEntityHandler.TAG_CRACKS), 0, 5);
+			}
 		}
 		return 0;
 	}
@@ -41,27 +53,47 @@ public class CrackableBlockItem extends FixedTooltipBlockItem {
 	 * @param cracks  New cracks value
 	 */
 	public static ItemStack setCracks(ItemStack stack, int cracks) {
-		if (cracks == 0) {
-			CompoundTag nbt = stack.getTag();
-			if (nbt != null) {
-				nbt.remove(CrackableBlockEntityHandler.TAG_CRACKS);
-				if (nbt.isEmpty()) {
-					stack.setTag(null);
-				}
-			}
+		removeLegacyCracks(stack);
+		if (cracks <= 0) {
+			stack.remove(Registration.CRACKS);
 		} else {
-			stack.getOrCreateTag().putInt(CrackableBlockEntityHandler.TAG_CRACKS, cracks);
+			stack.set(Registration.CRACKS, Math.min(cracks, 5));
 		}
 		return stack;
 	}
 
+	/** Removes the cracks tag left by a 1.20 world */
+	private static void removeLegacyCracks(ItemStack stack) {
+		CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+		if (data != null && data.contains(CrackableBlockEntityHandler.TAG_CRACKS)) {
+			CompoundTag tag = data.copyTag();
+			tag.remove(CrackableBlockEntityHandler.TAG_CRACKS);
+			if (tag.isEmpty()) {
+				stack.remove(DataComponents.CUSTOM_DATA);
+			} else {
+				stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+			}
+		}
+	}
+
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flag) {
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+		// convert 1.20 cracks into the component
+		if (!level.isClientSide && !stack.has(Registration.CRACKS)) {
+			CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+			if (data != null && data.contains(CrackableBlockEntityHandler.TAG_CRACKS)) {
+				setCracks(stack, getCracks(stack));
+			}
+		}
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 		int cracks = getCracks(stack);
 		if (cracks > 0) {
 			tooltip.add(Component.translatable(TOOLTIP_KEY, 6 - cracks, 6));
 		}
-		super.appendHoverText(stack, worldIn, tooltip, flag);
+		super.appendHoverText(stack, context, tooltip, flag);
 		tooltip.add(CRACKABLE);
 	}
 
@@ -73,5 +105,11 @@ public class CrackableBlockItem extends FixedTooltipBlockItem {
 	@Override
 	public int getBarWidth(ItemStack stack) {
 		return 13 - getCracks(stack) * 2;
+	}
+
+	@Override
+	public int getBarColor(ItemStack stack) {
+		// the item has no durability, so the default color divides by zero; base it on the cracks instead
+		return Mth.hsvToRgb((6 - getCracks(stack)) / 18f, 1.0F, 1.0F);
 	}
 }

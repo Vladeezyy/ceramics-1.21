@@ -1,5 +1,6 @@
 package knightminer.ceramics.client.model;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
@@ -24,10 +25,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.IGeometryLoader;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
+import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
+import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 import slimeknights.mantle.client.model.util.ColoredBlockModel;
 import slimeknights.mantle.client.model.util.DynamicBakedWrapper;
 import slimeknights.mantle.client.model.util.ExtraTextureContext;
@@ -43,7 +44,6 @@ import java.util.function.Function;
 
 /** Generic cracked model for cracked clay blocks */
 public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
-	private static final ResourceLocation BAKE_LOCATION = Ceramics.getResource("dynamic_model_baking");
 	public static final IGeometryLoader<CrackedModel> LOADER = CrackedModel::deserialize;
 
 	/** Deserializes the model from JSON */
@@ -62,7 +62,7 @@ public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
 	}
 
 	@Override
-	public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material,TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation location) {
+	public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material,TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides) {
 		// fetch textures
 		Material[] textures = new Material[5];
 		for (int i = 0; i < 5; i++) {
@@ -79,13 +79,13 @@ public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
 			Map<Direction,BlockElementFace> mapFaces = new HashMap<>();
 			for (Entry<Direction, BlockElementFace> entry : element.faces.entrySet()) {
 				BlockElementFace face = entry.getValue();
-				mapFaces.put(entry.getKey(), new BlockElementFace(face.cullForDirection, -1, "cracks", face.uv));
+				mapFaces.put(entry.getKey(), new BlockElementFace(face.cullForDirection(), -1, "cracks", face.uv(), face.faceData(), new MutableObject<>()));
 			}
-			newElements.add(new BlockElement(element.from, element.to, mapFaces, element.rotation, element.shade));
+			newElements.add(new BlockElement(element.from, element.to, mapFaces, element.rotation, element.shade, element.getFaceData()));
 		}
 
 		// wrap the original model
-		BakedModel original = model.bake(owner, bakery, spriteGetter, transform, overrides, location);
+		BakedModel original = model.bake(owner, bakery, spriteGetter, transform, overrides);
 		return new Baked(original, owner, newElements, textures, transform);
 	}
 
@@ -117,7 +117,7 @@ public class CrackedModel implements IUnbakedGeometry<CrackedModel> {
 			if (crackedModels[stage] == null) {
 				// retexture the parts with the texture for this stage
 				IGeometryBakingContext retextured = new ExtraTextureContext(owner, ImmutableMap.of("cracks", textures[stage]));
-				crackedModels[stage] = SimpleBlockModel.bakeModel(retextured, elements, Material::sprite, transform, ItemOverrides.EMPTY, BAKE_LOCATION);
+				crackedModels[stage] = SimpleBlockModel.bakeModel(retextured, elements, Material::sprite, transform, ItemOverrides.EMPTY);
 			}
 			return crackedModels[stage];
 		}

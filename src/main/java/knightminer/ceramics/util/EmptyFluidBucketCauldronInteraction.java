@@ -1,5 +1,6 @@
 package knightminer.ceramics.util;
 
+import net.neoforged.neoforge.common.SoundActions;
 import knightminer.ceramics.items.FluidClayBucketItem;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.sounds.SoundEvent;
@@ -9,7 +10,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.SoundActions;
 import slimeknights.mantle.datagen.MantleTags;
 
 import javax.annotation.Nullable;

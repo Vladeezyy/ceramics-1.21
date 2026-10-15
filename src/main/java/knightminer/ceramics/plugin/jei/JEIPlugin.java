@@ -3,10 +3,7 @@ package knightminer.ceramics.plugin.jei;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.client.screen.KilnScreen;
-import knightminer.ceramics.items.BaseClayBucketItem;
 import knightminer.ceramics.items.CrackableBlockItem;
-import knightminer.ceramics.items.FluidClayBucketItem;
-import knightminer.ceramics.items.SolidClayBucketItem;
 import knightminer.ceramics.menu.KilnMenu;
 import knightminer.ceramics.recipe.CeramicsTags;
 import knightminer.ceramics.recipe.KilnRecipe;
@@ -14,7 +11,8 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -24,45 +22,57 @@ import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import slimeknights.mantle.client.SafeClientAccess;
+import net.minecraft.world.level.ItemLike;
 import slimeknights.mantle.util.RegistryHelper;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
   @Override
-  public ResourceLocation getPluginUid() {
-    return new ResourceLocation(Ceramics.MOD_ID, "jei_plugin");
+  public net.minecraft.resources.ResourceLocation getPluginUid() {
+    return Ceramics.getResource("jei_plugin");
+  }
+
+  /** Subtype interpreter from a function returning a key, or null for no subtype */
+  private record Interpreter(Function<ItemStack, String> key) implements ISubtypeInterpreter<ItemStack> {
+    @Nullable
+    @Override
+    public Object getSubtypeData(ItemStack stack, UidContext context) {
+      String value = key.apply(stack);
+      return value.isEmpty() ? null : value;
+    }
+
+    @Override
+    public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
+      return key.apply(stack);
+    }
   }
 
   @Override
   public void registerItemSubtypes(ISubtypeRegistration registration) {
-    IIngredientSubtypeInterpreter<ItemStack> fluidInterpreter = (stack, context) -> BaseClayBucketItem.getSubtype(stack, FluidClayBucketItem.TAG_FLUID);
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.FLUID_CLAY_BUCKET.get(), fluidInterpreter);
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.CRACKED_FLUID_CLAY_BUCKET.get(), fluidInterpreter);
-    IIngredientSubtypeInterpreter<ItemStack> blockInterpreter = (stack, context) -> SolidClayBucketItem.getSubtype(stack, SolidClayBucketItem.TAG_BLOCK);
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.SOLID_CLAY_BUCKET.get(), blockInterpreter);
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.CRACKED_SOLID_CLAY_BUCKET.get(), blockInterpreter);
+    Interpreter fluidInterpreter = new Interpreter(stack -> BuiltInRegistries.FLUID.getKey(Registration.FLUID_CLAY_BUCKET.get().getFluid(stack)).toString());
+    registration.registerSubtypeInterpreter(Registration.FLUID_CLAY_BUCKET.get(), fluidInterpreter);
+    registration.registerSubtypeInterpreter(Registration.CRACKED_FLUID_CLAY_BUCKET.get(), fluidInterpreter);
+    Interpreter blockInterpreter = new Interpreter(stack -> BuiltInRegistries.BLOCK.getKey(Registration.SOLID_CLAY_BUCKET.get().getBlock(stack)).toString());
+    registration.registerSubtypeInterpreter(Registration.SOLID_CLAY_BUCKET.get(), blockInterpreter);
+    registration.registerSubtypeInterpreter(Registration.CRACKED_SOLID_CLAY_BUCKET.get(), blockInterpreter);
 
     // separate different states of crackable clay
-    IIngredientSubtypeInterpreter<ItemStack> crackableClay = (stack, context) -> CrackableBlockItem.getCracks(stack) > 0 ? "cracked" : "";
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.TERRACOTTA_CISTERN.asItem(), crackableClay);
-    Registration.COLORED_CISTERN.forEach(block -> registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, block.asItem(), crackableClay));
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.TERRACOTTA_FAUCET.asItem(), crackableClay);
-    registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registration.TERRACOTTA_CHANNEL.asItem(), crackableClay);
+    Interpreter crackableClay = new Interpreter(stack -> CrackableBlockItem.getCracks(stack) > 0 ? "cracked" : "");
+    registration.registerSubtypeInterpreter(Registration.TERRACOTTA_CISTERN.asItem(), crackableClay);
+    Registration.COLORED_CISTERN.forEach(block -> registration.registerSubtypeInterpreter(block.asItem(), crackableClay));
+    registration.registerSubtypeInterpreter(Registration.TERRACOTTA_FAUCET.asItem(), crackableClay);
+    registration.registerSubtypeInterpreter(Registration.TERRACOTTA_CHANNEL.asItem(), crackableClay);
   }
 
   @Override
@@ -70,39 +80,27 @@ public class JEIPlugin implements IModPlugin {
     registration.addRecipeCategories(new KilnCategory(registration.getJeiHelpers().getGuiHelper()));
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public void registerRecipes(IRecipeRegistration registration) {
     ClientLevel world = Minecraft.getInstance().level;
     assert world != null;
     RecipeManager recipeManager = world.getRecipeManager();
-    List<KilnRecipe> results = new ArrayList<>();
-    RegistryAccess access = Objects.requireNonNullElse(SafeClientAccess.getRegistryAccess(), RegistryAccess.EMPTY);
-    for (Recipe<Container> recipe : recipeManager.byType(Registration.KILN_RECIPE.get()).values()) {
-      // ignore dynamic
-      if (recipe.isSpecial()) {
-        continue;
-      }
-
+    List<RecipeHolder<KilnRecipe>> results = new ArrayList<>();
+    // kiln recipes are all marked special to keep the vanilla recipe book quiet, so unlike 1.8.0 do not skip special
+    // recipes here: that hid every kiln recipe from JEI
+    for (RecipeHolder<KilnRecipe> holder : recipeManager.getAllRecipesFor(Registration.KILN_RECIPE.get())) {
+      KilnRecipe recipe = holder.value();
       // validate output
-      ItemStack output = recipe.getResultItem(access);
-      if (output.isEmpty()) {
-        Ceramics.LOG.error("Invalid kiln recipe {}, no output", recipe.getId());
+      if (recipe.getOutput().isEmpty()) {
+        Ceramics.LOG.error("Invalid kiln recipe {}, no output", holder.id());
         continue;
       }
-      List<Ingredient> ingredients = recipe.getIngredients();
-      if (ingredients.size() != 1) {
-        Ceramics.LOG.error("Invalid kiln recipe {}, wrong number of inputs", recipe.getId());
-        continue;
-      }
-
-      // recipe type
-      if (!(recipe instanceof KilnRecipe kilnRecipe)) {
-        Ceramics.LOG.error("Invalid kiln recipe {}, wrong class", recipe.getId());
+      if (recipe.getIngredients().size() != 1) {
+        Ceramics.LOG.error("Invalid kiln recipe {}, wrong number of inputs", holder.id());
         continue;
       }
       // add to list
-      results.add(kilnRecipe);
+      results.add(holder);
     }
     registration.addRecipes(KilnCategory.TYPE, results);
 
@@ -124,7 +122,7 @@ public class JEIPlugin implements IModPlugin {
 
   @Override
   public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-    registration.addRecipeCatalyst(new ItemStack(Registration.KILN), KilnCategory.TYPE, RecipeTypes.FUELING);
+    registration.addRecipeCatalyst(new ItemStack((ItemLike) Registration.KILN), KilnCategory.TYPE, RecipeTypes.FUELING);
   }
 
   @Override

@@ -6,7 +6,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import slimeknights.mantle.Mantle;
 
 import javax.annotation.Nullable;
@@ -32,6 +32,6 @@ public class FluidTagProvider extends FluidTagsProvider {
 			.addTag(CeramicsTags.Fluids.BUCKET_BLACKLIST)
 			.addOptionalTag(CeramicsTags.Fluids.POWDERED_SNOW.location())
 			// JEI uses this tag to hide fluids, appropriate for our uses
-			.addOptionalTag(new ResourceLocation("c", "hidden_from_recipe_viewers"));
+			.addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "hidden_from_recipe_viewers"));
 	}
 }

@@ -1,6 +1,5 @@
 package knightminer.ceramics;
 
-import knightminer.ceramics.datagen.BlockEntityTagProvider;
 import knightminer.ceramics.datagen.BlockTagProvider;
 import knightminer.ceramics.datagen.FluidTagProvider;
 import knightminer.ceramics.datagen.ItemTagProvider;
@@ -12,26 +11,19 @@ import knightminer.ceramics.datagen.client.RenderFluidProvider;
 import knightminer.ceramics.network.CeramicsNetwork;
 import knightminer.ceramics.recipe.CeramicsTags;
 import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.MissingMappingsEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import slimeknights.mantle.registration.RegistrationHelper;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("WeakerAccess")
@@ -40,13 +32,11 @@ public class Ceramics {
 	public static final String MOD_ID = "ceramics";
 	public static final Logger LOG = LogManager.getLogger(MOD_ID);
 
-	public Ceramics() {
-	  Registration.init();
+	public Ceramics(IEventBus bus, ModContainer container) {
+		Registration.init(bus);
 		CeramicsTags.init();
-		CeramicsNetwork.init();
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		bus.addListener(CeramicsNetwork::registerPackets);
 		bus.addListener(this::gatherData);
-		MinecraftForge.EVENT_BUS.addListener(this::onMissingMappings);
 	}
 
 	private void gatherData(GatherDataEvent event) {
@@ -58,34 +48,15 @@ public class Ceramics {
 
 		BlockTagProvider blockTags = new BlockTagProvider(packOutput, lookupProvider, helper);
 		gen.addProvider(server, blockTags);
-		gen.addProvider(server, new BlockEntityTagProvider(packOutput, lookupProvider, helper));
 		gen.addProvider(server, new ItemTagProvider(packOutput, lookupProvider, blockTags.contentsGetter(), helper));
 		gen.addProvider(server, new FluidTagProvider(packOutput, lookupProvider, helper));
-		gen.addProvider(server, new RecipeProvider(packOutput));
-		gen.addProvider(server, new LootTableProvider(packOutput));
+		gen.addProvider(server, new RecipeProvider(packOutput, lookupProvider));
+		gen.addProvider(server, new LootTableProvider(packOutput, lookupProvider));
 
 		boolean client = event.includeClient();
 		gen.addProvider(client, new RenderFluidProvider(packOutput));
 		gen.addProvider(client, new FaucetFluidProvider(packOutput));
 		gen.addProvider(client, new CisternFluidProvider(packOutput));
-	}
-
-	/** Maps a block name to a block */
-	@Nullable
-	private Block missingBlock(String name) {
-		if ("gauge".equals(name)) {
-			return Registration.TERRACOTTA_GAUGE.get();
-		}
-		return null;
-	}
-
-	/** Missing block event */
-	private void onMissingMappings(MissingMappingsEvent event) {
-		RegistrationHelper.handleMissingMappings(event, MOD_ID, Registries.BLOCK, this::missingBlock);
-		RegistrationHelper.handleMissingMappings(event, MOD_ID, Registries.ITEM, name -> {
-			ItemLike provider = missingBlock(name);
-			return provider == null ? null : provider.asItem();
-		});
 	}
 
 
@@ -104,7 +75,7 @@ public class Ceramics {
 	 * @return  Resource location for Ceramics
 	 */
 	public static ResourceLocation getResource(String name) {
-	  return new ResourceLocation(MOD_ID, name);
+	  return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
 	}
 
 	/**

@@ -20,6 +20,18 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
+// Functional self-test (src/selftest): loaded in dev runs only, never part of the jar
+sourceSets {
+    selftest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations {
+    selftestImplementation.extendsFrom implementation
+    selftestCompileOnly.extendsFrom compileOnly
+}
+
 neoForge {
     version = project.neo_version
 
@@ -36,6 +48,12 @@ neoForge {
             server()
             programArgument '--nogui'
         }
+        // tools/servertest.sh SELFTEST=1: functional checks on a fresh world, then stops (src/selftest)
+        selftest {
+            server()
+            programArgument '--nogui'
+            systemProperty 'ceramics.selftest', 'true'
+        }
         data {
             data()
             programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').absolutePath,
@@ -50,6 +68,7 @@ neoForge {
     mods {
         "${mod_id}" {
             sourceSet(sourceSets.main)
+            sourceSet(sourceSets.selftest)
         }
     }
 }
@@ -84,6 +103,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 }
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
+neoForge.addModdingDependenciesTo(sourceSets.selftest)
 
 tasks.named('jar', Jar).configure {
     from('LICENSE') { rename { 'LICENSE_ceramics' } }

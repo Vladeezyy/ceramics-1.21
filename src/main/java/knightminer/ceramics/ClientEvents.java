@@ -7,22 +7,22 @@ import knightminer.ceramics.client.renderer.CisternBlockEntityRenderer;
 import knightminer.ceramics.client.renderer.CisternFluids;
 import knightminer.ceramics.client.renderer.FaucetBlockEntityRenderer;
 import knightminer.ceramics.client.screen.KilnScreen;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelEvent.RegisterGeometryLoaders;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import slimeknights.mantle.client.render.ChannelFluids;
 import slimeknights.mantle.client.render.FaucetFluid;
 
 @SuppressWarnings("unused")
-@Mod.EventBusSubscriber(modid=Ceramics.MOD_ID, bus=Bus.MOD, value=Dist.CLIENT)
+@EventBusSubscriber(modid=Ceramics.MOD_ID, bus=Bus.MOD, value=Dist.CLIENT)
 public class ClientEvents {
   @SubscribeEvent
   static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -31,6 +31,7 @@ public class ClientEvents {
     event.registerReloadListener(CisternFluids.REGISTRY);
   }
 
+  @SuppressWarnings("deprecation")  // render types in the model JSON would need every model updated
   @SubscribeEvent
   static void setupClient(FMLClientSetupEvent event) {
     RenderType cutout = RenderType.cutout();
@@ -40,8 +41,11 @@ public class ClientEvents {
     Registration.COLORED_CISTERN.forEach(cistern -> ItemBlockRenderTypes.setRenderLayer(cistern, cutout));
     ItemBlockRenderTypes.setRenderLayer(Registration.TERRACOTTA_FAUCET.get(), cutout);
     ItemBlockRenderTypes.setRenderLayer(Registration.TERRACOTTA_CHANNEL.get(), cutout);
+  }
 
-    MenuScreens.register(Registration.KILN_MENU.get(), KilnScreen::new);
+  @SubscribeEvent
+  static void registerScreens(RegisterMenuScreensEvent event) {
+    event.register(Registration.KILN_MENU.get(), KilnScreen::new);
   }
 
   @SubscribeEvent
@@ -53,8 +57,8 @@ public class ClientEvents {
 
   @SubscribeEvent
   static void registerModels(RegisterGeometryLoaders event) {
-    event.register("fluid_bucket", ClayBucketModel.FLUID_LOADER);
-    event.register("solid_bucket", ClayBucketModel.SOLID_LOADER);
-    event.register("cracked", CrackedModel.LOADER);
+    event.register(Ceramics.getResource("fluid_bucket"), ClayBucketModel.FLUID_LOADER);
+    event.register(Ceramics.getResource("solid_bucket"), ClayBucketModel.SOLID_LOADER);
+    event.register(Ceramics.getResource("cracked"), CrackedModel.LOADER);
   }
 }

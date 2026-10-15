@@ -11,3 +11,5 @@ run-*/
 !gradle/wrapper/gradle-wrapper.jar
 *.log
 prodtest/*/
+src/generated/resources/.cache/
+build-*.txt

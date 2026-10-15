@@ -1,5 +1,8 @@
 package knightminer.ceramics.blocks.entity;
 
+import net.minecraft.core.component.DataComponentMap;
+import knightminer.ceramics.Registration;
+import javax.annotation.Nullable;
 import knightminer.ceramics.items.BaseClayBucketItem;
 import knightminer.ceramics.items.CrackableBlockItem;
 import knightminer.ceramics.network.CeramicsNetwork;
@@ -19,10 +22,10 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.data.ModelProperty;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import slimeknights.mantle.block.entity.MantleBlockEntity;
 
 /** Common logic for all crackable fluid blocks */
@@ -131,7 +134,7 @@ public class CrackableBlockEntityHandler {
 					BlockState state = parent.getBlockState();
 					world.sendBlockUpdated(pos, state, state, 3);
 				} else {
-					CeramicsNetwork.getInstance().sendToClientsAround(new CrackableCrackPacket(pos, this.cracks), world, pos);
+					CeramicsNetwork.sendToClientsAround(new CrackableCrackPacket(pos, this.cracks), world, pos);
 				}
 			}
 		}
@@ -155,7 +158,27 @@ public class CrackableBlockEntityHandler {
 	 */
 	public void setItemNBT(ItemStack stack) {
 		if (active && cracks > 0) {
-			stack.getOrCreateTag().putInt(TAG_CRACKS, cracks);
+			CrackableBlockItem.setCracks(stack, cracks);
+		}
+	}
+
+	/**
+	 * Adds the cracks to the components of the block entity, used for drops and pick block
+	 * @param builder  Component builder
+	 */
+	public void collectImplicitComponents(DataComponentMap.Builder builder) {
+		if (active && cracks > 0) {
+			builder.set(Registration.CRACKS.get(), cracks);
+		}
+	}
+
+	/**
+	 * Reads the cracks from the components of the placed item
+	 * @param cracks  Cracks component, null if missing
+	 */
+	public void applyImplicitComponents(@Nullable Integer cracks) {
+		if (active) {
+			setCracksRaw(cracks == null ? 0 : cracks);
 		}
 	}
 

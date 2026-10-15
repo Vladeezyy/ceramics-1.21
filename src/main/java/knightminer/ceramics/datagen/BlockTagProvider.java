@@ -10,12 +10,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import slimeknights.mantle.datagen.MantleTags;
 import slimeknights.mantle.registration.object.EnumObject;
-import slimeknights.mantle.registration.object.ItemObject;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import slimeknights.mantle.registration.object.WallBuildingBlockObject;
 
 import java.util.concurrent.CompletableFuture;
@@ -93,6 +93,8 @@ public class BlockTagProvider extends BlockTagsProvider {
     Registration.PORCELAIN_CISTERN.forEach(block -> porcelainCisterns.add(block));
 
     this.tag(MantleTags.Blocks.ATTACHED_GAUGES).add(Registration.TERRACOTTA_GAUGE.get(), Registration.PORCELAIN_GAUGE.get());
+    // channels and faucets do not sync the full fluid amount, in 1.20 this was a block entity tag
+    this.tag(MantleTags.Blocks.HIDES_GAUGE_AMOUNT).add(Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get());
 
     // pickaxe
     addTag(BlockTags.MINEABLE_WITH_PICKAXE, Registration.PORCELAIN_BLOCK, Registration.RAINBOW_PORCELAIN);
@@ -107,6 +109,9 @@ public class BlockTagProvider extends BlockTagsProvider {
            Registration.PORCELAIN_BRICKS, Registration.MONOCHROME_BRICKS, Registration.GOLDEN_BRICKS,
            Registration.MARINE_BRICKS, Registration.RAINBOW_BRICKS);
     addTag(Tags.Blocks.NEEDS_GOLD_TOOL, Registration.GOLDEN_BRICKS);
+    // in 1.20 Forge sorted gold between wood and stone, so this tag kept wooden tools from mining golden bricks.
+    // NeoForge 1.21 does not wire the tag into the vanilla tiers, so say it directly
+    addTag(BlockTags.INCORRECT_FOR_WOODEN_TOOL, Registration.GOLDEN_BRICKS);
     // shovel
     addTag(BlockTags.MINEABLE_WITH_SHOVEL, Registration.UNFIRED_PORCELAIN_BLOCK);
     addTag(BlockTags.MINEABLE_WITH_SHOVEL, Registration.CLAY_CISTERN, Registration.UNFIRED_CISTERN);
@@ -115,9 +120,9 @@ public class BlockTagProvider extends BlockTagsProvider {
   }
 
   @SafeVarargs
-  private <T extends Block> void addTag(TagKey<Block> tag, ItemObject<T>... blocks) {
+  private <T extends Block> void addTag(TagKey<Block> tag, DeferredBlock<T>... blocks) {
     IntrinsicTagAppender<Block> appender = this.tag(tag);
-    for (ItemObject<T> block : blocks) {
+    for (DeferredBlock<T> block : blocks) {
       appender.add(block.get());
     }
   }

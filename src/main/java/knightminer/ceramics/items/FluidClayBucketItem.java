@@ -1,14 +1,15 @@
 package knightminer.ceramics.items;
 
 import knightminer.ceramics.Ceramics;
+import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
-import knightminer.ceramics.util.FluidClayBucketWrapper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -38,13 +39,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
-import net.minecraftforge.common.ForgeI18n;
-import net.minecraftforge.common.SoundActions;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.SoundActions;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import slimeknights.mantle.data.loadable.Loadables;
 
 import javax.annotation.Nullable;
@@ -55,7 +52,7 @@ import java.util.function.Consumer;
  * Clay bucket that holds arbitrary fluids
  */
 public class FluidClayBucketItem extends BaseClayBucketItem {
-	/** Tag name for fluid in a bucket */
+	/** Tag name for fluid in a bucket in 1.20, used to read old worlds */
 	public static final String TAG_FLUID = "fluid";
 
 	public FluidClayBucketItem(boolean isCracked, Properties props) {
@@ -74,12 +71,6 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		}
 		BlockHitResult trace = getPlayerPOVHitResult(world, player, ClipContext.Fluid.NONE);
 
-		// fire Forge event for bucket use
-		InteractionResultHolder<ItemStack> ret = ForgeEventFactory.onBucketUse(player, world, stack, trace);
-		if (ret != null) {
-			return ret;
-		}
-
 		// if we missed, do nothing
 		if (trace.getType() != Type.BLOCK) {
 			return InteractionResultHolder.pass(stack);
@@ -93,7 +84,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		// ensure we can place a fluid there
 		if (world.mayInteract(player, pos) && player.mayUseItemAt(offset, direction, stack)) {
 			BlockState state = world.getBlockState(pos);
-			BlockPos fluidPos = state.getBlock() instanceof LiquidBlockContainer container && container.canPlaceLiquid(world, pos, state, fluid) ? pos : offset;
+			BlockPos fluidPos = state.getBlock() instanceof LiquidBlockContainer container && container.canPlaceLiquid(player, world, pos, state, fluid) ? pos : offset;
 			if (this.tryPlaceContainedLiquid(player, world, fluidPos, stack, trace)) {
 				onLiquidPlaced(player, fluid, world, stack, fluidPos);
 				if (player instanceof ServerPlayer server) {
@@ -124,7 +115,6 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	}
 
 	// TODO: possibly migrate to the Forge method
-	@SuppressWarnings("deprecation")
 	private boolean tryPlaceContainedLiquid(@Nullable Player player, Level world, BlockPos pos, ItemStack stack, @Nullable BlockHitResult trace) {
 		Fluid fluid = this.getFluid(stack);
 		if (!(fluid instanceof FlowingFluid flowingFluid)) {
@@ -134,7 +124,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		BlockState state = world.getBlockState(pos);
 		Block block = state.getBlock();
 		boolean replaceable = state.canBeReplaced(fluid);
-		if (state.isAir() || replaceable || block instanceof LiquidBlockContainer container && container.canPlaceLiquid(world, pos, state, fluid)) {
+		if (state.isAir() || replaceable || block instanceof LiquidBlockContainer container && container.canPlaceLiquid(player, world, pos, state, fluid)) {
 			if (world.dimensionType().ultraWarm() && fluid.is(FluidTags.WATER)) {
 				world.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
 
@@ -142,7 +132,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 					world.addParticle(ParticleTypes.LARGE_SMOKE, pos.getX() + Math.random(), pos.getY() + Math.random(), pos.getZ() + Math.random(), 0.0D, 0.0D, 0.0D);
 				}
 				return true;
-			} else if (block instanceof LiquidBlockContainer container && container.canPlaceLiquid(world, pos, state, fluid)) {
+			} else if (block instanceof LiquidBlockContainer container && container.canPlaceLiquid(player, world, pos, state, fluid)) {
 				if (container.placeLiquid(world, pos, state, flowingFluid.getSource(false))) {
 					playEmptySound(fluid, player, world, pos);
 				}
@@ -181,22 +171,23 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		world.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
 	}
 
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-		return new FluidClayBucketWrapper(stack);
-	}
-
 
 	/* Bucket properties */
 
 	@Override
 	public Fluid getFluid(ItemStack stack) {
-		CompoundTag tags = stack.getTag();
-		if(tags != null) {
-			Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(tags.getString(TAG_FLUID)));
-			return fluid == null ? Fluids.EMPTY : fluid;
+		Fluid fluid = stack.get(Registration.BUCKET_FLUID);
+		if (fluid != null) {
+			return fluid;
 		}
-
+		// bucket from a 1.20 world, not converted yet
+		String legacy = getLegacyString(stack, TAG_FLUID);
+		if (legacy != null) {
+			ResourceLocation location = ResourceLocation.tryParse(legacy);
+			if (location != null) {
+				return BuiltInRegistries.FLUID.get(location);
+			}
+		}
 		return Fluids.EMPTY;
 	}
 
@@ -207,8 +198,19 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	 * @return  Modified stack
 	 */
 	protected static ItemStack setFluid(ItemStack stack, Fluid fluid) {
-		stack.getOrCreateTag().putString(TAG_FLUID, Loadables.FLUID.getString(fluid));
+		stack.set(Registration.BUCKET_FLUID, fluid);
 		return stack;
+	}
+
+	@Override
+	protected void migrateLegacy(ItemStack stack) {
+		if (getLegacyString(stack, TAG_FLUID) != null) {
+			Fluid fluid = getFluid(stack);
+			removeLegacyTag(stack, TAG_FLUID);
+			if (fluid != Fluids.EMPTY) {
+				setFluid(stack, fluid);
+			}
+		}
 	}
 
 
@@ -230,10 +232,10 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 		ResourceLocation location = Loadables.FLUID.getKey(fluid);
 		String fluidKey = String.format("%s.%s.%s", key, location.getNamespace(), location.getPath());
 		MutableComponent component;
-		if (ForgeI18n.getPattern(fluidKey).equals(fluidKey)) {
-			component = Component.translatable(key + ".filled", new FluidStack(fluid, FluidType.BUCKET_VOLUME).getDisplayName());
-		} else {
+		if (Language.getInstance().has(fluidKey)) {
 			component = Component.translatable(fluidKey);
+		} else {
+			component = Component.translatable(key + ".filled", new FluidStack(fluid, FluidType.BUCKET_VOLUME).getHoverName());
 		}
 		// display name in red
 		return component.withStyle(ChatFormatting.RED);
@@ -242,7 +244,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	@Override
 	public void addVariants(Consumer<ItemStack> consumer) {
 		// add all fluids that the bucket can be filled with
-		for (Fluid fluid : ForgeRegistries.FLUIDS.getValues()) {
+		for (Fluid fluid : BuiltInRegistries.FLUID) {
 			// skip flowing fluids (we have still) and milks
 			// include cracked if cracked, non-cracked if not cracked
 			if (isVisible(fluid) && isCracked == doesCrack(fluid)) {
@@ -252,7 +254,7 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
 		if (isCracked) {
 			tooltip.add(Component.translatable(this.getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
 		}

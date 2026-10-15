@@ -5,12 +5,14 @@ import knightminer.ceramics.Registration;
 import knightminer.ceramics.blocks.RainbowPorcelain;
 import knightminer.ceramics.recipe.CeramicsDatagen;
 import knightminer.ceramics.recipe.CeramicsTags;
-import knightminer.ceramics.recipe.CrackedClayRepairRecipe.Finished;
+import knightminer.ceramics.recipe.CrackedClayRepairRecipe;
 import knightminer.ceramics.recipe.NoNBTIngredient;
-import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.core.HolderLookup;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -26,7 +28,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 import slimeknights.mantle.data.loadable.Loadables;
 import slimeknights.mantle.registration.object.BuildingBlockObject;
 import slimeknights.mantle.registration.object.WallBuildingBlockObject;
@@ -40,16 +42,16 @@ import java.util.function.Consumer;
 public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
   /** Vanilla bricks as a building block object */
-  private static final WallBuildingBlockObject BRICKS = new WallBuildingBlockObject(new BuildingBlockObject(Blocks.BRICKS, Blocks.BRICK_SLAB, Blocks.BRICK_STAIRS), Blocks.BRICK_WALL);
+  private static final WallBuildingBlockObject BRICKS = new WallBuildingBlockObject(new BuildingBlockObject(Blocks.BRICKS.builtInRegistryHolder(), Blocks.BRICK_SLAB.builtInRegistryHolder(), Blocks.BRICK_STAIRS.builtInRegistryHolder()), Blocks.BRICK_WALL.builtInRegistryHolder());
 
-  public RecipeProvider(PackOutput packOutput) {
-    super(packOutput);
+  public RecipeProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
+    super(packOutput, registries);
   }
 
   @Override
-  protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
+  protected void buildRecipes(RecipeOutput consumer) {
     // recoloring terracotta
-    CriterionTriggerInstance terracottaCriteria = has(CeramicsTags.Items.COLORED_TERRACOTTA);
+    Criterion<?> terracottaCriteria = has(CeramicsTags.Items.COLORED_TERRACOTTA);
     Registration.TERRACOTTA.forEach((color, item) ->
       ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, item, 8)
                          .define('B', CeramicsTags.Items.COLORED_TERRACOTTA)
@@ -82,7 +84,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     kilnFurnaceRecipe(consumer, Registration.UNFIRED_PORCELAIN_BLOCK, RecipeCategory.BUILDING_BLOCKS, Registration.PORCELAIN_BLOCK.get(DyeColor.WHITE), 0.3f);
 
     // colored porcelain
-    CriterionTriggerInstance porcelainCriteria = has(Registration.PORCELAIN_BLOCK.get(DyeColor.WHITE));
+    Criterion<?> porcelainCriteria = has(Registration.PORCELAIN_BLOCK.get(DyeColor.WHITE));
     Registration.PORCELAIN_BLOCK.forEach((color, item) ->
       ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, item, 8)
                          .define('B', CeramicsTags.Items.PORCELAIN)
@@ -98,7 +100,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     kilnFurnaceRecipe(consumer, CeramicsTags.Items.COLORED_PORCELAIN, RecipeCategory.BUILDING_BLOCKS, Registration.RAINBOW_PORCELAIN.get(RainbowPorcelain.RED), 0.1f, location("rainbow_porcelain"));
 
     // smelt for full rainbow
-    CriterionTriggerInstance hasTheRainbow = has(CeramicsTags.Items.RAINBOW_PORCELAIN);
+    Criterion<?> hasTheRainbow = has(CeramicsTags.Items.RAINBOW_PORCELAIN);
     Registration.RAINBOW_PORCELAIN.forEach((color, item) ->
       SingleItemRecipeBuilder.stonecutting(Ingredient.of(CeramicsTags.Items.RAINBOW_PORCELAIN), RecipeCategory.BUILDING_BLOCKS, item)
                              .unlockedBy("has_the_rainbow", hasTheRainbow)
@@ -107,7 +109,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
     // bricks
     // vanilla brick block shortcuts
-    CriterionTriggerInstance hasClayBrick = has(Items.BRICK);
+    Criterion<?> hasClayBrick = has(Items.BRICK);
     ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Items.BRICK_SLAB)
                        .define('b', Items.BRICK)
                        .pattern("bb")
@@ -149,7 +151,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     // porcelain bricks
     kilnFurnaceRecipe(consumer, Registration.UNFIRED_PORCELAIN, RecipeCategory.MISC, Registration.PORCELAIN_BRICK, 0.3f);
     // using bricks
-    CriterionTriggerInstance hasBricks = has(Registration.PORCELAIN_BRICK);
+    Criterion<?> hasBricks = has(Registration.PORCELAIN_BRICK);
     ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Registration.PORCELAIN_BRICKS)
                        .define('b', Registration.PORCELAIN_BRICK)
                        .pattern("bb")
@@ -232,7 +234,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     Registration.COLORED_CISTERN.forEach((color, block) -> {
       // craft
       ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, block, 4)
-                         .define('c', new NoNBTIngredient(Ingredient.of(CeramicsTags.Items.TERRACOTTA_CISTERNS)))
+                         .define('c', NoNBTIngredient.of(Ingredient.of(CeramicsTags.Items.TERRACOTTA_CISTERNS)))
                          .define('d', color.getTag())
                          .pattern(" c ")
                          .pattern("cdc")
@@ -318,7 +320,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     kilnFurnaceRecipe(consumer, Registration.UNFIRED_CLAY_PLATE, RecipeCategory.MISC, Registration.CLAY_PLATE, 0.3f);
 
     // helmet
-    CriterionTriggerInstance hasClayPlate = has(CeramicsTags.Items.BRICK_PLATES);
+    Criterion<?> hasClayPlate = has(CeramicsTags.Items.BRICK_PLATES);
     ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Registration.CLAY_HELMET)
                        .define('c', CeramicsTags.Items.BRICK_PLATES)
                        .pattern("ccc")
@@ -543,10 +545,10 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param consumer  Recipe consumer
    * @param building  Building object instance
    */
-  private void registerSlabStairWall(Consumer<FinishedRecipe> consumer, WallBuildingBlockObject building) {
+  private void registerSlabStairWall(RecipeOutput consumer, WallBuildingBlockObject building) {
     Item item = building.asItem();
     ResourceLocation location = id(item);
-    CriterionTriggerInstance hasBuilding = inventoryTrigger(ItemPredicate.Builder.item().of(item).build());
+    Criterion<?> hasBuilding = inventoryTrigger(ItemPredicate.Builder.item().of(item).build());
     Ingredient ingredient = Ingredient.of(item);
 
     // slab
@@ -605,8 +607,8 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param to          Output bricks
    * @param name        Recipe name
    */
-  private void addBrickRecipe(Consumer<FinishedRecipe> consumer, WallBuildingBlockObject from, Item ingredient, WallBuildingBlockObject to, String name) {
-    CriterionTriggerInstance criteria = has(ingredient);
+  private void addBrickRecipe(RecipeOutput consumer, WallBuildingBlockObject from, Item ingredient, WallBuildingBlockObject to, String name) {
+    Criterion<?> criteria = has(ingredient);
     eachBuilding(from, to, (input, output) ->
       ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, output, 8)
                          .define('B', input)
@@ -632,7 +634,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param experience  Experience earned
    * @param name        Recipe name
    */
-  private static void kilnRecipe(Consumer<FinishedRecipe> consumer, Ingredient input, CriterionTriggerInstance criteria, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
+  private static void kilnRecipe(RecipeOutput consumer, Ingredient input, Criterion<?> criteria, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
     CeramicsDatagen.kilnRecipe(input, category, output, experience, 100)
         .unlockedBy("has_item", criteria)
         .save(consumer, name);
@@ -646,7 +648,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param output      Recipe output
    * @param experience  Experience earned
    */
-  private void kilnRecipe(Consumer<FinishedRecipe> consumer, ItemLike input, RecipeCategory category, ItemLike output, float experience) {
+  private void kilnRecipe(RecipeOutput consumer, ItemLike input, RecipeCategory category, ItemLike output, float experience) {
     kilnRecipe(consumer, Ingredient.of(input), has(input), category, output, experience, suffix(output, "_kiln"));
   }
 
@@ -658,7 +660,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param output      Recipe output
    * @param experience  Experience earned
    */
-  private void kilnRecipe(Consumer<FinishedRecipe> consumer, TagKey<Item> input, RecipeCategory category, ItemLike output, float experience) {
+  private void kilnRecipe(RecipeOutput consumer, TagKey<Item> input, RecipeCategory category, ItemLike output, float experience) {
     kilnRecipe(consumer, Ingredient.of(input), has(input), category, output, experience, suffix(output, "_kiln"));
   }
 
@@ -672,7 +674,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param experience  Experience earned
    * @param name        Recipe name
    */
-  private static void kilnFurnaceRecipe(Consumer<FinishedRecipe> consumer, Ingredient input, CriterionTriggerInstance criteria, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
+  private static void kilnFurnaceRecipe(RecipeOutput consumer, Ingredient input, Criterion<?> criteria, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
     SimpleCookingRecipeBuilder.smelting(input, category, output, experience, 200)
                         .unlockedBy("has_item", criteria)
                         .save(consumer, suffix(name, "_smelting"));
@@ -688,7 +690,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param experience  Experience earned
    * @param name        Recipe name
    */
-  private void kilnFurnaceRecipe(Consumer<FinishedRecipe> consumer, ItemLike input, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
+  private void kilnFurnaceRecipe(RecipeOutput consumer, ItemLike input, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
     kilnFurnaceRecipe(consumer, Ingredient.of(input), has(input), category, output, experience, name);
   }
 
@@ -700,7 +702,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param output      Recipe output
    * @param experience  Experience earned
    */
-  private void kilnFurnaceRecipe(Consumer<FinishedRecipe> consumer, ItemLike input, RecipeCategory category, ItemLike output, float experience) {
+  private void kilnFurnaceRecipe(RecipeOutput consumer, ItemLike input, RecipeCategory category, ItemLike output, float experience) {
     kilnFurnaceRecipe(consumer, input, category, output, experience, location(output));
   }
 
@@ -713,7 +715,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param experience  Experience earned
    * @param name        Recipe name
    */
-  private void kilnFurnaceRecipe(Consumer<FinishedRecipe> consumer, TagKey<Item> input, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
+  private void kilnFurnaceRecipe(RecipeOutput consumer, TagKey<Item> input, RecipeCategory category, ItemLike output, float experience, ResourceLocation name) {
     kilnFurnaceRecipe(consumer, Ingredient.of(input), has(input), category, output, experience, name);
   }
 
@@ -722,7 +724,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param consumer    Recipe consumer
    * @param repairable  Repairable item
    */
-  private void clayRepair(Consumer<FinishedRecipe> consumer, ItemLike repairable) {
-    consumer.accept(new Finished(suffix(repairable, "_repair"), repairable, Ingredient.of(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR), has(repairable)));
+  private void clayRepair(RecipeOutput consumer, ItemLike repairable) {
+    CrackedClayRepairRecipe.save(consumer, suffix(repairable, "_repair"), repairable, Ingredient.of(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR), has(repairable));
   }
 }
