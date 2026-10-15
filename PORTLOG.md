@@ -83,3 +83,28 @@ Mantle has no builds for Minecraft after 1.21.1, so the parts Ceramics uses were
   They were written by Mantle datagen providers; now they are plain JSON in `src/main/resources` (no datagen needed).
 - Fluid rendering on the vanilla translucent entity render type instead of Mantle's shader.
 - Behavior unchanged: self-test 44/44, client scene 7/7.
+
+## 1.8.0.1+1.21.11
+
+Branch `mc/1.21.11`, same content and behavior as 1.21.1, Kilnwork `1.21.11-1.0.0` inside the jar.
+- Fluids: NeoForge 21.9+ transfer API (`ResourceHandler<FluidResource>` with transactions) instead of `IFluidHandler`.
+  Tanks journal their changes (`SnapshotJournal`), so an aborted transaction leaves cisterns, channels and buckets as
+  they were; packets and cracking happen on the root commit only.
+- Cracks: the block state property `cracks` (0-5) of the terracotta cistern, faucet and channel, drawn by plain overlay
+  models (`*_cracks_<n>.json`, made by `tools/gen_assets_1_21_11.py`) instead of the `ceramics:cracked` model loader
+  and a sync packet. Cracks saved by 1.21.1 in the block entity are moved into the state on load.
+- Items: client item definitions (`assets/ceramics/items`). Cracked block items select the overlay on the
+  `ceramics:cracks` component; clay buckets use the new item model type `ceramics:clay_bucket` (cover outside, inner
+  behind, contents masked inside, as the original `ClayBucketModel`).
+- Armor: the clay material is a record with the equipment asset `ceramics:clay` (textures moved to
+  `textures/entity/equipment`) and the repair tag `ceramics:repairs_clay_armor`.
+- Block entity renderers: render state + submit. Cistern break logic moved to `preRemoveSideEffects` (`onRemove` is
+  gone). Kiln screen draws the furnace background itself (the furnace screen keeps its recipe book private).
+- JEI 27: kiln recipes come from the server (`OnDatapackSyncEvent.sendRecipes`, client `RecipesReceivedEvent`),
+  since 1.21.2 clients have no recipe manager.
+- Datagen: recipe provider runner, tag providers without `ExistingFileHelper`, `GatherDataEvent.Server`; recipes
+  regenerated in the 1.21.2 ingredient format.
+
+Verification: self-test 51/51 (new: aborted transactions, cracks in the state, placing cracked items, 1.21.1 block
+entity data, armor repair tag and equipment asset), client scene 8/8, release jar on a dedicated NeoForge 21.11.48
+server with a clean log.

@@ -1,16 +1,16 @@
 <div align="center">
 
-# Ceramics — NeoForge 1.21.1
+# Ceramics — NeoForge 1.21.11
 
-**Clay buckets, cisterns, faucets, channels, kilns and porcelain — now on Minecraft 1.21.1.**
+**Clay buckets, cisterns, faucets, channels, kilns and porcelain — now on Minecraft 1.21.11.**
 
-[![Minecraft 1.21.1](https://img.shields.io/badge/Minecraft-1.21.1-3c8527)](https://www.minecraft.net)
+[![Minecraft 1.21.11](https://img.shields.io/badge/Minecraft-1.21.11-3c8527)](https://www.minecraft.net)
 [![NeoForge 21.1](https://img.shields.io/badge/NeoForge-21.1.197%2B-e0682b)](https://neoforged.net)
 [![Kilnwork bundled](https://img.shields.io/badge/Kilnwork-bundled-8a5cf6)](https://github.com/Vladeezyy/kilnwork)
 [![License LGPL-3.0](https://img.shields.io/badge/license-LGPL--3.0-blue)](LICENSE)
 
 An unofficial port of **[Ceramics](https://www.curseforge.com/minecraft/mc-mods/ceramics)** 1.8.0 by **KnightMiner**
-from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.1**, with all of its content.
+from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.11** (and 1.21.1, branch `main`), with all of its content.
 
 <img src="docs/images/faucet.jpg" width="49%" alt="A porcelain faucet pouring lava into a porcelain cistern">
 <img src="docs/images/cracks.jpg" width="49%" alt="Terracotta cisterns at every crack stage">
@@ -28,6 +28,7 @@ from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.1**, with all of its content.
 
 | Version | Minecraft | Loader | Java |
 | --- | --- | --- | --- |
+| 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 or newer | 21 |
 | 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer | 21 |
 | 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer (Mantle inside) | 21 |
 
@@ -35,7 +36,7 @@ Releases: [GitHub releases](../../releases).
 
 ## Installation
 
-- **Singleplayer:** put the jar into `mods/` of a NeoForge 1.21.1 instance.
+- **Singleplayer:** put the jar into `mods/` of a NeoForge instance of the matching Minecraft version.
 - **Server:** put the same jar into `mods/` of the server **and** of every client.
 - **Nothing else to install.** The original Ceramics needs the library Mantle by SlimeKnights, which has no release
   for new Minecraft versions. This port uses [Kilnwork](https://github.com/Vladeezyy/kilnwork) instead, a library
@@ -97,7 +98,7 @@ Problems of this port go to the [issues of this repository](../../issues), not t
 - **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), included in the jar,
   based on parts of **Mantle** by [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Czech translation: RomanPlayer22. Korean: mindy15963 and the original translators.
-- Port to NeoForge 1.21.1: Vladeezyy.
+- Port to NeoForge 1.21.1 and 1.21.11: Vladeezyy.
 
 This port is released under **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL text in
 [licenses/COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Forks are welcome: they stay open, under the
@@ -112,6 +113,7 @@ same license, with credit to the authors. Please download the mod only from the 
 
 | Версия | Minecraft | Загрузчик | Java |
 | --- | --- | --- | --- |
+| 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 или новее | 21 |
 | 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее | 21 |
 | 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее (Mantle внутри) | 21 |
 
@@ -119,7 +121,7 @@ same license, with credit to the authors. Please download the mod only from the 
 
 ## Установка
 
-- **Одиночная игра:** положите jar в папку `mods/` сборки NeoForge 1.21.1.
+- **Одиночная игра:** положите jar в папку `mods/` сборки NeoForge нужной версии Minecraft.
 - **Сервер:** тот же jar кладётся в `mods/` сервера **и** каждого клиента.
 - **Больше ничего ставить не нужно.** Оригиналу нужна библиотека Mantle от SlimeKnights, у которой нет версий под
   новые Minecraft. Порт использует вместо неё [Kilnwork](https://github.com/Vladeezyy/kilnwork) — библиотеку из тех
@@ -180,7 +182,7 @@ same license, with credit to the authors. Please download the mod only from the 
 - **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), встроена в jar, основана
   на частях **Mantle** от [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Чешский перевод: RomanPlayer22. Корейский: mindy15963 и переводчики оригинала.
-- Порт на NeoForge 1.21.1: Vladeezyy.
+- Порт на NeoForge 1.21.1 и 1.21.11: Vladeezyy.
 
 Порт распространяется под **LGPL-3.0-only** ([LICENSE](LICENSE), текст GPL в [licenses/COPYING](licenses/COPYING)),
 Copyright (c) 2026 Vladeezyy. Форки приветствуются: они остаются открытыми, под той же лицензией и с указанием
