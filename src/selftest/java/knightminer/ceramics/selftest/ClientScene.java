@@ -71,7 +71,7 @@ public final class ClientScene {
 
   static {
     at(40, mc -> server(mc, ClientScene::setup));
-    at(45, mc -> mc.options.hideGui = true);
+    at(45, mc -> { if (!mc.gui.hud.isHidden()) mc.gui.hud.toggle(); });
     at(60, mc -> server(mc, ClientScene::buildStage));
     at(80, mc -> server(mc, ClientScene::startFlow));
     at(150, ClientScene::flowChecks);
@@ -88,13 +88,13 @@ public final class ClientScene {
     at(400, mc -> shot(mc, "bricks"));
     // hotbar with buckets
     at(405, mc -> server(mc, ClientScene::hotbar));
-    at(410, mc -> mc.options.hideGui = false);
-    at(440, mc -> { mc.getToastManager().clear(); shot(mc, "buckets"); });
+    at(410, mc -> { if (mc.gui.hud.isHidden()) mc.gui.hud.toggle(); });
+    at(440, mc -> { mc.gui.toastManager().clear(); shot(mc, "buckets"); });
     at(445, ClientScene::clientChecks);
     // creative tab
-    at(450, mc -> mc.setScreen(new CreativeModeInventoryScreen(mc.player, mc.player.connection.enabledFeatures(), true)));
+    at(450, mc -> mc.gui.setScreen(new CreativeModeInventoryScreen(mc.player, mc.player.connection.enabledFeatures(), true)));
     at(455, mc -> {
-      if (mc.screen instanceof CreativeModeInventoryScreen screen) {
+      if (mc.gui.screen() instanceof CreativeModeInventoryScreen screen) {
         try {
           var select = CreativeModeInventoryScreen.class.getDeclaredMethod("selectTab", net.minecraft.world.item.CreativeModeTab.class);
           select.setAccessible(true);
@@ -105,11 +105,11 @@ public final class ClientScene {
       }
     });
     at(480, mc -> shot(mc, "creative_tab"));
-    at(485, mc -> mc.setScreen(null));
+    at(485, mc -> mc.gui.setScreen(null));
     // JEI: kiln recipes (hidden by 1.8.0 of the original)
     at(490, ClientScene::showJei);
     at(520, mc -> shot(mc, "jei_kiln"));
-    at(525, mc -> mc.setScreen(null));
+    at(525, mc -> mc.gui.setScreen(null));
     at(530, mc -> {
       Ceramics.LOG.info("[scene] DONE, failed checks: " + failures);
       mc.stop();
@@ -134,16 +134,16 @@ public final class ClientScene {
     }
     Minecraft mc = Minecraft.getInstance();
     // a fresh game directory starts with the accessibility onboarding screen instead of the title screen
-    if (!opened && mc.screen instanceof net.minecraft.client.gui.screens.AccessibilityOnboardingScreen) {
+    if (!opened && mc.gui.screen() instanceof net.minecraft.client.gui.screens.AccessibilityOnboardingScreen) {
       mc.options.onboardAccessibility = false;
       mc.options.save();
-      mc.setScreen(new TitleScreen());
+      mc.gui.setScreen(new TitleScreen());
       return;
     }
-    if (!opened && mc.screen instanceof TitleScreen) {
+    if (!opened && mc.gui.screen() instanceof TitleScreen) {
       opened = true;
       if (mc.getLevelSource().levelExists(WORLD)) {
-        mc.createWorldOpenFlows().openWorld(WORLD, () -> mc.setScreen(new TitleScreen()));
+        mc.createWorldOpenFlows().openWorld(WORLD, () -> mc.gui.setScreen(new TitleScreen()));
       } else {
         LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE, new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT);
         mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(20261015L, false, false), WorldPresets::createNormalWorldDimensions, new TitleScreen());
@@ -155,8 +155,8 @@ public final class ClientScene {
     }
     mc.options.pauseOnLostFocus = false;
     mc.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);
-    if (mc.screen instanceof PauseScreen) {
-      mc.setScreen(null);
+    if (mc.gui.screen() instanceof PauseScreen) {
+      mc.gui.setScreen(null);
     }
     tick++;
     for (Pair<Integer, Consumer<Minecraft>> step : STEPS) {
@@ -173,7 +173,7 @@ public final class ClientScene {
   }
 
   private static void shot(Minecraft mc, String name) {
-    Screenshot.grab(mc.gameDirectory, "scene_" + name + ".png", mc.getMainRenderTarget(), 1, c -> Ceramics.LOG.info("[scene] " + c.getString()));
+    Screenshot.grab(mc.gameDirectory, "scene_" + name + ".png", mc.gameRenderer.mainRenderTarget(), 1, c -> Ceramics.LOG.info("[scene] " + c.getString()));
   }
 
   private static void setup(ServerPlayer player) {

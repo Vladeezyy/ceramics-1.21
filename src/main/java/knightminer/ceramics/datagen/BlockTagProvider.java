@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.minecraft.data.tags.TagAppender;
 import dev.vladeezyy.kilnwork.tag.KilnworkTags;
 import dev.vladeezyy.kilnwork.registration.EnumObject;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -33,29 +32,29 @@ public class BlockTagProvider extends BlockTagsProvider {
   @Override
   protected void addTags(Provider provider) {
     // vanilla colored terracotta
-    TagAppender<Block, Block> coloredTerracotta = this.tag(CeramicsTags.Blocks.COLORED_TERRACOTTA);
+    ObjectTagAppender<Block> coloredTerracotta = this.objects(CeramicsTags.Blocks.COLORED_TERRACOTTA);
     Registration.TERRACOTTA.values().forEach(coloredTerracotta::add);
 
-    this.tag(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS);
+    this.objects(CeramicsTags.Blocks.BUCKET_CRACKING_BLOCKS);
 
     // porcelain
-    this.tag(BlockTags.ENDERMAN_HOLDABLE).add(Registration.UNFIRED_PORCELAIN_BLOCK.get());
-    TagAppender<Block, Block> coloredPorcelain = this.tag(CeramicsTags.Blocks.COLORED_PORCELAIN);
+    this.objects(BlockTags.ENDERMAN_HOLDABLE).add(Registration.UNFIRED_PORCELAIN_BLOCK.get());
+    ObjectTagAppender<Block> coloredPorcelain = this.objects(CeramicsTags.Blocks.COLORED_PORCELAIN);
     Registration.PORCELAIN_BLOCK.forEach((color, block) -> {
       if (color != DyeColor.WHITE) {
         coloredPorcelain.add(block);
       }
     });
-    this.tag(CeramicsTags.Blocks.PORCELAIN)
+    this.objects(CeramicsTags.Blocks.PORCELAIN)
         .add(Registration.PORCELAIN_BLOCK.get(DyeColor.WHITE))
         .addTag(CeramicsTags.Blocks.COLORED_PORCELAIN);
 
     // rainbow porcelain
-    TagAppender<Block, Block> rainbow = this.tag(CeramicsTags.Blocks.RAINBOW_PORCELAIN);
+    ObjectTagAppender<Block> rainbow = this.objects(CeramicsTags.Blocks.RAINBOW_PORCELAIN);
     Registration.RAINBOW_PORCELAIN.values().forEach(rainbow::add);
 
     // bricks
-    this.tag(CeramicsTags.Blocks.BRICKS).add(
+    this.objects(CeramicsTags.Blocks.BRICKS).add(
         // clay
         Blocks.BRICKS,
         Registration.DARK_BRICKS.get(),
@@ -68,7 +67,7 @@ public class BlockTagProvider extends BlockTagsProvider {
         Registration.MONOCHROME_BRICKS.get(),
         Registration.RAINBOW_BRICKS.get()
     );
-    this.tag(BlockTags.WALLS).add(
+    this.objects(BlockTags.WALLS).add(
         // clay
         Registration.DARK_BRICKS.getWall(),
         Registration.DRAGON_BRICKS.getWall(),
@@ -81,20 +80,20 @@ public class BlockTagProvider extends BlockTagsProvider {
         Registration.RAINBOW_BRICKS.getWall()
     );
     // blocks that cisterns connect to
-    this.tag(CeramicsTags.Blocks.CISTERN_CONNECTIONS)
+    this.objects(CeramicsTags.Blocks.CISTERN_CONNECTIONS)
         .add(Registration.CLAY_FAUCET.get(), Registration.UNFIRED_FAUCET.get(), Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(),
              Registration.CLAY_CHANNEL.get(), Registration.UNFIRED_CHANNEL.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get())
       .addTag(KilnworkTags.Blocks.ATTACHED_GAUGES);
     // list of all terracotta cisterns
-    TagAppender<Block, Block> terracottaCisterns = this.tag(CeramicsTags.Blocks.TERRACOTTA_CISTERNS)
+    ObjectTagAppender<Block> terracottaCisterns = this.objects(CeramicsTags.Blocks.TERRACOTTA_CISTERNS)
                                                          .add(Registration.TERRACOTTA_CISTERN.get());
     Registration.COLORED_CISTERN.forEach(block -> terracottaCisterns.add(block));
-    TagAppender<Block, Block> porcelainCisterns = this.tag(CeramicsTags.Blocks.PORCELAIN_CISTERNS);
+    ObjectTagAppender<Block> porcelainCisterns = this.objects(CeramicsTags.Blocks.PORCELAIN_CISTERNS);
     Registration.PORCELAIN_CISTERN.forEach(block -> porcelainCisterns.add(block));
 
-    this.tag(KilnworkTags.Blocks.ATTACHED_GAUGES).add(Registration.TERRACOTTA_GAUGE.get(), Registration.PORCELAIN_GAUGE.get());
+    this.objects(KilnworkTags.Blocks.ATTACHED_GAUGES).add(Registration.TERRACOTTA_GAUGE.get(), Registration.PORCELAIN_GAUGE.get());
     // channels and faucets do not sync the full fluid amount, in 1.20 this was a block entity tag
-    this.tag(KilnworkTags.Blocks.HIDES_GAUGE_AMOUNT).add(Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get());
+    this.objects(KilnworkTags.Blocks.HIDES_GAUGE_AMOUNT).add(Registration.TERRACOTTA_FAUCET.get(), Registration.PORCELAIN_FAUCET.get(), Registration.TERRACOTTA_CHANNEL.get(), Registration.PORCELAIN_CHANNEL.get());
 
     // pickaxe
     addTag(BlockTags.MINEABLE_WITH_PICKAXE, Registration.PORCELAIN_BLOCK, Registration.RAINBOW_PORCELAIN);
@@ -121,7 +120,7 @@ public class BlockTagProvider extends BlockTagsProvider {
 
   @SafeVarargs
   private <T extends Block> void addTag(TagKey<Block> tag, DeferredBlock<T>... blocks) {
-    TagAppender<Block, Block> appender = this.tag(tag);
+    ObjectTagAppender<Block> appender = this.objects(tag);
     for (DeferredBlock<T> block : blocks) {
       appender.add(block.get());
     }
@@ -129,16 +128,21 @@ public class BlockTagProvider extends BlockTagsProvider {
 
   @SafeVarargs
   private<T extends Block> void addTag(TagKey<Block> tag, EnumObject<?, T>... blocks) {
-    TagAppender<Block, Block> appender = this.tag(tag);
+    ObjectTagAppender<Block> appender = this.objects(tag);
     for (EnumObject<?, T> object : blocks) {
       object.forEach(block -> appender.add(block));
     }
   }
 
   private void addTag(TagKey<Block> tag, BuildingBlocks... blocks) {
-    TagAppender<Block, Block> appender = this.tag(tag);
+    ObjectTagAppender<Block> appender = this.objects(tag);
     for (BuildingBlocks object : blocks) {
       object.values().forEach(appender::add);
     }
+  }
+
+  /** Appender taking the blocks themselves */
+  private ObjectTagAppender<Block> objects(TagKey<Block> tag) {
+    return new ObjectTagAppender<>(this.tag(tag), value -> value.builtInRegistryHolder().key());
   }
 }
