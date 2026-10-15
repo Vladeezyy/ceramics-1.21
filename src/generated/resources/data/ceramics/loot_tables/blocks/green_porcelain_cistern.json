@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "ceramics:green_porcelain_cistern"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "ceramics:blocks/green_porcelain_cistern"
+}

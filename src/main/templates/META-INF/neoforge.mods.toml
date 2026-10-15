@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="${mod_license}"
+issueTrackerURL="https://github.com/Vladeezyy/ceramics-1.21/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/ceramics"
+authors="${mod_authors}"
+credits="Much of the code for clay buckets is based off the Forge universal bucket. Port to NeoForge ${minecraft_version}: Vladeezyy"
+description='''
+Mod adding additional early game and vanilla-like tools made of clay. Includes fluid transport, decoration, and ceramic tools.
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="mantle"
+    type="required"
+    versionRange="${mantle_range}"
+    ordering="NONE"
+    side="BOTH"

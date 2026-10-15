@@ -1,0 +1,77 @@
+package knightminer.ceramics.items;
+
+import knightminer.ceramics.Ceramics;
+import knightminer.ceramics.blocks.entity.CrackableBlockEntityHandler;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/** BlockItem for crackable blocks to show cracked amount */
+public class CrackableBlockItem extends FixedTooltipBlockItem {
+	private static final Component CRACKABLE = Ceramics.component("tooltip", "crackable").withStyle(ChatFormatting.GRAY);;
+	private static final String TOOLTIP_KEY = Ceramics.lang("tooltip", "cracked");
+	public CrackableBlockItem(Block blockIn, Properties builder, String tooltipSuffix) {
+		super(blockIn, builder, tooltipSuffix);
+	}
+
+	/**
+	 * Gets the cracks value for the given stack
+	 * @param stack  Stack
+	 * @return  Cracks
+	 */
+	public static int getCracks(ItemStack stack) {
+		CompoundTag nbt = stack.getTag();
+		if (nbt != null && nbt.contains(CrackableBlockEntityHandler.TAG_CRACKS, Tag.TAG_ANY_NUMERIC)) {
+			return nbt.getInt(CrackableBlockEntityHandler.TAG_CRACKS);
+		}
+		return 0;
+	}
+
+	/**
+	 * Sets the number of cracks for the item
+	 * @param stack  Stack to set
+	 * @param cracks  New cracks value
+	 */
+	public static ItemStack setCracks(ItemStack stack, int cracks) {
+		if (cracks == 0) {
+			CompoundTag nbt = stack.getTag();
+			if (nbt != null) {
+				nbt.remove(CrackableBlockEntityHandler.TAG_CRACKS);
+				if (nbt.isEmpty()) {
+					stack.setTag(null);
+				}
+			}
+		} else {
+			stack.getOrCreateTag().putInt(CrackableBlockEntityHandler.TAG_CRACKS, cracks);
+		}
+		return stack;
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flag) {
+		int cracks = getCracks(stack);
+		if (cracks > 0) {
+			tooltip.add(Component.translatable(TOOLTIP_KEY, 6 - cracks, 6));
+		}
+		super.appendHoverText(stack, worldIn, tooltip, flag);
+		tooltip.add(CRACKABLE);
+	}
+
+	@Override
+	public boolean isBarVisible(ItemStack stack) {
+		return stack.getCount() == 1 && getCracks(stack) > 0;
+	}
+
+	@Override
+	public int getBarWidth(ItemStack stack) {
+		return 13 - getCracks(stack) * 2;
+	}
+}

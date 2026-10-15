@@ -1,0 +1,254 @@
+{
+    "variants": {
+        "facing=east,half=bottom,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1" },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2" },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3" },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4" }
+        ],
+        "facing=west,half=bottom,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "y": 180, "uvlock": true }
+        ],
+        "facing=south,half=bottom,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "y": 90, "uvlock": true }
+        ],
+        "facing=north,half=bottom,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "y": 270, "uvlock": true }
+        ],
+        
+        "facing=east,half=bottom,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1" },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2" },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3" },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4" }
+        ],
+        "facing=west,half=bottom,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "y": 180, "uvlock": true }
+        ],
+        "facing=south,half=bottom,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "y": 90, "uvlock": true }
+        ],
+        "facing=north,half=bottom,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "y": 270, "uvlock": true }
+        ],
+        
+        "facing=east,half=bottom,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "y": 270, "uvlock": true }
+        ],
+        "facing=west,half=bottom,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "y": 90, "uvlock": true }
+        ],
+        "facing=south,half=bottom,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1" },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2" },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3" },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4" }
+        ],
+        "facing=north,half=bottom,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "y": 180, "uvlock": true }
+        ],
+        
+        "facing=east,half=bottom,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1" },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2" },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3" },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4" }
+        ],
+        "facing=west,half=bottom,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "y": 180, "uvlock": true }
+        ],
+        "facing=south,half=bottom,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "y": 90, "uvlock": true }
+        ],
+        "facing=north,half=bottom,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "y": 270, "uvlock": true }
+        ],
+        
+        "facing=east,half=bottom,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "y": 270, "uvlock": true }
+        ],
+        "facing=west,half=bottom,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "y": 90, "uvlock": true }
+        ],
+        "facing=south,half=bottom,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1" },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2" },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3" },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4" }
+        ],
+        "facing=north,half=bottom,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "y": 180, "uvlock": true }
+        ],
+        
+        
+        "facing=east,half=top,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "x": 180, "uvlock": true }
+        ],
+        "facing=west,half=top,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "x": 180, "y": 180, "uvlock": true }
+        ],
+        "facing=south,half=top,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "x": 180, "y": 90, "uvlock": true }
+        ],
+        "facing=north,half=top,shape=straight": [
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_1", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_2", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_3", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/straight_4", "x": 180, "y": 270, "uvlock": true }
+        ],
+        
+        "facing=east,half=top,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "y": 90, "uvlock": true }
+        ],
+        "facing=west,half=top,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "y": 270, "uvlock": true }
+        ],
+        "facing=south,half=top,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "y": 180, "uvlock": true }
+        ],
+        "facing=north,half=top,shape=outer_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "uvlock": true }
+        ],
+        
+        "facing=east,half=top,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "uvlock": true }
+        ],
+        "facing=west,half=top,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "y": 180, "uvlock": true }
+        ],
+        "facing=south,half=top,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "y": 90, "uvlock": true }
+        ],
+        "facing=north,half=top,shape=outer_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_1", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_2", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_3", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/outer_4", "x": 180, "y": 270, "uvlock": true }
+        ],
+        
+        "facing=east,half=top,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "y": 90, "uvlock": true }
+        ],
+        "facing=west,half=top,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "y": 270, "uvlock": true }
+        ],
+        "facing=south,half=top,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "y": 180, "uvlock": true }
+        ],
+        "facing=north,half=top,shape=inner_right": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "uvlock": true }
+        ],
+        
+        "facing=east,half=top,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "uvlock": true }
+        ],
+        "facing=west,half=top,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "y": 180, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "y": 180, "uvlock": true }
+        ],
+        "facing=south,half=top,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "y": 90, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "y": 90, "uvlock": true }
+        ],
+        "facing=north,half=top,shape=inner_left": [
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_1", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_2", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_3", "x": 180, "y": 270, "uvlock": true },
+            { "model": "ceramics:block/dragon_bricks/stairs/inner_4", "x": 180, "y": 270, "uvlock": true }
+        ]
+    }
+}
