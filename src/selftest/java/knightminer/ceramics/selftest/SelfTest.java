@@ -14,6 +14,7 @@ import knightminer.ceramics.recipe.KilnRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -156,7 +157,7 @@ public class SelfTest {
       ItemStack cistern = CrackableBlockItem.setCracks(new ItemStack(Registration.TERRACOTTA_CISTERN), 4);
       CraftingInput input = CraftingInput.of(2, 1, List.of(cistern, new ItemStack(Items.CLAY_BALL)));
       return server.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level)
-        .map(r -> CrackableBlockItem.getCracks(r.value().assemble(input, level.registryAccess())) == 1).orElse(false);
+        .map(r -> CrackableBlockItem.getCracks(r.value().assemble(input)) == 1).orElse(false);
     });
     check("clay repair does not match an uncracked cistern", () -> {
       CraftingInput input = CraftingInput.of(2, 1, List.of(new ItemStack(Registration.TERRACOTTA_CISTERN), new ItemStack(Items.CLAY_BALL)));
@@ -212,8 +213,9 @@ public class SelfTest {
     });
     check("milk clay bucket has a fluid handler (issue #88)", () -> ItemAccess.forStack(new ItemStack(Registration.MILK_CLAY_BUCKET.get())).getCapability(Capabilities.Fluid.ITEM) != null);
     check("powder snow is a solid bucket", () -> Registration.SOLID_CLAY_BUCKET.get().getBlock(BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, false)) == Blocks.POWDER_SNOW);
-    check("cauldron interactions registered", () -> CauldronInteraction.WATER.map().containsKey(Registration.EMPTY_CLAY_BUCKET.get())
-      && CauldronInteraction.EMPTY.map().containsKey(Registration.FLUID_CLAY_BUCKET.get()) && CauldronInteraction.LAVA.map().containsKey(Registration.CRACKED_EMPTY_CLAY_BUCKET.get()));
+    check("cauldron interactions registered", () -> CauldronInteractions.WATER.get(new ItemStack(Registration.EMPTY_CLAY_BUCKET.get())) != CauldronInteraction.DEFAULT
+      && CauldronInteractions.EMPTY.get(new ItemStack(Registration.FLUID_CLAY_BUCKET.get())) != CauldronInteraction.DEFAULT
+      && CauldronInteractions.LAVA.get(new ItemStack(Registration.CRACKED_EMPTY_CLAY_BUCKET.get())) != CauldronInteraction.DEFAULT);
     check("lava clay bucket burns 20000 ticks", () -> BaseClayBucketItem.withFluid(Fluids.LAVA, false).getBurnTime(RecipeType.SMELTING, server.fuelValues()) == 20000);
 
     // data saved by 1.20: the world upgrade keeps unknown item NBT as custom data

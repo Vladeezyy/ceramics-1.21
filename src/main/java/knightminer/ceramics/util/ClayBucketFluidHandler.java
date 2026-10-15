@@ -82,7 +82,7 @@ public class ClayBucketFluidHandler extends ItemAccessResourceHandler<FluidResou
     if (count == 0 || amount < count * FluidType.BUCKET_VOLUME || !resource.equals(getResourceFrom(current, index))) {
       return 0;
     }
-    ItemStack remainder = current.toStack().getCraftingRemainder();
+    ItemStack remainder = knightminer.ceramics.items.BaseClayBucketItem.remainder(current.toStack());
     int done = remainder.isEmpty()
       // cracked buckets break when emptied
       ? itemAccess.extract(current, count, transaction)

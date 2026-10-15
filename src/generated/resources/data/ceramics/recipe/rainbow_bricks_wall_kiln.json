@@ -5,7 +5,6 @@
   "experience": 0.1,
   "ingredient": "ceramics:porcelain_bricks_wall",
   "result": {
-    "count": 1,
     "id": "ceramics:rainbow_bricks_wall"
   }
 }

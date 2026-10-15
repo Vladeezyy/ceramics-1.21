@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "ceramics:rainbow_bricks",
   "result": {
-    "count": 1,
     "id": "ceramics:rainbow_bricks_wall"
   }
 }

@@ -5,7 +5,6 @@
   "experience": 0.1,
   "ingredient": "minecraft:netherrack",
   "result": {
-    "count": 1,
     "id": "minecraft:nether_brick"
   }
 }

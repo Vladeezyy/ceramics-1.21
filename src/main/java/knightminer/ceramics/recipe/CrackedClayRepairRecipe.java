@@ -23,6 +23,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -40,7 +42,8 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 	private final Ingredient repairIngredient;
 	public CrackedClayRepairRecipe(ItemLike item, Ingredient repairIngredient) {
 		// any stack of the item, matches only accepts cracked ones
-		super(Ceramics.locationName("clay_repair"), CraftingBookCategory.MISC, new ItemStack(item), List.of(Ingredient.of(item), repairIngredient));
+		super(new Recipe.CommonInfo(true), new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, Ceramics.locationName("clay_repair")),
+			new ItemStackTemplate(item.asItem()), List.of(Ingredient.of(item), repairIngredient));
 		this.item = item.asItem();
 		this.repairIngredient = repairIngredient;
 	}
@@ -68,7 +71,7 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput inv, HolderLookup.Provider access) {
+	public ItemStack assemble(CraftingInput inv) {
 		for (int i = 0; i < inv.size(); i++) {
 			ItemStack stack = inv.getItem(i);
 			if (stack.getItem() == item) {
@@ -76,7 +79,7 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 				return setCracks(stack, Math.max(0, getCracks(stack) - 3));
 			}
 		}
-		return super.assemble(inv, access);
+		return super.assemble(inv);
 	}
 
 	@Override
@@ -85,27 +88,16 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 		return (RecipeSerializer<ShapelessRecipe>) (RecipeSerializer<?>) Registration.CLAY_REPAIR_RECIPE_SERIALIZER.get();
 	}
 
-	/** Serializer class for this recipe */
-	public static class Serializer implements RecipeSerializer<CrackedClayRepairRecipe> {
-		private static final MapCodec<CrackedClayRepairRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-			BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(CrackedClayRepairRecipe::getItem),
-			Ingredient.CODEC.fieldOf("ingredient").forGetter(CrackedClayRepairRecipe::getRepairIngredient)
-		).apply(inst, CrackedClayRepairRecipe::new));
-		private static final StreamCodec<RegistryFriendlyByteBuf, CrackedClayRepairRecipe> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.registry(net.minecraft.core.registries.Registries.ITEM), CrackedClayRepairRecipe::getItem,
-			Ingredient.CONTENTS_STREAM_CODEC, CrackedClayRepairRecipe::getRepairIngredient,
-			CrackedClayRepairRecipe::new);
-
-		@Override
-		public MapCodec<CrackedClayRepairRecipe> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, CrackedClayRepairRecipe> streamCodec() {
-			return STREAM_CODEC;
-		}
-	}
+	/** Serializer of this recipe, since 26.1 a record of the codecs */
+	private static final MapCodec<CrackedClayRepairRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+		BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(CrackedClayRepairRecipe::getItem),
+		Ingredient.CODEC.fieldOf("ingredient").forGetter(CrackedClayRepairRecipe::getRepairIngredient)
+	).apply(inst, CrackedClayRepairRecipe::new));
+	private static final StreamCodec<RegistryFriendlyByteBuf, CrackedClayRepairRecipe> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.registry(net.minecraft.core.registries.Registries.ITEM), CrackedClayRepairRecipe::getItem,
+		Ingredient.CONTENTS_STREAM_CODEC, CrackedClayRepairRecipe::getRepairIngredient,
+		CrackedClayRepairRecipe::new);
+	public static final RecipeSerializer<CrackedClayRepairRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
 	/**
 	 * Saves the recipe for datagens, replaces the finished recipe of 1.20

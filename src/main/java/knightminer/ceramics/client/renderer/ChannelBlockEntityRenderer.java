@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -35,6 +34,8 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 
 	/** Data of one channel for drawing */
 	public static class State extends BlockEntityRenderState {
+		/** Block state, the field of the base class is private since 26.1 */
+		BlockState state = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
 		FluidStack fluid = FluidStack.EMPTY;
 		/** Sides currently flowing, down included */
 		final Set<Direction> flowing = EnumSet.noneOf(Direction.class);
@@ -59,6 +60,7 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 	@Override
 	public void extractRenderState(ChannelBlockEntity te, State state, float partialTick, Vec3 camera, @Nullable ModelFeatureRenderer.CrumblingOverlay crumbling) {
 		BlockEntityRenderer.super.extractRenderState(te, state, partialTick, camera, crumbling);
+		state.state = te.getBlockState();
 		state.flowing.clear();
 		state.edges.clear();
 		state.below = List.of();
@@ -91,17 +93,17 @@ public class ChannelBlockEntityRenderer implements BlockEntityRenderer<ChannelBl
 		if (fluid.isEmpty()) {
 			return;
 		}
-		BlockState state = renderState.blockState;
+		BlockState state = renderState.state;
 		ChannelFluids model = KilnworkFluidModels.CHANNEL_FLUIDS.get(state.getBlock());
 		if (model == null) {
 			return;
 		}
 
 		// fluid attributes
-		IClientFluidTypeExtensions client = IClientFluidTypeExtensions.of(fluid.getFluid());
-		TextureAtlasSprite still = FluidCuboidRenderer.getBlockSprite(client.getStillTexture(fluid));
-		TextureAtlasSprite flowing = FluidCuboidRenderer.getBlockSprite(client.getFlowingTexture(fluid));
-		int color = client.getTintColor(fluid);
+		FluidRenderInfo info = FluidRenderInfo.of(fluid);
+		TextureAtlasSprite still = info.still();
+		TextureAtlasSprite flowing = info.flowing();
+		int color = info.color();
 		int light = FluidCuboidRenderer.withBlockLight(renderState.lightCoords, fluid.getFluid().getFluidType().getLightLevel(fluid));
 
 		// render sides first, while doing so we will determine center "flow"

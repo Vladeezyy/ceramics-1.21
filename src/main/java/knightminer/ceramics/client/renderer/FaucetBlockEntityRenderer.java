@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -30,6 +29,8 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
 
   /** Data of one faucet for drawing */
   public static class State extends BlockEntityRenderState {
+    /** Block state, the field of the base class is private since 26.1 */
+    BlockState state = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
     FluidStack fluid = FluidStack.EMPTY;
     /** Fluid shapes of the blocks below the faucet */
     List<List<FluidCuboid>> below = List.of();
@@ -50,6 +51,7 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
   @Override
   public void extractRenderState(FaucetBlockEntity faucet, State state, float partialTick, Vec3 camera, @Nullable ModelFeatureRenderer.CrumblingOverlay crumbling) {
     BlockEntityRenderer.super.extractRenderState(faucet, state, partialTick, camera, crumbling);
+    state.state = faucet.getBlockState();
     FluidStack fluid = faucet.getRenderFluid();
     Level level = faucet.getLevel();
     if (!faucet.isPouring() || fluid.isEmpty() || level == null) {
@@ -69,7 +71,7 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
     }
 
     // fetch faucet model to determine where to render fluids
-    BlockState state = renderState.blockState;
+    BlockState state = renderState.state;
     List<FluidCuboid> fluids = KilnworkFluidModels.BLOCK_FLUIDS.get(state, List.of());
     if (!fluids.isEmpty()) {
       // if side, rotate fluid model
@@ -77,10 +79,10 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
       boolean isRotated = FluidCuboidRenderer.applyRotation(matrices, direction);
 
       // fluid props
-      IClientFluidTypeExtensions client = IClientFluidTypeExtensions.of(renderFluid.getFluid());
-      int color = client.getTintColor(renderFluid);
-      TextureAtlasSprite still = FluidCuboidRenderer.getBlockSprite(client.getStillTexture(renderFluid));
-      TextureAtlasSprite flowing = FluidCuboidRenderer.getBlockSprite(client.getFlowingTexture(renderFluid));
+      FluidRenderInfo info = FluidRenderInfo.of(renderFluid);
+      int color = info.color();
+      TextureAtlasSprite still = info.still();
+      TextureAtlasSprite flowing = info.flowing();
       int light = FluidCuboidRenderer.withBlockLight(renderState.lightCoords, renderFluid.getFluid().getFluidType().getLightLevel(renderFluid));
 
       // render all cubes in the model

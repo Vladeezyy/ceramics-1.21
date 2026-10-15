@@ -1,7 +1,7 @@
 package knightminer.ceramics.client.screen;
 
 import knightminer.ceramics.menu.KilnMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -29,13 +29,8 @@ public class KilnScreen extends AbstractContainerScreen<KilnMenu> {
   }
 
   @Override
-  public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    super.render(graphics, mouseX, mouseY, partialTick);
-    this.renderTooltip(graphics, mouseX, mouseY);
-  }
-
-  @Override
-  protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+  public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    super.extractBackground(graphics, mouseX, mouseY, partialTick);
     int x = this.leftPos;
     int y = this.topPos;
     graphics.blit(RenderPipelines.GUI_TEXTURED, FURNACE_GUI_TEXTURES, x, y, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);

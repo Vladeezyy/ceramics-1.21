@@ -10,13 +10,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Vector3f;
 
@@ -30,6 +29,8 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
 
   /** Data of one cistern for drawing */
   public static class State extends BlockEntityRenderState {
+    /** Block state, the field of the base class is private since 26.1 */
+    BlockState state = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
     FluidStack fluid = FluidStack.EMPTY;
     /** Fluid above the bottom of this cistern of the structure */
     int amount;
@@ -44,6 +45,7 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
   @Override
   public void extractRenderState(CisternBlockEntity cistern, State state, float partialTick, Vec3 camera, @Nullable ModelFeatureRenderer.CrumblingOverlay crumbling) {
     BlockEntityRenderer.super.extractRenderState(cistern, state, partialTick, camera, crumbling);
+    state.state = cistern.getBlockState();
     FluidStack fluid = cistern.getFluid();
     state.fluid = fluid.copy();
     // capacity for gives us the minimum amount to start rendering in this segment
@@ -60,16 +62,16 @@ public class CisternBlockEntityRenderer implements BlockEntityRenderer<CisternBl
       return;
     }
     // get the model pair, if the capacity is above the capacity per cistern, use the overfull model (no top face)
-    BlockState state = renderState.blockState;
+    BlockState state = renderState.state;
     CisternFluids model = CisternFluids.REGISTRY.get(state.getBlock());
     if (model == null) {
       return;
     }
     // fetch textures and attributes
-    IClientFluidTypeExtensions client = IClientFluidTypeExtensions.of(fluid.getFluid());
-    TextureAtlasSprite still = FluidCuboidRenderer.getBlockSprite(client.getStillTexture(fluid));
-    TextureAtlasSprite flowing = FluidCuboidRenderer.getBlockSprite(client.getFlowingTexture(fluid));
-    int color = client.getTintColor(fluid);
+    FluidRenderInfo info = FluidRenderInfo.of(fluid);
+    TextureAtlasSprite still = info.still();
+    TextureAtlasSprite flowing = info.flowing();
+    int color = info.color();
     int light = FluidCuboidRenderer.withBlockLight(renderState.lightCoords, fluid.getFluid().getFluidType().getLightLevel(fluid));
 
     // if full, just render all full sides

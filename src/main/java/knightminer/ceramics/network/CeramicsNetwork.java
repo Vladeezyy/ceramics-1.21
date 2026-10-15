@@ -37,7 +37,7 @@ public class CeramicsNetwork {
    */
   public static void sendToClientsAround(CustomPacketPayload msg, @Nullable Level world, BlockPos pos) {
     if (world instanceof ServerLevel server) {
-      PacketDistributor.sendToPlayersTrackingChunk(server, new ChunkPos(pos), msg);
+      PacketDistributor.sendToPlayersTrackingChunk(server, ChunkPos.containing(pos), msg);
     }
   }
 }

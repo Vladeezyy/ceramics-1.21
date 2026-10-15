@@ -145,7 +145,7 @@ public final class ClientScene {
       if (mc.getLevelSource().levelExists(WORLD)) {
         mc.createWorldOpenFlows().openWorld(WORLD, () -> mc.setScreen(new TitleScreen()));
       } else {
-        LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE, false, Difficulty.PEACEFUL, true, new GameRules(WorldDataConfiguration.DEFAULT.enabledFeatures()), WorldDataConfiguration.DEFAULT);
+        LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE, new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT);
         mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(20261015L, false, false), WorldPresets::createNormalWorldDimensions, new TitleScreen());
       }
       return;
@@ -184,8 +184,9 @@ public final class ClientScene {
     level.getGameRules().set(GameRules.ADVANCE_TIME, false, server);
     level.getGameRules().set(GameRules.ADVANCE_WEATHER, false, server);
     level.getGameRules().set(GameRules.RANDOM_TICK_SPEED, 0, server);
-    level.setDayTime(6000);
-    level.setWeatherParameters(6000, 0, false, false);
+    // the day time and the weather moved to clocks in 26.1, the commands work on every version
+    server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), "time set noon");
+    server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), "weather clear");
   }
 
   private static BlockPos at(int x, int y, int z) {

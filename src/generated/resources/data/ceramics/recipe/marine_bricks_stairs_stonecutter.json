@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "ceramics:marine_bricks",
   "result": {
-    "count": 1,
     "id": "ceramics:marine_bricks_stairs"
   }
 }
