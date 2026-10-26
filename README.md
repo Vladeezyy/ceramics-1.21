@@ -36,13 +36,11 @@ from Minecraft 1.20.1 (Forge) to **NeoForge 26.2** (other versions: one branch e
 
 Releases: [GitHub releases](../../releases).
 
-## Installation
+## Requirements
 
 - **Singleplayer:** put the jar into `mods/` of a NeoForge instance of the matching Minecraft version.
 - **Server:** put the same jar into `mods/` of the server **and** of every client.
-- **Nothing else to install.** The original Ceramics needs the library Mantle by SlimeKnights, which has no release
-  for new Minecraft versions. This port uses [Kilnwork](https://github.com/Vladeezyy/kilnwork) instead, a library
-  built from the parts of Mantle that Ceramics needs, and it ships inside the jar.
+- **No other mods needed.** The original Ceramics needs the library Mantle by SlimeKnights, which has no release for new Minecraft versions. This port uses [Kilnwork](https://github.com/Vladeezyy/kilnwork) instead, a library built from the parts of Mantle that Ceramics needs, and it ships inside the jar.
 - [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) is optional: it shows the kiln recipes.
 
 ## Features
@@ -123,13 +121,10 @@ same license, with credit to the authors. Please download the mod only from the 
 
 Релизы: [GitHub releases](../../releases).
 
-## Установка
+## Требования
 
-- **Одиночная игра:** положите jar в папку `mods/` сборки NeoForge нужной версии Minecraft.
-- **Сервер:** тот же jar кладётся в `mods/` сервера **и** каждого клиента.
-- **Больше ничего ставить не нужно.** Оригиналу нужна библиотека Mantle от SlimeKnights, у которой нет версий под
-  новые Minecraft. Порт использует вместо неё [Kilnwork](https://github.com/Vladeezyy/kilnwork) — библиотеку из тех
-  частей Mantle, которые нужны Ceramics, и она встроена в jar.
+- NeoForge нужной версии Minecraft, на сервере **и** у каждого клиента.
+- **Других модов не нужно.** Оригиналу нужна библиотека Mantle от SlimeKnights, у которой нет версий под новые Minecraft. Порт использует вместо неё [Kilnwork](https://github.com/Vladeezyy/kilnwork) — библиотеку из тех частей Mantle, которые нужны Ceramics, и она встроена в jar.
 - [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) по желанию: в нём видны рецепты печи для обжига.
 
 ## Возможности
