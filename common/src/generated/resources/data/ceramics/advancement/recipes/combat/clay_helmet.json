@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:clay_helmet"
+        "recipes": "ceramics:clay_helmet"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

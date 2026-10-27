@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:dragon_bricks_dragon"
+        "recipes": "ceramics:dragon_bricks_dragon"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

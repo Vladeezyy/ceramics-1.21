@@ -13,15 +13,15 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:terracotta_faucet_repair"
+        "recipes": "ceramics:terracotta_faucet_repair"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_item"
     ]
   ],
   "rewards": {

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:marine_bricks_wall_stonecutter"
+        "recipes": "ceramics:marine_bricks_wall_stonecutter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

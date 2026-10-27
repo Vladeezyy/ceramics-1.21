@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:monochrome_bricks_wall_crafting"
+        "recipes": "ceramics:monochrome_bricks_wall_crafting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

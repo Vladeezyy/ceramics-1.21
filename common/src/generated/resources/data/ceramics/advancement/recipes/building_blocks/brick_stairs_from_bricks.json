@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:brick_stairs_from_bricks"
+        "recipes": "ceramics:brick_stairs_from_bricks"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

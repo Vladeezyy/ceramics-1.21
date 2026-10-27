@@ -33,8 +33,6 @@ public interface CeramicsPlatform {
    */
   void syncRecipes(Supplier<? extends RecipeType<?>> type, Supplier<? extends RecipeSerializer<?>> serializer);
 
-  /** Burn time of the stack as furnace fuel, 0 if it is no fuel */
-  int burnTime(ItemStack stack);
 
   /** Calls the listener when the given item is used up by a player (NeoForge's PlayerDestroyItemEvent) */
   void onItemDestroyed(Item item, BiConsumer<Player, ItemStack> listener);

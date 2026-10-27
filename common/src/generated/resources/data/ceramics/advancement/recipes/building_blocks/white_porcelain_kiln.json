@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:white_porcelain_kiln"
+        "recipes": "ceramics:white_porcelain_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

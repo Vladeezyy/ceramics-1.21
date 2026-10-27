@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
 public class KilnRecipe extends AbstractCookingRecipe {
-  public static final MapCodec<KilnRecipe> MAP_CODEC = cookingMapCodec(KilnRecipe::new, 100);
+  public static final MapCodec<KilnRecipe> MAP_CODEC = cookingMapCodec(KilnRecipe::new);
   public static final StreamCodec<RegistryFriendlyByteBuf, KilnRecipe> STREAM_CODEC = cookingStreamCodec(KilnRecipe::new);
 
   public KilnRecipe(Recipe.CommonInfo commonInfo, CookingBookInfo bookInfo, Ingredient ingredient, ItemStackTemplate result, float experience, int cookTime) {

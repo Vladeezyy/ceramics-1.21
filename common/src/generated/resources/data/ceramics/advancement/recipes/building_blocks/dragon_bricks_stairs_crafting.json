@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:dragon_bricks_stairs_crafting"
+        "recipes": "ceramics:dragon_bricks_stairs_crafting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

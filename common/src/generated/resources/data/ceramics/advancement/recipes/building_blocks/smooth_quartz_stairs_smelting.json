@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:smooth_quartz_stairs_smelting"
+        "recipes": "ceramics:smooth_quartz_stairs_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

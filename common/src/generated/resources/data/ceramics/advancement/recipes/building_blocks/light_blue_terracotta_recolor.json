@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:light_blue_terracotta_recolor"
+        "recipes": "ceramics:light_blue_terracotta_recolor"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

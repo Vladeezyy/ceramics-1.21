@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:clay_leggings"
+        "recipes": "ceramics:clay_leggings"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

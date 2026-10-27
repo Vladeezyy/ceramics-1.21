@@ -3,9 +3,7 @@
   "minVersion": "0.8",
   "package": "knightminer.ceramics.fabric.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "FuelValuesMixin"
-  ],
+  "mixins": [],
   "client": [
     "client.MultiPlayerGameModeMixin"
   ],

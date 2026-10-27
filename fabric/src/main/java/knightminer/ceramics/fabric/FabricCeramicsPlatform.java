@@ -1,6 +1,5 @@
 package knightminer.ceramics.fabric;
 
-import knightminer.ceramics.items.FluidClayBucketItem;
 import knightminer.ceramics.platform.CeramicsPlatform;
 import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,11 +49,6 @@ public class FabricCeramicsPlatform implements CeramicsPlatform {
     }
   }
 
-  @Override
-  public int burnTime(ItemStack stack) {
-    // the fuel values of the server ask the bucket too (FuelValuesMixin)
-    return stack.getItem() instanceof FluidClayBucketItem bucket ? bucket.getBurnTime(stack, null, null) : 0;
-  }
 
   @Override
   public void onItemDestroyed(Item item, BiConsumer<Player, ItemStack> listener) {

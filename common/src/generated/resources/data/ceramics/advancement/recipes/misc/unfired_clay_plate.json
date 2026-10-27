@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:unfired_clay_plate"
+        "recipes": "ceramics:unfired_clay_plate"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

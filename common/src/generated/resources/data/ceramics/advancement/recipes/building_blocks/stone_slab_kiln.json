@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:stone_slab_kiln"
+        "recipes": "ceramics:stone_slab_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

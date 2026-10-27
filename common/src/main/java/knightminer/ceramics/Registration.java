@@ -233,7 +233,7 @@ public class Registration {
 
   static {
     BlockRegister.BlockItemFactory<Block> GAUGE_BLOCK_ITEM = (block, props) -> new FixedTooltipBlockItem(block, props, "gauge.tooltip");
-    Supplier<BlockBehaviour.Properties> GAUGE_PROPERTIES = () -> BlockBehaviour.Properties.of().mapColor(MapColor.NONE).pushReaction(PushReaction.DESTROY).noCollision().strength(0.5F).noOcclusion().requiresCorrectToolForDrops();
+    Supplier<BlockBehaviour.Properties> GAUGE_PROPERTIES = () -> BlockBehaviour.Properties.of().mapColor(MapColor.NONE).pushReaction(PushReaction.POPPED).noCollision().strength(0.5F).noOcclusion().requiresCorrectToolForDrops();
     TERRACOTTA_GAUGE = BLOCKS.register("terracotta_gauge", GaugeBlock::new, GAUGE_PROPERTIES, GAUGE_BLOCK_ITEM);
     PORCELAIN_GAUGE = BLOCKS.register("porcelain_gauge", GaugeBlock::new, GAUGE_PROPERTIES, GAUGE_BLOCK_ITEM);
     // the 1.16 gauge was renamed to the terracotta gauge, keep old worlds working

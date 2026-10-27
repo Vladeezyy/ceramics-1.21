@@ -21,6 +21,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -161,7 +162,7 @@ public abstract class BaseClayBucketItem extends Item {
    */
   protected static void addItem(Player player, ItemStack stack) {
     if (!player.getInventory().add(stack)) {
-      player.drop(stack, false);
+      player.drop(stack, false, Prediction.SERVER_ONLY);
     }
   }
 

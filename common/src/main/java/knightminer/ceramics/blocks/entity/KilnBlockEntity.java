@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.FuelValues;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -21,8 +21,8 @@ public class KilnBlockEntity extends AbstractFurnaceBlockEntity {
   }
 
   @Override
-  protected int getBurnDuration(FuelValues fuelValues, ItemStack fuel) {
-    return super.getBurnDuration(fuelValues, fuel) / 2;
+  protected int getBurnDuration(ServerLevel level, ItemStack fuel) {
+    return super.getBurnDuration(level, fuel) / 2;
   }
   
   @Override

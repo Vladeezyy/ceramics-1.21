@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:porcelain_uncrafting_3"
+        "recipes": "ceramics:porcelain_uncrafting_3"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

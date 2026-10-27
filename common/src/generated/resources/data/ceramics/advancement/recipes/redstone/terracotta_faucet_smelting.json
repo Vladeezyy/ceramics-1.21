@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:terracotta_faucet_smelting"
+        "recipes": "ceramics:terracotta_faucet_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:smooth_red_sandstone_slab_kiln"
+        "recipes": "ceramics:smooth_red_sandstone_slab_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

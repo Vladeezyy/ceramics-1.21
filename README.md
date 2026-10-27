@@ -1,16 +1,16 @@
 <div align="center">
 
-# Ceramics — NeoForge 26.2
+# Ceramics — NeoForge 26.3
 
-**Clay buckets, cisterns, faucets, channels, kilns and porcelain — now on Minecraft 26.2.**
+**Clay buckets, cisterns, faucets, channels, kilns and porcelain — now on Minecraft 26.3.**
 
-[![Minecraft 26.2](https://img.shields.io/badge/Minecraft-26.2-3c8527)](https://www.minecraft.net)
+[![Minecraft 26.3](https://img.shields.io/badge/Minecraft-26.3-3c8527)](https://www.minecraft.net)
 [![NeoForge 21.1](https://img.shields.io/badge/NeoForge-21.1.197%2B-e0682b)](https://neoforged.net)
 [![Kilnwork bundled](https://img.shields.io/badge/Kilnwork-bundled-8a5cf6)](https://github.com/Vladeezyy/kilnwork)
 [![License LGPL-3.0](https://img.shields.io/badge/license-LGPL--3.0-blue)](LICENSE)
 
 An unofficial port of **[Ceramics](https://www.curseforge.com/minecraft/mc-mods/ceramics)** 1.8.0 by **KnightMiner**
-from Minecraft 1.20.1 (Forge) to **NeoForge 26.2** (other versions: one branch each, `main` is 1.21.1), with all of its content.
+from Minecraft 1.20.1 (Forge) to **NeoForge 26.3** (other versions: one branch each, `main` is 1.21.1), with all of its content.
 
 <img src="docs/images/faucet.jpg" width="49%" alt="A porcelain faucet pouring lava into a porcelain cistern">
 <img src="docs/images/cracks.jpg" width="49%" alt="Terracotta cisterns at every crack stage">
@@ -28,6 +28,7 @@ from Minecraft 1.20.1 (Forge) to **NeoForge 26.2** (other versions: one branch e
 
 | Version | Minecraft | Loader | Java |
 | --- | --- | --- | --- |
+| 1.8.0.1+26.3 | 26.3 | NeoForge 26.3.0.83 or newer | 25 |
 | 1.8.0.1+26.2 | 26.2 | NeoForge 26.2.0.93 or newer | 25 |
 | 1.8.0.1+26.1.2 | 26.1.2 | NeoForge 26.1.2.121 or newer | 25 |
 | 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 or newer | 21 |
@@ -115,6 +116,7 @@ same license, with credit to the authors. Please download the mod only from the 
 
 | Версия | Minecraft | Загрузчик | Java |
 | --- | --- | --- | --- |
+| 1.8.0.1+26.3 | 26.3 | NeoForge 26.3.0.83 или новее | 25 |
 | 1.8.0.1+26.2 | 26.2 | NeoForge 26.2.0.93 или новее | 25 |
 | 1.8.0.1+26.1.2 | 26.1.2 | NeoForge 26.1.2.121 или новее | 25 |
 | 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 или новее | 21 |

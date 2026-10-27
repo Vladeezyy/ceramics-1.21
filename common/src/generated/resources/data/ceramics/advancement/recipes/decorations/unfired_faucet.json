@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:unfired_faucet"
+        "recipes": "ceramics:unfired_faucet"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

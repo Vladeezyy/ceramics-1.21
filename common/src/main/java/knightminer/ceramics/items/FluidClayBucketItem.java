@@ -3,7 +3,10 @@ package knightminer.ceramics.items;
 import dev.vladeezyy.kilnwork.platform.KilnworkPlatform;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.world.level.block.entity.FuelValues;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CookingFuel;
+import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
@@ -201,6 +204,12 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 	 */
 	protected static ItemStack setFluid(ItemStack stack, Fluid fluid) {
 		stack.set(Registration.BUCKET_FLUID.get(), fluid);
+		// since 26.3 fuel is a component, a lava bucket burns as the vanilla one
+		if (fluid == Fluids.LAVA) {
+			stack.set(DataComponents.COOKING_FUEL, new CookingFuel(ContextIntProviders.COOKING_TIME_LAVA_BUCKET, ContextFloatProviders.COOKING_DEFAULT_SPEED_MULTIPLIER));
+		} else {
+			stack.remove(DataComponents.COOKING_FUEL);
+		}
 		return stack;
 	}
 
@@ -217,11 +226,6 @@ public class FluidClayBucketItem extends BaseClayBucketItem {
 
 
 	/* Item stack properties */
-
-  // NeoForge extension method (overrides it there by signature)
-	public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
-		return getFluid(stack) == Fluids.LAVA ? 20000 : 0;
-	}
 
 	@Override
 	public Component getName(ItemStack stack) {

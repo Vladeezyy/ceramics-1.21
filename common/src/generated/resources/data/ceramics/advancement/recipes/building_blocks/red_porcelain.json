@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:red_porcelain"
+        "recipes": "ceramics:red_porcelain"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

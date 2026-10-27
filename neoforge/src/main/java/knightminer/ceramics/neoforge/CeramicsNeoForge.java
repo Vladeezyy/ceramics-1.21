@@ -6,7 +6,10 @@ import knightminer.ceramics.Registration;
 import knightminer.ceramics.datagen.BlockTagProvider;
 import knightminer.ceramics.datagen.FluidTagProvider;
 import knightminer.ceramics.datagen.ItemTagProvider;
-import knightminer.ceramics.datagen.LootTableProvider;
+import knightminer.ceramics.datagen.BlockLootTables;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.neoforged.neoforge.data.event.GatherDataRegistryEntriesEvent;
 import knightminer.ceramics.datagen.RecipeProvider;
 import knightminer.ceramics.recipe.NoNBTIngredient;
 import net.minecraft.core.HolderLookup.Provider;
@@ -36,20 +39,25 @@ public class CeramicsNeoForge {
 		INGREDIENT_TYPES.register(bus);
 		bus.addListener(FMLCommonSetupEvent.class, event -> event.enqueueWork(Registration::setup));
 		bus.addListener(this::gatherData);
+		bus.addListener(this::gatherRegistries);
 	}
 
-	/** Server data, since 1.21.4 the client and server data run as separate events */
+	/** Recipes, their advancements and loot tables, since 26.3 datapack registry entries */
+	private void gatherRegistries(GatherDataRegistryEntriesEvent event) {
+		event.recipe(RecipeProvider::new)
+			.lootTable(new LootTableProvider.SubProviderEntry(BlockLootTables::new, LootContextParamSets.BLOCK));
+	}
+
+	/** Tags, since 1.21.4 the client and server data run as separate events */
 	private void gatherData(GatherDataEvent.Server event) {
 		DataGenerator gen = event.getGenerator();
 		PackOutput packOutput = gen.getPackOutput();
-		CompletableFuture<Provider> lookupProvider = event.getLookupProvider();
+		CompletableFuture<Provider> lookupProvider = event.getReloadableLookupProvider();
 
 		BlockTagProvider blockTags = new BlockTagProvider(packOutput, lookupProvider);
 		gen.addProvider(true, blockTags);
 		gen.addProvider(true, new ItemTagProvider(packOutput, lookupProvider, blockTags.contentsGetter()));
 		gen.addProvider(true, new FluidTagProvider(packOutput, lookupProvider));
-		gen.addProvider(true, new RecipeProvider.Runner(packOutput, lookupProvider));
-		gen.addProvider(true, new LootTableProvider(packOutput, lookupProvider));
 		// the fluid shapes of faucets, channels and cisterns are plain JSON in src/main/resources (were Mantle datagen)
 	}
 }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:porcelain_faucet_smelting"
+        "recipes": "ceramics:porcelain_faucet_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:light_gray_glazed_terracotta_kiln"
+        "recipes": "ceramics:light_gray_glazed_terracotta_kiln"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:gray_porcelain"
+        "recipes": "ceramics:gray_porcelain"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

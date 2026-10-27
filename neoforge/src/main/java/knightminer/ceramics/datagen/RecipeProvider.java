@@ -7,12 +7,15 @@ import knightminer.ceramics.blocks.RainbowPorcelain;
 import knightminer.ceramics.recipe.CeramicsDatagen;
 import knightminer.ceramics.recipe.CeramicsTags;
 import knightminer.ceramics.recipe.CrackedClayRepairRecipe;
+import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
+import javax.annotation.Nullable;
 import knightminer.ceramics.recipe.NoNBTIngredient;
 import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.data.PackOutput;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.core.HolderLookup;
 import java.util.concurrent.CompletableFuture;
@@ -45,25 +48,9 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
   /** Vanilla bricks as a building block object */
   private static final BuildingBlocks BRICKS = new BuildingBlocks(() -> Blocks.BRICKS, () -> Blocks.BRICK_SLAB, () -> Blocks.BRICK_STAIRS, () -> Blocks.BRICK_WALL);
 
-  protected RecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-    super(registries, output);
-  }
-
-  /** Runs the provider, since 1.21.2 the provider itself is created per run with the registries */
-  public static class Runner extends net.minecraft.data.recipes.RecipeProvider.Runner {
-    public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
-      super(packOutput, registries);
-    }
-
-    @Override
-    protected net.minecraft.data.recipes.RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-      return new RecipeProvider(registries, output);
-    }
-
-    @Override
-    public String getName() {
-      return "Ceramics Recipes";
-    }
+  /** Since 26.3 recipes and their advancements are datapack registry entries, see Ceramics#gatherRegistries */
+  public RecipeProvider(BootstrapContext<Recipe<?>> recipes, BootstrapContext<Advancement> advancements) {
+    super(recipes, advancements);
   }
 
   @Override
@@ -749,6 +736,26 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param repairable  Repairable item
    */
   private void clayRepair(RecipeOutput consumer, ItemLike repairable) {
-    CrackedClayRepairRecipe.save(consumer, suffix(repairable, "_repair"), repairable, tag(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR), has(repairable));
+    saveClayRepair(consumer, suffix(repairable, "_repair"), repairable, tag(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR), has(repairable));
+  }
+
+  /**
+   * Saves a clay repair recipe, replaces the finished recipe of 1.20 (datagen only: the advancement builder overload is NeoForge's)
+   * @param output     Recipe output
+   * @param id         Recipe ID
+   * @param item       Crackable item
+   * @param ingredient Repair ingredient
+   * @param criteria   Criteria to unlock the recipe, null for no advancement
+   */
+  private static void saveClayRepair(RecipeOutput output, Identifier location, ItemLike item, Ingredient ingredient, @Nullable Criterion<?> criteria) {
+    ResourceKey<Recipe<?>> id = ResourceKey.create(Registries.RECIPE, location);
+    CrackedClayRepairRecipe recipe = new CrackedClayRepairRecipe(item, ingredient);
+    if (criteria != null) {
+      RecipeUnlockAdvancementBuilder advancement = new RecipeUnlockAdvancementBuilder();
+      advancement.unlockedBy("has_item", criteria);
+      output.accept(id, recipe, advancement.build(output, id, "clay_repair"));
+    } else {
+      output.accept(id, recipe, null);
+    }
   }
 }

@@ -34,10 +34,6 @@ public class NeoForgeCeramicsPlatform implements CeramicsPlatform {
     NeoForge.EVENT_BUS.addListener(OnDatapackSyncEvent.class, event -> event.sendRecipes(type.get()));
   }
 
-  @Override
-  public int burnTime(ItemStack stack) {
-    return stack.getBurnTime(null, null);
-  }
 
   @Override
   public void onItemDestroyed(Item item, BiConsumer<Player, ItemStack> listener) {

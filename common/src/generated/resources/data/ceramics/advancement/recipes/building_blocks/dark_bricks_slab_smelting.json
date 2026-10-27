@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:dark_bricks_slab_smelting"
+        "recipes": "ceramics:dark_bricks_slab_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

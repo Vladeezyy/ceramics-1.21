@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ceramics:golden_bricks_stairs_gold"
+        "recipes": "ceramics:golden_bricks_stairs_gold"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

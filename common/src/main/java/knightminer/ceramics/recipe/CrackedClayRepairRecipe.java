@@ -4,18 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRequirements.Strategy;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.triggers.Criterion;
-import net.minecraft.advancements.triggers.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
 import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -99,26 +92,4 @@ public class CrackedClayRepairRecipe extends ShapelessRecipe {
 		CrackedClayRepairRecipe::new);
 	public static final RecipeSerializer<CrackedClayRepairRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
-	/**
-	 * Saves the recipe for datagens, replaces the finished recipe of 1.20
-	 * @param output     Recipe output
-	 * @param id         Recipe ID
-	 * @param item       Crackable item
-	 * @param ingredient Repair ingredient
-	 * @param criteria   Criteria to unlock the recipe, null for no advancement
-	 */
-	public static void save(RecipeOutput output, Identifier location, ItemLike item, Ingredient ingredient, @Nullable Criterion<?> criteria) {
-		ResourceKey<Recipe<?>> id = ResourceKey.create(Registries.RECIPE, location);
-		CrackedClayRepairRecipe recipe = new CrackedClayRepairRecipe(item, ingredient);
-		if (criteria != null) {
-			Advancement.Builder advancement = output.advancement()
-				.addCriterion("has_item", criteria)
-				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-				.rewards(AdvancementRewards.Builder.recipe(id))
-				.requirements(Strategy.OR);
-			output.accept(id, recipe, advancement.build(location.withPrefix("recipes/clay_repair/")));
-		} else {
-			output.accept(id, recipe, null);
-		}
-	}
 }

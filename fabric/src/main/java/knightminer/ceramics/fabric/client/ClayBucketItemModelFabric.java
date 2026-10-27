@@ -147,14 +147,15 @@ public class ClayBucketItemModelFabric implements ItemModel {
       // not cut off in hand
       QuadCollection.Builder quads = new QuadCollection.Builder();
       quads.addAll(extruded(interner, base, state));
-      BakedQuad.MaterialInfo innerInfo = interner.materialInfo(BakedQuad.MaterialInfo.of(inner, inner.sprite().transparency(), -1, false, 0));
+      BakedQuad.MaterialInfo innerInfo = interner.materialInfo(BakedQuad.MaterialInfo.of(inner, inner.sprite().transparency(), -1, Direction.UP, 0));
       Vector3f from = new Vector3f(0, 0, 8.5f);
       Vector3f to = new Vector3f(16, 16, 8.5f);
       quads.addUnculledFace(FaceBakery.bakeQuad(interner, from, to, new CuboidFace.UVs(0, 0, 16, 16), Quadrant.R0, innerInfo, Direction.SOUTH, new Composed(state, INNER_TRANSFORM), null));
       parts.add(new CuboidItemModelWrapper(List.of(), quads.build(), properties, transformation));
 
-      // contents next, only the front and back
-      BakedQuad.MaterialInfo info = interner.materialInfo(new BakedQuad.MaterialInfo(contentsMaterial.sprite(), ChunkSectionLayer.SOLID, renderType(contentsMaterial), 0, light <= 0, light));
+      // contents next, only the front and back; glowing contents are lit as a top face
+      RenderTypes types = renderTypes(contentsMaterial);
+      BakedQuad.MaterialInfo info = interner.materialInfo(new BakedQuad.MaterialInfo(contentsMaterial.sprite(), ChunkSectionLayer.SOLID, types.item(), types.glint(), types.glintSpecial(), 0, light > 0 ? Direction.UP : null, light));
       QuadCollection masked = maskQuads(interner, mask, info, new Composed(state, FLUID_TRANSFORM));
       parts.add(new CuboidItemModelWrapper(tintFluid ? List.of(FluidTint.INSTANCE) : List.of(), masked, properties, transformation));
     }
@@ -164,7 +165,7 @@ public class ClayBucketItemModelFabric implements ItemModel {
   /** The sprite as a generated item layer: front, back and the edges of its pixels */
   private static QuadCollection extruded(ModelBaker.Interner interner, Material.Baked material, ModelState state) {
     QuadCollection.Builder builder = new QuadCollection.Builder();
-    BakedQuad.MaterialInfo info = interner.materialInfo(BakedQuad.MaterialInfo.of(material, material.sprite().transparency(), 0, true, 0));
+    BakedQuad.MaterialInfo info = interner.materialInfo(BakedQuad.MaterialInfo.of(material, material.sprite().transparency(), 0, null, 0));
     ItemModelGenerator.bakeExtrudedSprite(builder, interner, state, info);
     return builder.build();
   }
@@ -220,10 +221,15 @@ public class ClayBucketItemModelFabric implements ItemModel {
     return builder.build();
   }
 
-  /** Item render type of the contents (Fabric has no unlit item render types: glowing fluids keep their light level) */
-  private static RenderType renderType(Material.Baked material) {
+  /** Render types of an item quad, with and without enchantment glint */
+  private record RenderTypes(RenderType item, RenderType glint, RenderType glintSpecial) {}
+
+  /** Render types of the contents, on the block atlas (Fabric has no unlit item render types: glowing fluids keep their light level) */
+  private static RenderTypes renderTypes(Material.Baked material) {
     boolean translucent = material.forceTranslucent() || material.sprite().transparency().hasTranslucent();
-    return translucent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet();
+    return translucent
+      ? new RenderTypes(Sheets.translucentBlockItemSheet(), Sheets.translucentBlockItemGlintSheet(), Sheets.translucentBlockItemGlintSpecialSheet())
+      : new RenderTypes(Sheets.cutoutBlockItemSheet(), Sheets.cutoutBlockItemGlintSheet(), Sheets.cutoutBlockItemGlintSpecialSheet());
   }
 
   @Override

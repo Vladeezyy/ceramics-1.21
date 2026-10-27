@@ -129,3 +129,14 @@ Branch `mc/26.2`, Kilnwork `26.2-1.0.0`.
 - Dyed and glazed terracotta are `ColorCollection`s (`Blocks.DYED_TERRACOTTA.pick(color)`), dyes too.
 - Screen, toasts and HUD moved to `Minecraft.gui`; advancement triggers to `net.minecraft.advancements.triggers`.
 - The furnace menu no longer takes the recipe type.
+
+## 1.8.0.1+26.3
+
+Branch `mc/26.3`, Kilnwork `26.3-1.0.0`.
+- Recipes, their advancements and loot tables are datapack registry entries: datagen through
+  `GatherDataRegistryEntriesEvent` (`event.recipe(RecipeProvider::new).lootTable(...)`), tags stay in
+  `GatherDataEvent.Server`.
+- Furnace fuel is the `cooking_fuel` item component: the lava clay bucket gets the vanilla lava bucket fuel when filled,
+  the kiln halves `getBurnDuration(level, stack)`.
+- Blocks have no codecs anymore; `PushReaction.DESTROY` is `POPPED`; loot counts are `ContextIntProviders`; item
+  quads take a shade direction instead of a shade flag.
