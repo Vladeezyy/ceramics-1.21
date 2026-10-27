@@ -1,0 +1,57 @@
+package knightminer.ceramics.util;
+
+import dev.vladeezyy.kilnwork.fluid.api.FluidStack;
+import dev.vladeezyy.kilnwork.fluid.api.FluidBucketWrapper;
+import knightminer.ceramics.items.BaseClayBucketItem;
+import knightminer.ceramics.recipe.CeramicsTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
+
+/**
+ * Wrapper around a clay bucket to get the fluid stored
+ */
+public class FluidClayBucketWrapper extends FluidBucketWrapper {
+  public FluidClayBucketWrapper(ItemStack container) {
+    super(container);
+  }
+
+  @Nonnull
+  @Override
+  public FluidStack getFluid() {
+    Item item = container.getItem();
+    // using base so it works with milk as well
+    if (item instanceof BaseClayBucketItem fluidBucket) {
+      return new FluidStack(fluidBucket.getFluid(container), FluidStack.BUCKET_VOLUME);
+    }
+    return FluidStack.EMPTY;
+  }
+
+  @Override
+  protected void setFluid(FluidStack stack) {
+    if (stack.isEmpty()) {
+      container = BaseClayBucketItem.remainder(container);
+    } else {
+      Item item = container.getItem();
+      if (item instanceof BaseClayBucketItem bucket) {
+        container = BaseClayBucketItem.withFluid(stack.getFluid(), bucket.isCracked());
+      } else {
+        container = ItemStack.EMPTY;
+      }
+    }
+  }
+
+
+  // blacklist
+
+  @Override
+  public boolean isFluidValid(int tank, FluidStack fluid) {
+    return !fluid.getFluid().is(CeramicsTags.Fluids.BUCKET_BLACKLIST);
+  }
+
+  @Override
+  public boolean canFillFluidType(FluidStack fluid) {
+    return !fluid.getFluid().is(CeramicsTags.Fluids.BUCKET_BLACKLIST) && fluid.isComponentsPatchEmpty() && super.canFillFluidType(fluid);
+  }
+}

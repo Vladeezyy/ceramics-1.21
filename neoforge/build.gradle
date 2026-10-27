@@ -1,0 +1,71 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev'
+}
+
+sourceSets {
+    selftest {
+        java.srcDirs rootProject.file('common/src/selftest/java'), 'src/selftest/java'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations {
+    selftestImplementation.extendsFrom implementation
+    selftestCompileOnly.extendsFrom compileOnly
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+neoForge {
+    version = neo_version
+    accessTransformers.from(rootProject.file('common/accesstransformer.cfg'))
+    runs {
+        configureEach {
+            gameDirectory = project.file('run')
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
+        }
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        scene {
+            client()
+            systemProperty 'ceramics.scene', 'true'
+        }
+        selftest {
+            server()
+            programArgument '--nogui'
+            systemProperty 'ceramics.selftest', 'true'
+        }
+        data {
+            serverData()
+            programArguments.addAll '--mod', mod_id, '--all', '--output', rootProject.file('common/src/generated/resources/').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources/').absolutePath,
+                    '--existing', project.file('src/main/resources/').absolutePath
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.selftest
+        }
+    }
+}
+neoForge.addModdingDependenciesTo(sourceSets.selftest)
+
+dependencies {
+    implementation "dev.vladeezyy:kilnwork:${kilnwork_version}"
+    jarJar("dev.vladeezyy:kilnwork") {
+        version {
+            strictly "[${kilnwork_version},)"
+            prefer kilnwork_version
+        }
+    }
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+}

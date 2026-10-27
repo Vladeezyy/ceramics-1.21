@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "Mod adding additional early game and vanilla-like tools made of clay. Includes fluid transport, decoration, and ceramic tools.",
+  "authors": ["${mod_authors}"],
+  "contributors": ["Port to NeoForge and Fabric ${minecraft_version}: Vladeezyy", "Much of the code for clay buckets is based off the Forge universal bucket"],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/ceramics",
+    "sources": "https://github.com/Vladeezyy/ceramics-1.21",
+    "issues": "https://github.com/Vladeezyy/ceramics-1.21/issues"
+  },
+  "license": "${mod_license}",
+  "icon": "ceramics.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["knightminer.ceramics.fabric.CeramicsFabric"],
+    "client": ["knightminer.ceramics.fabric.client.CeramicsFabricClient"],
+    "jei_mod_plugin": ["knightminer.ceramics.plugin.jei.JEIPlugin"]
+  },
+  "mixins": ["ceramics.mixins.json"],
+  "accessWidener": "ceramics.accesswidener",
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": ">=${fabric_version}",
+    "kilnwork": "${kilnwork_fabric_range}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=${java_version}"
+  }
+}
