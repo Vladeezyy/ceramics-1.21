@@ -43,7 +43,7 @@ from Minecraft 1.20.1 (Forge) to **NeoForge and Fabric 1.21.1**, with all of its
 
 One jar per loader: `Ceramics-neoforge-…` or `Ceramics-fabric-…`. Releases: [GitHub releases](../../releases).
 
-## Installation
+## Requirements
 
 - **NeoForge:** put `Ceramics-neoforge-1.8.0.2+1.21.1.jar` into `mods/` of a NeoForge 21.1.197 (or newer) instance.
 - **Fabric:** put `Ceramics-fabric-1.8.0.2+1.21.1.jar` and [Fabric API](https://modrinth.com/mod/fabric-api)
@@ -143,7 +143,7 @@ same license, with credit to the authors. Please download the mod only from the 
 
 Свой jar на каждый загрузчик: `Ceramics-neoforge-…` или `Ceramics-fabric-…`. Релизы: [GitHub releases](../../releases).
 
-## Установка
+## Требования
 
 - **NeoForge:** положите `Ceramics-neoforge-1.8.0.2+1.21.1.jar` в `mods/` сборки NeoForge 21.1.197 или новее.
 - **Fabric:** положите `Ceramics-fabric-1.8.0.2+1.21.1.jar` и [Fabric API](https://modrinth.com/mod/fabric-api)
