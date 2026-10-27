@@ -18,9 +18,9 @@ sourceSets {
 
 dependencies {
     compileOnly "dev.vladeezyy:kilnwork-common:${kilnwork_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
     selftestCompileOnly "dev.vladeezyy:kilnwork-common:${kilnwork_version}"
-    selftestCompileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    selftestCompileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
     selftestCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 

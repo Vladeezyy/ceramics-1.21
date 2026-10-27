@@ -5,7 +5,7 @@
 cd "$(dirname "$0")/.." || exit 1
 . tools/watchdog.sh
 LOADER=${LOADER:-${1:-neoforge}}
-kill_dev() { pkill -f "fml.modFolders=ceramics" 2>/dev/null; pkill -f "$(pwd)/$LOADER/.*(loom-cache|net\.fabricmc)" 2>/dev/null; }
+kill_dev() { pkill -f "fml.modFolders=ceramics" 2>/dev/null; pkill -f "$(pwd)/$LOADER/.*(loom-cache|net\.fabricmc)" 2>/dev/null; pkill -f "$(pwd)/.gradle/loom-cache/projects/$LOADER" 2>/dev/null; }
 LOG=build-selftest-$LOADER.log
 kill_dev
 rm -rf "$LOADER/run/world" "$LOG"

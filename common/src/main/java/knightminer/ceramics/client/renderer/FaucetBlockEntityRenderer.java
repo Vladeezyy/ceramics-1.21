@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,6 +31,8 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
 
   /** Data of one faucet for drawing */
   public static class State extends BlockEntityRenderState {
+    /** Block state, the field of the base class is private since 26.1 */
+    BlockState state = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
     FluidStack fluid = FluidStack.EMPTY;
     /** Fluid shapes of the blocks below the faucet */
     List<List<FluidCuboid>> below = List.of();
@@ -51,6 +53,7 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
   @Override
   public void extractRenderState(FaucetBlockEntity faucet, State state, float partialTick, Vec3 camera, @Nullable ModelFeatureRenderer.CrumblingOverlay crumbling) {
     BlockEntityRenderer.super.extractRenderState(faucet, state, partialTick, camera, crumbling);
+    state.state = faucet.getBlockState();
     FluidStack fluid = faucet.getRenderFluid();
     Level level = faucet.getLevel();
     if (!faucet.isPouring() || fluid.isEmpty() || level == null) {
@@ -70,7 +73,7 @@ public class FaucetBlockEntityRenderer implements BlockEntityRenderer<FaucetBloc
     }
 
     // fetch faucet model to determine where to render fluids
-    BlockState state = renderState.blockState;
+    BlockState state = renderState.state;
     List<FluidCuboid> fluids = KilnworkFluidModels.BLOCK_FLUIDS.get(state, List.of());
     if (!fluids.isEmpty()) {
       // if side, rotate fluid model

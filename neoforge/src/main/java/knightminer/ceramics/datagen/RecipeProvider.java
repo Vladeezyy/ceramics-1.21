@@ -121,7 +121,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     // smelt for full rainbow
     Criterion<?> hasTheRainbow = has(CeramicsTags.Items.RAINBOW_PORCELAIN);
     Registration.RAINBOW_PORCELAIN.forEach((color, item) ->
-      SingleItemRecipeBuilder.stonecutting(tag(CeramicsTags.Items.RAINBOW_PORCELAIN), RecipeCategory.BUILDING_BLOCKS, item)
+      SingleItemRecipeBuilder.stonecutting(tag(CeramicsTags.Items.RAINBOW_PORCELAIN), RecipeCategory.BUILDING_BLOCKS, item, 1)
                              .unlockedBy("has_the_rainbow", hasTheRainbow)
                              .save(consumer, key(id(item)))
     );
@@ -597,7 +597,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         .unlockedBy("has_item", hasBuilding)
         .group(id(stairs).toString())
         .save(consumer, key(suffix(location, "_stairs_crafting")));
-    SingleItemRecipeBuilder.stonecutting(ingredient, RecipeCategory.BUILDING_BLOCKS, stairs)
+    SingleItemRecipeBuilder.stonecutting(ingredient, RecipeCategory.BUILDING_BLOCKS, stairs, 1)
                            .unlockedBy("has_item", hasBuilding)
                            .save(consumer, key(suffix(location, "_stairs_stonecutter")));
 
@@ -609,7 +609,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         .pattern("BBB")
         .unlockedBy("has_item", hasBuilding)
         .save(consumer, key(suffix(location, "_wall_crafting")));
-    SingleItemRecipeBuilder.stonecutting(ingredient, RecipeCategory.BUILDING_BLOCKS, wall)
+    SingleItemRecipeBuilder.stonecutting(ingredient, RecipeCategory.BUILDING_BLOCKS, wall, 1)
                            .unlockedBy("has_item", hasBuilding)
                            .save(consumer, key(suffix(location, "_wall_stonecutter")));
 
@@ -699,7 +699,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
    * @param name        Recipe name
    */
   private void kilnFurnaceRecipe(RecipeOutput consumer, Ingredient input, Criterion<?> criteria, RecipeCategory category, ItemLike output, float experience, Identifier name) {
-    SimpleCookingRecipeBuilder.smelting(input, category, output, experience, 200)
+    SimpleCookingRecipeBuilder.smelting(input, category, CeramicsDatagen.bookCategory(output), output, experience, 200)
                         .unlockedBy("has_item", criteria)
                         .save(consumer, key(suffix(name, "_smelting")));
     kilnRecipe(consumer, input, criteria, category, output, experience, suffix(name, "_kiln"));

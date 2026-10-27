@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "ceramics:dark_bricks",
   "result": {
-    "count": 1,
     "id": "ceramics:dark_bricks_stairs"
   }
 }

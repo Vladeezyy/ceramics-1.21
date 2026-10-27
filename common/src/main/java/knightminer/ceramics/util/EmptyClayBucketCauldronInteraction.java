@@ -41,7 +41,7 @@ public abstract class EmptyClayBucketCauldronInteraction<T> implements CauldronI
 			// would use vanilla logic here, but it is dumb and insists on using a vanilla bucket
 			if (!level.isClientSide()) {
 				// empty bucket
-				player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, stack.getItem().getCraftingRemainder()));
+				player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, knightminer.ceramics.items.BaseClayBucketItem.remainder(stack)));
 				// grant stats
 				player.awardStat(Stats.FILL_CAULDRON);
 				player.awardStat(Stats.ITEM_USED.get(stack.getItem()));

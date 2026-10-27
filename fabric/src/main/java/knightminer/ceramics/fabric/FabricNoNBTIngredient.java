@@ -38,7 +38,7 @@ public record FabricNoNBTIngredient(Ingredient ingredient) implements CustomIngr
     }
 
     @Override
-    public StreamCodec<RegistryFriendlyByteBuf, FabricNoNBTIngredient> getPacketCodec() {
+    public StreamCodec<RegistryFriendlyByteBuf, FabricNoNBTIngredient> getStreamCodec() {
       return STREAM_CODEC;
     }
   };
@@ -49,7 +49,7 @@ public record FabricNoNBTIngredient(Ingredient ingredient) implements CustomIngr
   }
 
   @Override
-  public Stream<Holder<Item>> getMatchingItems() {
+  public Stream<Holder<Item>> items() {
     return ingredient.items();
   }
 

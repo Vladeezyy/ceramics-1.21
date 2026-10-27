@@ -21,6 +21,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -51,9 +52,10 @@ public abstract class BaseClayBucketItem extends Item {
     }
   }
 
-  /** The crafting remainder of the stack (NeoForge's ItemStack#getCraftingRemainder, in vanilla terms) */
+  /** Crafting remainder of the stack, since 26.1 the item keeps a template of it (vanilla terms of NeoForge's ItemStack#getCraftingRemainder) */
   public static ItemStack remainder(ItemStack stack) {
-    return stack.getItem().getCraftingRemainder();
+    ItemStackTemplate template = stack.getItem().getCraftingRemainder();
+    return template == null ? ItemStack.EMPTY : template.create();
   }
 
   /** Returns true if the given bucket is cracked */
@@ -97,10 +99,10 @@ public abstract class BaseClayBucketItem extends Item {
   protected static void renderBrokenItem(Player player, ItemStack stack) {
     // play sound
     Level world = player.level();
-    world.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_BREAK.value(), player.getSoundSource(), 0.8F, 0.8F + world.random.nextFloat() * 0.4F, false);
+    world.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_BREAK.value(), player.getSoundSource(), 0.8F, 0.8F + world.getRandom().nextFloat() * 0.4F, false);
     // add particles
     RandomSource rand = player.getRandom();
-    ItemParticleOption particle = new ItemParticleOption(ParticleTypes.ITEM, stack);
+    ItemParticleOption particle = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(stack));
     for(int i = 0; i < 5; ++i) {
       Vec3 offset = new Vec3((rand.nextFloat() - 0.5D) * 0.1D, Math.random() * 0.1D + 0.1D, 0.0D);
       offset = offset.xRot(-player.getXRot() * DEGREE_TO_RAD);
@@ -128,7 +130,7 @@ public abstract class BaseClayBucketItem extends Item {
    * @return  Empty bucket, may be the original stack
    */
   protected static ItemStack emptyBucket(ItemStack stack, Player player) {
-    return !player.isCreative() ? stack.getItem().getCraftingRemainder() : stack;
+    return !player.isCreative() ? remainder(stack) : stack;
   }
 
   /**

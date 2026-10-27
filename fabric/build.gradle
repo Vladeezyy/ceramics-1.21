@@ -1,6 +1,6 @@
 plugins {
     id 'multiloader-loader'
-    id 'fabric-loom'
+    id 'net.fabricmc.fabric-loom'
 }
 
 repositories {
@@ -54,17 +54,21 @@ loom {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    // 26.x: no obfuscation, no mappings, plain configurations (no mod* ones)
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     // Kilnwork inside the jar (no public release; players install nothing more)
-    modImplementation "dev.vladeezyy:kilnwork-fabric:${kilnwork_version}"
+    implementation "dev.vladeezyy:kilnwork-fabric:${kilnwork_version}"
     include "dev.vladeezyy:kilnwork-fabric:${kilnwork_version}"
-    modCompileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_fabric_version}"
-    modCompileOnly "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_fabric_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_fabric_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-fabric-api:${jei_fabric_version}"
     // JEI in the dev runs (the client scene checks the kiln recipes in it), as on NeoForge
-    modLocalRuntime "mezz.jei:jei-${minecraft_version}-fabric:${jei_fabric_version}"
-    modLocalRuntime "net.mezzdev.config:mezz_config-${minecraft_version}-fabric:0.6.6"
+    localRuntime "mezz.jei:jei-${jei_minecraft_version}-fabric:${jei_fabric_version}"
+    localRuntime "net.mezzdev.config:mezz_config-${jei_minecraft_version}-fabric:0.6.6"
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
 }
 
 processResources {

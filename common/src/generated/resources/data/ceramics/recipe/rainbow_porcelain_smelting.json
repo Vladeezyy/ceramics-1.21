@@ -5,7 +5,6 @@
   "experience": 0.1,
   "ingredient": "#ceramics:colored_porcelain",
   "result": {
-    "count": 1,
     "id": "ceramics:red_rainbow_porcelain"
   }
 }

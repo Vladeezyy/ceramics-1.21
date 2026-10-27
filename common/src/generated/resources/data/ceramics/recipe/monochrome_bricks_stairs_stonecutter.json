@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "ceramics:monochrome_bricks",
   "result": {
-    "count": 1,
     "id": "ceramics:monochrome_bricks_stairs"
   }
 }

@@ -5,7 +5,6 @@
   "experience": 0.1,
   "ingredient": "minecraft:blue_terracotta",
   "result": {
-    "count": 1,
     "id": "minecraft:blue_glazed_terracotta"
   }
 }

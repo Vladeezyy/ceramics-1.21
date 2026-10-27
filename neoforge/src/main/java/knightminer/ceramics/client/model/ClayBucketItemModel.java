@@ -1,5 +1,6 @@
 package knightminer.ceramics.client.model;
 
+import com.mojang.math.Quadrant;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -8,22 +9,27 @@ import knightminer.ceramics.items.FluidClayBucketItem;
 import knightminer.ceramics.items.SolidClayBucketItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.renderer.block.model.BlockElementFace;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.CompositeModel;
+import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BlockModelRotation;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelDebugName;
-import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.cuboid.CuboidFace;
+import net.minecraft.client.resources.model.cuboid.CuboidModelElement;
+import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
+import net.minecraft.client.resources.model.cuboid.ItemTransforms;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.Identifier;
@@ -35,14 +41,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.NeoForgeRenderTypes;
-import net.neoforged.neoforge.client.RenderTypeGroup;
-import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.color.item.FluidContentsTint;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.model.ComposedModelState;
+import net.neoforged.neoforge.client.model.ExtraFaceData;
 import net.neoforged.neoforge.client.model.UnbakedElementsHelper;
+import org.joml.Matrix4fc;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -50,6 +54,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -68,8 +73,6 @@ public class ClayBucketItemModel implements ItemModel {
   private static final Transformation FLUID_TRANSFORM = new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 0.998f), new Quaternionf());
   /** Inner texture is half a pixel back */
   private static final Transformation INNER_TRANSFORM = new Transformation(new Vector3f(0, 0, -0.5f / 16f), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf());
-  private static final RenderTypeGroup RENDER_TYPES = new RenderTypeGroup(ChunkSectionLayer.TRANSLUCENT, NeoForgeRenderTypes::getUnsortedTranslucent);
-  private static final RenderTypeGroup RENDER_TYPES_UNLIT = new RenderTypeGroup(ChunkSectionLayer.TRANSLUCENT, NeoForgeRenderTypes::getUnlitTranslucent);
 
   /** What the bucket holds */
   public enum Contents implements StringRepresentable {
@@ -78,53 +81,48 @@ public class ClayBucketItemModel implements ItemModel {
 
     @Override
     public String getSerializedName() {
-      return name().toLowerCase(java.util.Locale.ROOT);
+      return name().toLowerCase(Locale.ROOT);
     }
   }
 
-  /** Textures of the bucket, all on the item atlas */
-  public record Textures(Identifier base, Identifier inner, Identifier fluid) {
+  /** Textures of the bucket */
+  public record Textures(Material base, Material inner, Material fluid) {
     public static final Codec<Textures> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-      Identifier.CODEC.fieldOf("base").forGetter(Textures::base),
-      Identifier.CODEC.fieldOf("inner").forGetter(Textures::inner),
-      Identifier.CODEC.fieldOf("fluid").forGetter(Textures::fluid)
+      Material.CODEC.fieldOf("base").forGetter(Textures::base),
+      Material.CODEC.fieldOf("inner").forGetter(Textures::inner),
+      Material.CODEC.fieldOf("fluid").forGetter(Textures::fluid)
     ).apply(inst, Textures::new));
   }
 
   private final Unbaked unbaked;
   private final BakingContext context;
+  private final Matrix4fc transformation;
   private final ItemTransforms transforms;
   /** Baked model for each contents, the contents are fluids or blocks */
   private final Map<Object, ItemModel> cache = new IdentityHashMap<>();
 
-  private ClayBucketItemModel(Unbaked unbaked, BakingContext context) {
+  private ClayBucketItemModel(Unbaked unbaked, BakingContext context, Matrix4fc transformation) {
     this.unbaked = unbaked;
     this.context = context;
-    var generated = context.blockModelBaker().getModel(Identifier.withDefaultNamespace("item/generated"));
-    if (generated == null) {
-      throw new IllegalStateException("Failed to access item/generated model");
-    }
-    this.transforms = generated.getTopTransforms();
-  }
-
-  private TextureAtlasSprite itemSprite(Identifier texture) {
-    return context.blockModelBaker().sprites().get(ClientHooks.getItemMaterial(texture), DEBUG_NAME);
+    this.transformation = transformation;
+    this.transforms = context.blockModelBaker().getModel(Identifier.withDefaultNamespace("item/generated")).getTopTransforms();
   }
 
   /** Builds the model for the given contents, {@link Fluids#EMPTY} or {@link Blocks#AIR} for empty */
   private ItemModel bake(Object contents) {
-    TextureAtlasSprite base = itemSprite(unbaked.textures.base);
-    TextureAtlasSprite inner = itemSprite(unbaked.textures.inner);
-    TextureAtlasSprite mask = itemSprite(unbaked.textures.fluid);
+    ModelBaker baker = context.blockModelBaker();
+    Material.Baked base = baker.materials().get(unbaked.textures.base, DEBUG_NAME);
+    Material.Baked inner = baker.materials().get(unbaked.textures.inner, DEBUG_NAME);
+    Material.Baked mask = baker.materials().get(unbaked.textures.fluid, DEBUG_NAME);
     ModelRenderProperties properties = new ModelRenderProperties(false, inner, transforms);
     ModelState state = BlockModelRotation.IDENTITY;
 
     // what goes inside, on the block atlas
-    TextureAtlasSprite contentsSprite = null;
+    Material.Baked contentsMaterial = null;
     int light = 0;
     boolean tintFluid = false;
     if (contents instanceof Fluid fluid && fluid != Fluids.EMPTY) {
-      contentsSprite = context.blockModelBaker().sprites().get(ClientHooks.getBlockMaterial(IClientFluidTypeExtensions.of(fluid).getStillTexture()), DEBUG_NAME);
+      contentsMaterial = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState()).stillMaterial();
       light = fluid.getFluidType().getLightLevel();
       tintFluid = true;
       // if the fluid is lighter than air, turn the bucket upside down
@@ -132,48 +130,53 @@ public class ClayBucketItemModel implements ItemModel {
         state = new ComposedModelState(state, new Transformation(null, new Quaternionf(0, 0, 1, 0), null, null));
       }
     } else if (contents instanceof Block block && block != Blocks.AIR) {
-      contentsSprite = Minecraft.getInstance().getModelManager().getBlockModelShaper().getBlockModel(block.defaultBlockState()).particleIcon();
+      contentsMaterial = Minecraft.getInstance().getModelManager().getBlockStateModelSet().getParticleMaterial(block.defaultBlockState());
       light = block.defaultBlockState().getLightEmission();
     }
 
     List<ItemModel> parts = new ArrayList<>();
-    if (contentsSprite == null) {
+    if (contentsMaterial == null) {
       // if empty, just render the inner sprite, looks better
-      List<BakedQuad> quads = UnbakedElementsHelper.bakeElements(UnbakedElementsHelper.createUnbakedItemElements(0, inner), $ -> inner, state);
-      parts.add(new BlockModelWrapper(List.of(), quads, properties, RenderTypeHelper.detectItemModelRenderType(quads, RENDER_TYPES)));
+      parts.add(new CuboidItemModelWrapper(List.of(), baker.compute(new ItemModelGenerator.ItemLayerKey(inner, state, 0)), properties, transformation));
     } else {
       // base is the outer cover, the only layer in full 3D
-      List<BakedQuad> quads = new ArrayList<>(UnbakedElementsHelper.bakeElements(UnbakedElementsHelper.createUnbakedItemElements(0, base), $ -> base, state));
+      QuadCollection.Builder quads = new QuadCollection.Builder();
+      quads.addAll(baker.compute(new ItemModelGenerator.ItemLayerKey(base, state, 0)));
       // inner is behind the contents, about a pixel back so it is not cut off in hand
-      quads.addAll(UnbakedElementsHelper.bakeElements(List.of(flatElement()), $ -> inner, new ComposedModelState(state, INNER_TRANSFORM)));
-      parts.add(new BlockModelWrapper(List.of(), quads, properties, RenderTypeHelper.detectItemModelRenderType(quads, RENDER_TYPES)));
+      for (BakedQuad quad : UnbakedElementsHelper.bakeElements(baker, List.of(flatElement()), $ -> inner, new ComposedModelState(state, INNER_TRANSFORM))) {
+        quads.addUnculledFace(quad);
+      }
+      parts.add(new CuboidItemModelWrapper(List.of(), quads.build(), properties, transformation));
 
       // contents next, only the front and back
-      TextureAtlasSprite sprite = contentsSprite;
-      List<BakedQuad> contentQuads = UnbakedElementsHelper.bakeElements(UnbakedElementsHelper.createUnbakedItemMaskElements(0, mask), $ -> sprite, new ComposedModelState(state, FLUID_TRANSFORM))
-        .stream().filter(quad -> quad.direction().getAxis() == Axis.Z).toList();
-      if (light > 0) {
-        int emission = light;
-        contentQuads = contentQuads.stream().map(quad -> withLight(quad, emission)).toList();
+      boolean emissive = light > 0;
+      BakedQuad.MaterialInfo info = baker.interner().materialInfo(new BakedQuad.MaterialInfo(
+        contentsMaterial.sprite(), ChunkSectionLayer.SOLID, renderType(contentsMaterial, emissive), 0, !emissive, light, !emissive));
+      QuadCollection masked = UnbakedElementsHelper.bakeItemMaskQuads(baker, mask, info, new ComposedModelState(state, FLUID_TRANSFORM), ExtraFaceData.DEFAULT);
+      QuadCollection.Builder contentQuads = new QuadCollection.Builder();
+      for (BakedQuad quad : masked.getAll()) {
+        if (quad.direction().getAxis() == Axis.Z) {
+          contentQuads.addUnculledFace(quad);
+        }
       }
-      RenderTypeGroup types = light > 0 ? RENDER_TYPES_UNLIT : RENDER_TYPES;
-      parts.add(new BlockModelWrapper(tintFluid ? List.of(FluidContentsTint.INSTANCE) : List.of(), contentQuads, properties, RenderTypeHelper.detectItemModelRenderType(contentQuads, types)));
+      parts.add(new CuboidItemModelWrapper(tintFluid ? List.of(FluidContentsTint.INSTANCE) : List.of(), contentQuads.build(), properties, transformation));
     }
     return new CompositeModel(parts);
   }
 
-  /** A single front face covering the item, untinted */
-  private static BlockElement flatElement() {
-    BlockElementFace face = new BlockElementFace(null, -1, "layer0", new BlockElementFace.UVs(0, 0, 16, 16), com.mojang.math.Quadrant.R0);
-    return new BlockElement(new Vector3f(0, 0, 8.5f), new Vector3f(16, 16, 8.5f), Map.of(Direction.SOUTH, face), null, false, 0);
+  /** Render type of the contents, they are on the block atlas while the bucket is on the item atlas */
+  private static RenderType renderType(Material.Baked material, boolean emissive) {
+    boolean translucent = material.forceTranslucent() || material.sprite().transparency().hasTranslucent();
+    if (translucent) {
+      return emissive ? NeoForgeRenderTypes.getItemTranslucentUnlit(TextureAtlas.LOCATION_BLOCKS) : Sheets.translucentBlockItemSheet();
+    }
+    return emissive ? NeoForgeRenderTypes.getItemCutoutUnlit(TextureAtlas.LOCATION_BLOCKS) : Sheets.cutoutBlockItemSheet();
   }
 
-  /** Makes the quad glow with the light of the contents */
-  private static BakedQuad withLight(BakedQuad quad, int light) {
-    return new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(),
-      quad.packedUV0(), quad.packedUV1(), quad.packedUV2(), quad.packedUV3(),
-      quad.tintIndex(), quad.direction(), quad.sprite(), quad.shade(), Math.max(light, quad.lightEmission()),
-      quad.bakedNormals(), quad.bakedColors(), quad.hasAmbientOcclusion());
+  /** A single front face covering the item, untinted */
+  private static CuboidModelElement flatElement() {
+    CuboidFace face = new CuboidFace(null, -1, "layer0", new CuboidFace.UVs(0, 0, 16, 16), Quadrant.R0);
+    return new CuboidModelElement(new Vector3f(0, 0, 8.5f), new Vector3f(16, 16, 8.5f), Map.of(Direction.SOUTH, face), null, false, 0);
   }
 
   @Override
@@ -198,8 +201,8 @@ public class ClayBucketItemModel implements ItemModel {
     }
 
     @Override
-    public ItemModel bake(BakingContext context) {
-      return new ClayBucketItemModel(this, context);
+    public ItemModel bake(BakingContext context, Matrix4fc transformation) {
+      return new ClayBucketItemModel(this, context, transformation);
     }
 
     @Override

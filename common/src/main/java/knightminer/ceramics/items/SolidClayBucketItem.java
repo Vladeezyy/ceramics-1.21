@@ -56,7 +56,7 @@ public class SolidClayBucketItem extends BaseClayBucketItem {
 			return InteractionResult.FAIL;
 		}
 
-		ItemStack resultStack = context.getItemInHand().getItem().getCraftingRemainder();
+		ItemStack resultStack = remainder(context.getItemInHand());
 		InteractionResult result = blockItem.useOn(new BlockPlaceContext(context));
 		Player player = context.getPlayer();
 		if (result.consumesAction() && player != null && !player.isCreative()) {

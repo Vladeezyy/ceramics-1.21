@@ -41,6 +41,7 @@ import knightminer.ceramics.util.EmptySolidBucketCauldronInteraction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.Consumables;
@@ -222,7 +223,7 @@ public class Registration {
   public static final Registrar.Entry<BlockEntityType<?>,BlockEntityType<KilnBlockEntity>> KILN_BLOCK_ENTITY = blockEntity("kiln", KilnBlockEntity::new, () -> Set.of(KILN.get()));
   // kiln recipes
   public static final Registrar.Entry<RecipeType<?>,RecipeType<KilnRecipe>> KILN_RECIPE = RECIPE_TYPES.register("kiln", () -> new RecipeType<KilnRecipe>() { @Override public String toString() { return Ceramics.locationName("kiln"); } });
-  public static final Registrar.Entry<RecipeSerializer<?>,AbstractCookingRecipe.Serializer<KilnRecipe>> KILN_SERIALIZER = RECIPE_SERIALIZERS.register("kiln", () -> new AbstractCookingRecipe.Serializer<>(KilnRecipe::new, 100));
+  public static final Registrar.Entry<RecipeSerializer<?>,RecipeSerializer<KilnRecipe>> KILN_SERIALIZER = RECIPE_SERIALIZERS.register("kiln", () -> new RecipeSerializer<>(KilnRecipe.MAP_CODEC, KilnRecipe.STREAM_CODEC));
 
   /*
    * fluid handling
@@ -279,7 +280,7 @@ public class Registration {
   public static final Registrar.Entry<BlockEntityType<?>,BlockEntityType<ChannelBlockEntity>> CHANNEL_BLOCK_ENTITY = blockEntity("channel", ChannelBlockEntity::new, () -> Set.of(TERRACOTTA_CHANNEL.get(), PORCELAIN_CHANNEL.get()));
 
   // clay repair
-  public static final Registrar.Entry<RecipeSerializer<?>,RecipeSerializer<CrackedClayRepairRecipe>> CLAY_REPAIR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("cracked_clay_repair", CrackedClayRepairRecipe.Serializer::new);
+  public static final Registrar.Entry<RecipeSerializer<?>,RecipeSerializer<CrackedClayRepairRecipe>> CLAY_REPAIR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("cracked_clay_repair", () -> CrackedClayRepairRecipe.SERIALIZER);
 
   private static void registerFluidHandlers() {
     // blocks, in 1.20 these were getCapability overrides on the block entities
@@ -310,7 +311,7 @@ public class Registration {
       record FillClayBucketCauldronInteraction(Predicate<BlockState> cauldron, java.util.function.Supplier<ItemStack> filledBucket, SoundEvent sound) implements CauldronInteraction {
         @Override
         public InteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
-          return CauldronInteraction.fillBucket(state, level, pos, player, hand, stack, filledBucket.get(), cauldron, sound);
+          return CauldronInteractions.fillBucket(state, level, pos, player, hand, stack, filledBucket.get(), cauldron, sound);
         }
       }
 
@@ -318,20 +319,20 @@ public class Registration {
       // tags are bound, and since 1.21.11 an unbound tag check throws
       // TODO: this is pretty hardcoded, can this be generalized in any way?
       Predicate<BlockState> full = state -> state.getValue(LayeredCauldronBlock.LEVEL) == 3;
-      CauldronInteraction.WATER.map().put(EMPTY_CLAY_BUCKET.get(),         new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withFluid(Fluids.WATER, false), SoundEvents.BUCKET_FILL));
-      CauldronInteraction.WATER.map().put(CRACKED_EMPTY_CLAY_BUCKET.get(), new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withFluid(Fluids.WATER, true),  SoundEvents.BUCKET_FILL));
-      CauldronInteraction.POWDER_SNOW.map().put(EMPTY_CLAY_BUCKET.get(),         new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, false), SoundEvents.BUCKET_FILL_POWDER_SNOW));
-      CauldronInteraction.POWDER_SNOW.map().put(CRACKED_EMPTY_CLAY_BUCKET.get(), new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, true),  SoundEvents.BUCKET_FILL_POWDER_SNOW));
+      CauldronInteractions.WATER.put(EMPTY_CLAY_BUCKET.get(),         new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withFluid(Fluids.WATER, false), SoundEvents.BUCKET_FILL));
+      CauldronInteractions.WATER.put(CRACKED_EMPTY_CLAY_BUCKET.get(), new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withFluid(Fluids.WATER, true),  SoundEvents.BUCKET_FILL));
+      CauldronInteractions.POWDER_SNOW.put(EMPTY_CLAY_BUCKET.get(),         new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, false), SoundEvents.BUCKET_FILL_POWDER_SNOW));
+      CauldronInteractions.POWDER_SNOW.put(CRACKED_EMPTY_CLAY_BUCKET.get(), new FillClayBucketCauldronInteraction(full, () -> BaseClayBucketItem.withBlock(Blocks.POWDER_SNOW, true),  SoundEvents.BUCKET_FILL_POWDER_SNOW));
       CauldronInteraction fillLava = new FillClayBucketCauldronInteraction(state -> true, () -> BaseClayBucketItem.withFluid(Fluids.LAVA, true), SoundEvents.BUCKET_FILL_LAVA);
-      CauldronInteraction.LAVA.map().put(EMPTY_CLAY_BUCKET.get(),         fillLava);
-      CauldronInteraction.LAVA.map().put(CRACKED_EMPTY_CLAY_BUCKET.get(), fillLava);
+      CauldronInteractions.LAVA.put(EMPTY_CLAY_BUCKET.get(),         fillLava);
+      CauldronInteractions.LAVA.put(CRACKED_EMPTY_CLAY_BUCKET.get(), fillLava);
 
       // emptying buckets - needed on all as fluid can replace existing
       BiConsumer<ItemLike, CauldronInteraction> addAll = (item, interaction) -> {
-        CauldronInteraction.EMPTY.map().put(item.asItem(), interaction);
-        CauldronInteraction.WATER.map().put(item.asItem(), interaction);
-        CauldronInteraction.LAVA.map().put(item.asItem(), interaction);
-        CauldronInteraction.POWDER_SNOW.map().put(item.asItem(), interaction);
+        CauldronInteractions.EMPTY.put(item.asItem(), interaction);
+        CauldronInteractions.WATER.put(item.asItem(), interaction);
+        CauldronInteractions.LAVA.put(item.asItem(), interaction);
+        CauldronInteractions.POWDER_SNOW.put(item.asItem(), interaction);
       };
       addAll.accept(FLUID_CLAY_BUCKET,         new EmptyFluidBucketCauldronInteraction(FLUID_CLAY_BUCKET.get()));
       addAll.accept(CRACKED_FLUID_CLAY_BUCKET, new EmptyFluidBucketCauldronInteraction(CRACKED_FLUID_CLAY_BUCKET.get()));

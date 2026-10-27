@@ -5,7 +5,6 @@
   "experience": 0.1,
   "ingredient": "minecraft:basalt",
   "result": {
-    "count": 1,
     "id": "minecraft:smooth_basalt"
   }
 }
