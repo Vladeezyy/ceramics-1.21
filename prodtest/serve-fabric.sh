@@ -1,0 +1,17 @@
+#!/bin/sh
+# The Fabric release jar on a production Fabric server with Fabric API (Loom's prodServer task, fabric/run-prod/):
+# waits for "Done" or a crash (max 5 min), stops it, prints the result and the errors.
+cd "$(dirname "$0")/.."
+here=$(pwd)
+rm -f build-prodfabric.log
+./gradlew :fabric:prodServer --console=plain > build-prodfabric.log 2>&1 &
+i=0
+until grep -qE 'Done \(|crash report has been saved|Minecraft Crash Report|Failed to start|BUILD FAILED|Incompatible mods' build-prodfabric.log 2>/dev/null || [ $i -gt 150 ]; do sleep 2; i=$((i+1)); done
+sleep 3
+pkill -f "fabric.addMods=.*$here" 2>/dev/null; sleep 3; pkill -9 -f "fabric.addMods=.*$here" 2>/dev/null
+wait 2>/dev/null
+grep -E 'Loading [0-9]+ mods|ceramics|kilnwork|Done \(|crash report|Failed to start|Incompatible mods' build-prodfabric.log | head -8 | cut -c1-200
+# the script stops the server after "Done": Gradle then reports exit value 143, which is not a failure
+grep -q 'Done (' build-prodfabric.log || grep -E 'BUILD FAILED|What went wrong' -A2 build-prodfabric.log | head -6
+echo "--- errors"
+grep -E '/ERROR|/FATAL|ERROR\]|FATAL\]|Exception|Caused by' build-prodfabric.log | grep -vE 'server.properties|UnixException' | cut -c1-250 | sort | uniq -c | sort -rn | head -20

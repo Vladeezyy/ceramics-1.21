@@ -83,3 +83,13 @@ Mantle has no builds for Minecraft after 1.21.1, so the parts Ceramics uses were
   They were written by Mantle datagen providers; now they are plain JSON in `src/main/resources` (no datagen needed).
 - Fluid rendering on the vanilla translucent entity render type instead of Mantle's shader.
 - Behavior unchanged: self-test 44/44, client scene 7/7.
+
+## 1.8.0.2+1.21.1: NeoForge and Fabric
+
+- Modules `common` (vanilla code on NeoForm), `neoforge` and `fabric`; fluids through the loader-neutral fluid API of
+  Kilnwork 2.0 (bridged to the NeoForge and Fabric transfer APIs by Kilnwork).
+- Fabric parts: no_nbt ingredient (`fabric:type` written at build time), kiln recipe sync for JEI, the clay bucket item
+  model built from vanilla parts, item-destroyed hook (mixin) for cracked buckets.
+- Verification: self test 44/44 and client scene on both loaders; release jars on NeoForge 21.1.197 and 21.1.259 and on
+  Fabric Loader 0.16.14 with Fabric API 0.116.17+1.21.1 (`prodtest/serve-fabric.sh`).
+
