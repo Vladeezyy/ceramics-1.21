@@ -1,5 +1,6 @@
 package knightminer.ceramics.datagen;
 
+import net.minecraft.tags.TagKey;
 import knightminer.ceramics.Ceramics;
 import knightminer.ceramics.Registration;
 import knightminer.ceramics.recipe.CeramicsTags;
@@ -8,6 +9,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.BlockTagCopyingItemTagProvider;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
@@ -37,18 +39,23 @@ public class ItemTagProvider extends BlockTagCopyingItemTagProvider {
     this.copy(Blocks.PORCELAIN_CISTERNS, CeramicsTags.Items.PORCELAIN_CISTERNS);
 
     // item unique tags
-    this.tag(CeramicsTags.Items.MILK_BUCKETS).add(Items.MILK_BUCKET, Registration.MILK_CLAY_BUCKET.get(), Registration.CRACKED_MILK_CLAY_BUCKET.get());
-    this.tag(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).add(Items.CLAY_BALL);
-    this.tag(CeramicsTags.Items.BRICK_PLATES).add(Registration.CLAY_PLATE.get());
-    this.tag(CeramicsTags.Items.PLATES).addTag(CeramicsTags.Items.BRICK_PLATES);
+    this.objects(CeramicsTags.Items.MILK_BUCKETS).add(Items.MILK_BUCKET, Registration.MILK_CLAY_BUCKET.get(), Registration.CRACKED_MILK_CLAY_BUCKET.get());
+    this.objects(CeramicsTags.Items.TERRACOTTA_CRACK_REPAIR).add(Items.CLAY_BALL);
+    this.objects(CeramicsTags.Items.BRICK_PLATES).add(Registration.CLAY_PLATE.get());
+    this.objects(CeramicsTags.Items.PLATES).addTag(CeramicsTags.Items.BRICK_PLATES);
     // armor repair, a tag on the material since 1.21.2
-    this.tag(CeramicsTags.Items.REPAIRS_CLAY_ARMOR).add(Registration.CLAY_PLATE.get());
+    this.objects(CeramicsTags.Items.REPAIRS_CLAY_ARMOR).add(Registration.CLAY_PLATE.get());
 
     // buckets
-    this.tag(CeramicsTags.Items.EMPTY_CLAY_BUCKETS).add(Registration.EMPTY_CLAY_BUCKET.asItem(), Registration.CRACKED_EMPTY_CLAY_BUCKET.asItem());
-    this.tag(CeramicsTags.Items.CLAY_BUCKETS).addTag(CeramicsTags.Items.EMPTY_CLAY_BUCKETS).add(
+    this.objects(CeramicsTags.Items.EMPTY_CLAY_BUCKETS).add(Registration.EMPTY_CLAY_BUCKET.asItem(), Registration.CRACKED_EMPTY_CLAY_BUCKET.asItem());
+    this.objects(CeramicsTags.Items.CLAY_BUCKETS).addTag(CeramicsTags.Items.EMPTY_CLAY_BUCKETS).add(
         Registration.FLUID_CLAY_BUCKET.asItem(), Registration.CRACKED_FLUID_CLAY_BUCKET.asItem(),
         Registration.SOLID_CLAY_BUCKET.asItem(), Registration.CRACKED_SOLID_CLAY_BUCKET.asItem(),
         Registration.MILK_CLAY_BUCKET.asItem(), Registration.CRACKED_MILK_CLAY_BUCKET.asItem());
+  }
+
+  /** Appender taking the items themselves */
+  private ObjectTagAppender<Item> objects(TagKey<Item> tag) {
+    return new ObjectTagAppender<>(this.tag(tag), value -> value.builtInRegistryHolder().key());
   }
 }

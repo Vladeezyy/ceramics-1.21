@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
   "group": "ceramics:clay_uncrafting",
   "ingredients": [
     "minecraft:clay"

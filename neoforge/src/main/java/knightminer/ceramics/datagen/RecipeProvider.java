@@ -8,7 +8,7 @@ import knightminer.ceramics.recipe.CeramicsDatagen;
 import knightminer.ceramics.recipe.CeramicsTags;
 import knightminer.ceramics.recipe.CrackedClayRepairRecipe;
 import knightminer.ceramics.recipe.NoNBTIngredient;
-import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
@@ -529,22 +529,22 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
   private static final Map<DyeColor,Block> GLAZED_TERRACOTTA;
   static {
     EnumMap<DyeColor,Block> map = new EnumMap<>(DyeColor.class);
-    map.put(DyeColor.WHITE,      Blocks.WHITE_GLAZED_TERRACOTTA);
-    map.put(DyeColor.ORANGE,     Blocks.ORANGE_GLAZED_TERRACOTTA);
-    map.put(DyeColor.MAGENTA,    Blocks.MAGENTA_GLAZED_TERRACOTTA);
-    map.put(DyeColor.LIGHT_BLUE, Blocks.LIGHT_BLUE_GLAZED_TERRACOTTA);
-    map.put(DyeColor.YELLOW,     Blocks.YELLOW_GLAZED_TERRACOTTA);
-    map.put(DyeColor.LIME,       Blocks.LIME_GLAZED_TERRACOTTA);
-    map.put(DyeColor.PINK,       Blocks.PINK_GLAZED_TERRACOTTA);
-    map.put(DyeColor.GRAY,       Blocks.GRAY_GLAZED_TERRACOTTA);
-    map.put(DyeColor.LIGHT_GRAY, Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA);
-    map.put(DyeColor.CYAN,       Blocks.CYAN_GLAZED_TERRACOTTA);
-    map.put(DyeColor.PURPLE,     Blocks.PURPLE_GLAZED_TERRACOTTA);
-    map.put(DyeColor.BLUE,       Blocks.BLUE_GLAZED_TERRACOTTA);
-    map.put(DyeColor.BROWN,      Blocks.BROWN_GLAZED_TERRACOTTA);
-    map.put(DyeColor.GREEN,      Blocks.GREEN_GLAZED_TERRACOTTA);
-    map.put(DyeColor.RED,        Blocks.RED_GLAZED_TERRACOTTA);
-    map.put(DyeColor.BLACK,      Blocks.BLACK_GLAZED_TERRACOTTA);
+    map.put(DyeColor.WHITE,      Blocks.GLAZED_TERRACOTTA.pick(DyeColor.WHITE));
+    map.put(DyeColor.ORANGE,     Blocks.GLAZED_TERRACOTTA.pick(DyeColor.ORANGE));
+    map.put(DyeColor.MAGENTA,    Blocks.GLAZED_TERRACOTTA.pick(DyeColor.MAGENTA));
+    map.put(DyeColor.LIGHT_BLUE, Blocks.GLAZED_TERRACOTTA.pick(DyeColor.LIGHT_BLUE));
+    map.put(DyeColor.YELLOW,     Blocks.GLAZED_TERRACOTTA.pick(DyeColor.YELLOW));
+    map.put(DyeColor.LIME,       Blocks.GLAZED_TERRACOTTA.pick(DyeColor.LIME));
+    map.put(DyeColor.PINK,       Blocks.GLAZED_TERRACOTTA.pick(DyeColor.PINK));
+    map.put(DyeColor.GRAY,       Blocks.GLAZED_TERRACOTTA.pick(DyeColor.GRAY));
+    map.put(DyeColor.LIGHT_GRAY, Blocks.GLAZED_TERRACOTTA.pick(DyeColor.LIGHT_GRAY));
+    map.put(DyeColor.CYAN,       Blocks.GLAZED_TERRACOTTA.pick(DyeColor.CYAN));
+    map.put(DyeColor.PURPLE,     Blocks.GLAZED_TERRACOTTA.pick(DyeColor.PURPLE));
+    map.put(DyeColor.BLUE,       Blocks.GLAZED_TERRACOTTA.pick(DyeColor.BLUE));
+    map.put(DyeColor.BROWN,      Blocks.GLAZED_TERRACOTTA.pick(DyeColor.BROWN));
+    map.put(DyeColor.GREEN,      Blocks.GLAZED_TERRACOTTA.pick(DyeColor.GREEN));
+    map.put(DyeColor.RED,        Blocks.GLAZED_TERRACOTTA.pick(DyeColor.RED));
+    map.put(DyeColor.BLACK,      Blocks.GLAZED_TERRACOTTA.pick(DyeColor.BLACK));
     GLAZED_TERRACOTTA = map;
   }
 

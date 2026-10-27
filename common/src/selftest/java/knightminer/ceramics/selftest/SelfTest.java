@@ -159,7 +159,7 @@ public class SelfTest {
     check("dyeing ignores cracked cisterns (no_nbt ingredient)", () -> {
       ItemStack cracked = CrackableBlockItem.setCracks(new ItemStack(Registration.TERRACOTTA_CISTERN), 1);
       ItemStack plain = new ItemStack(Registration.TERRACOTTA_CISTERN);
-      ItemStack dye = new ItemStack(Items.RED_DYE);
+      ItemStack dye = new ItemStack(Items.DYE.pick(net.minecraft.world.item.DyeColor.RED));
       CraftingInput good = CraftingInput.of(3, 3, List.of(ItemStack.EMPTY, plain, ItemStack.EMPTY, plain, dye, plain, ItemStack.EMPTY, plain, ItemStack.EMPTY));
       CraftingInput bad = CraftingInput.of(3, 3, List.of(ItemStack.EMPTY, plain, ItemStack.EMPTY, plain, dye, cracked, ItemStack.EMPTY, plain, ItemStack.EMPTY));
       return server.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, good, level).isPresent()
@@ -290,7 +290,7 @@ public class SelfTest {
     check("cracks are the block state since 1.21.11", level.getBlockState(at(0, 0, 4)).getValue(ICrackableBlock.CRACKS) == 1);
     check("placing a cracked item keeps the cracks", () -> {
       BlockState placed = Registration.TERRACOTTA_FAUCET.get().withItemCracks(Registration.TERRACOTTA_FAUCET.get().defaultBlockState(), new net.minecraft.world.item.context.BlockPlaceContext(level, null, net.minecraft.world.InteractionHand.MAIN_HAND,
-        CrackableBlockItem.setCracks(new ItemStack(Registration.TERRACOTTA_FAUCET), 4), new net.minecraft.world.phys.BlockHitResult(at(0, 0, 0).getCenter(), Direction.UP, at(0, 0, 0), false)) {});
+        CrackableBlockItem.setCracks(new ItemStack(Registration.TERRACOTTA_FAUCET), 4), new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at(0, 0, 0)), Direction.UP, at(0, 0, 0), false)) {});
       return placed != null && placed.getValue(ICrackableBlock.CRACKS) == 4;
     });
     level.setBlock(at(2, 0, 4), Registration.PORCELAIN_CISTERN.get(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState(), Block.UPDATE_ALL);

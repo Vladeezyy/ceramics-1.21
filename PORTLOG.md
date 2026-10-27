@@ -121,3 +121,11 @@ Branch `mc/26.1.2` (from 1.21.11), Java 25, Minecraft without obfuscation, Kilnw
 - GUI is extracted (`GuiGraphicsExtractor`, `extractBackground`), messages above the hotbar are
   `sendOverlayMessage`, cauldron interactions are dispatchers in `CauldronInteractions`, `ChunkPos.containing`.
 - Datagen: cooking recipes take an explicit book category (blocks for block items, else misc, as before).
+
+## 1.8.0.1+26.2
+
+Branch `mc/26.2`, Kilnwork `26.2-1.0.0`.
+- Tag providers take registry keys: a small `ObjectTagAppender` keeps the datagen readable.
+- Dyed and glazed terracotta are `ColorCollection`s (`Blocks.DYED_TERRACOTTA.pick(color)`), dyes too.
+- Screen, toasts and HUD moved to `Minecraft.gui`; advancement triggers to `net.minecraft.advancements.triggers`.
+- The furnace menu no longer takes the recipe type.

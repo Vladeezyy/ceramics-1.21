@@ -18,12 +18,12 @@ public class KilnMenu extends AbstractFurnaceMenu {
 
   @SuppressWarnings("unused")
   public KilnMenu(int id, Inventory inventory, RegistryFriendlyByteBuf buffer) {
-    super(Registration.KILN_MENU.get(), Registration.KILN_RECIPE.get(), RecipePropertySet.FURNACE_INPUT, RecipeBookType.FURNACE, id, inventory);
+    super(Registration.KILN_MENU.get(), RecipePropertySet.FURNACE_INPUT, RecipeBookType.FURNACE, id, inventory);
     this.level = inventory.player.level();
   }
 
   public KilnMenu(int id, Inventory inventory, Container tileEntity, ContainerData furnaceData) {
-    super(Registration.KILN_MENU.get(), Registration.KILN_RECIPE.get(), RecipePropertySet.FURNACE_INPUT, RecipeBookType.FURNACE, id, inventory, tileEntity, furnaceData);
+    super(Registration.KILN_MENU.get(), RecipePropertySet.FURNACE_INPUT, RecipeBookType.FURNACE, id, inventory, tileEntity, furnaceData);
     this.level = inventory.player.level();
   }
 
