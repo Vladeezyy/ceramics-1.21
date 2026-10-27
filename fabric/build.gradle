@@ -1,0 +1,78 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net'
+    }
+}
+
+sourceSets {
+    selftest {
+        java.srcDirs rootProject.file('common/src/selftest/java'), 'src/selftest/java'
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/ceramics.accesswidener')
+    runs {
+        client {
+            client()
+            runDir('run')
+        }
+        server {
+            server()
+            runDir('run')
+        }
+        scene {
+            client()
+            name 'Scene'
+            vmArg '-Dceramics.scene=true'
+            source sourceSets.selftest
+            runDir('run')
+        }
+        selftest {
+            server()
+            name 'Selftest'
+            vmArg '-Dceramics.selftest=true'
+            source sourceSets.selftest
+            runDir('run')
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.selftest
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    // Kilnwork inside the jar (no public release; players install nothing more)
+    modImplementation "dev.vladeezyy:kilnwork-fabric:${kilnwork_version}"
+    include "dev.vladeezyy:kilnwork-fabric:${kilnwork_version}"
+    modCompileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_fabric_version}"
+    modCompileOnly "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_fabric_version}"
+    // JEI in the dev runs (the client scene checks the kiln recipes in it), as on NeoForge
+    modLocalRuntime "mezz.jei:jei-${minecraft_version}-fabric:${jei_fabric_version}"
+    modLocalRuntime "maven.modrinth:mezzconfig:0.5.6"
+}
+
+processResources {
+    // NeoForge reads a custom ingredient's type from "type", Fabric from "fabric:type": the same recipes for both
+    filesMatching('data/ceramics/recipe/**/*.json') {
+        filter { line -> line.replace('"type": "ceramics:no_nbt"', '"fabric:type": "ceramics:no_nbt"') }
+    }
+}

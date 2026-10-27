@@ -1,0 +1,28 @@
+package knightminer.ceramics.menu;
+
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import knightminer.ceramics.Registration;
+import net.minecraft.client.RecipeBookCategories;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractFurnaceMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.RecipeBookType;
+
+import java.util.List;
+
+public class KilnMenu extends AbstractFurnaceMenu {
+  @SuppressWarnings("unused")
+  public KilnMenu(int id, Inventory inventory, RegistryFriendlyByteBuf buffer) {
+    super(Registration.KILN_MENU.get(), Registration.KILN_RECIPE.get(), RecipeBookType.FURNACE, id, inventory);
+  }
+
+  public KilnMenu(int id, Inventory inventory, Container tileEntity, ContainerData furnaceData) {
+    super(Registration.KILN_MENU.get(), Registration.KILN_RECIPE.get(), RecipeBookType.FURNACE, id, inventory, tileEntity, furnaceData);
+  }
+
+  // NeoForge extension method (overrides it there by signature)
+  public List<RecipeBookCategories> getRecipeBookCategories() {
+    return List.of(RecipeBookCategories.FURNACE_SEARCH, RecipeBookCategories.FURNACE_BLOCKS, RecipeBookCategories.FURNACE_MISC);
+  }
+}

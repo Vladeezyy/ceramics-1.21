@@ -1,0 +1,45 @@
+plugins {
+    id 'multiloader-common'
+    id 'net.neoforged.moddev'
+}
+
+// Only vanilla code and Kilnwork's common API: compiled against plain Minecraft (NeoForm)
+neoForge {
+    neoFormVersion = neo_form_version
+    parchment {
+        minecraftVersion = parchment_minecraft_version
+        mappingsVersion = parchment_mappings_version
+    }
+    accessTransformers.from(file('accesstransformer.cfg'))
+}
+
+sourceSets {
+    // tests (not in the jars): the checks are common, the loaders start them
+    selftest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+dependencies {
+    compileOnly "dev.vladeezyy:kilnwork-common:${kilnwork_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    selftestCompileOnly "dev.vladeezyy:kilnwork-common:${kilnwork_version}"
+    selftestCompileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    selftestCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+}
+
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}
