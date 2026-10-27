@@ -129,3 +129,13 @@ Branch `mc/26.2`, Kilnwork `26.2-1.0.0`.
 - Dyed and glazed terracotta are `ColorCollection`s (`Blocks.DYED_TERRACOTTA.pick(color)`), dyes too.
 - Screen, toasts and HUD moved to `Minecraft.gui`; advancement triggers to `net.minecraft.advancements.triggers`.
 - The furnace menu no longer takes the recipe type.
+
+## 1.8.0.2+26.2: NeoForge and Fabric
+
+- Modules `common` (vanilla code on NeoForm), `neoforge` and `fabric`; fluids through the loader-neutral fluid API of
+  Kilnwork 2.0 (bridged to the NeoForge and Fabric transfer APIs by Kilnwork).
+- Fabric parts: no_nbt ingredient (`fabric:type` written at build time), kiln recipe sync for JEI, the clay bucket item
+  model built from vanilla parts, item-destroyed hook (mixin) for cracked buckets.
+- Verification: self test 51/51 and client scene on both loaders; release jars on NeoForge 26.2.0.93 and on
+  Fabric Loader 0.19.5 with Fabric API 0.161.0+26.2 (`prodtest/serve-fabric.sh`).
+

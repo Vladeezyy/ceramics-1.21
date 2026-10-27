@@ -20,3 +20,4 @@ build-*.out
 */run/
 /buildSrc/.gradle
 /buildSrc/build
+fabric/run-prod/

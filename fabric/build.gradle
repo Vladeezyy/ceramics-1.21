@@ -79,3 +79,25 @@ processResources {
         filter { line -> line.replace('"neoforge:ingredient_type": "ceramics:no_nbt"', '"fabric:type": "ceramics:no_nbt"') }
     }
 }
+
+// The release jar on a real Fabric server with Fabric API (prodtest/serve-fabric.sh): Kilnwork comes from inside the jar
+configurations {
+    productionMods { transitive = false }
+}
+dependencies {
+    productionMods "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+}
+def prodDir = file('run-prod')
+tasks.register('prodServer', net.fabricmc.loom.task.prod.ServerProductionRunTask) {
+    dependsOn jar
+    mods.from(jar.archiveFile)
+    mods.from(configurations.productionMods)
+    runDir = prodDir
+    timeout = java.time.Duration.ofMinutes(5)
+    doFirst {
+        new File(prodDir, 'world').deleteDir()
+        new File(prodDir, 'config').deleteDir()
+        prodDir.mkdirs()
+        new File(prodDir, 'eula.txt').text = 'eula=true\n'
+    }
+}
