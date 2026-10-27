@@ -108,3 +108,13 @@ Branch `mc/1.21.11`, same content and behavior as 1.21.1, Kilnwork `1.21.11-1.0.
 Verification: self-test 51/51 (new: aborted transactions, cracks in the state, placing cracked items, 1.21.1 block
 entity data, armor repair tag and equipment asset), client scene 8/8, release jar on a dedicated NeoForge 21.11.48
 server with a clean log.
+
+## 1.8.0.2+1.21.11: NeoForge and Fabric
+
+- Modules `common` (vanilla code on NeoForm), `neoforge` and `fabric`; fluids through the loader-neutral fluid API of
+  Kilnwork 2.0 (bridged to the NeoForge and Fabric transfer APIs by Kilnwork).
+- Fabric parts: no_nbt ingredient (`fabric:type` written at build time), kiln recipe sync for JEI, the clay bucket item
+  model built from vanilla parts, item-destroyed hook (mixin) for cracked buckets.
+- Verification: self test 51/51 and client scene on both loaders; release jars on NeoForge 21.11.42 and on
+  Fabric Loader 0.19.5 with Fabric API 0.141.6+1.21.11 (`prodtest/serve-fabric.sh`).
+

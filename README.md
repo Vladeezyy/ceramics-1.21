@@ -1,16 +1,17 @@
 <div align="center">
 
-# Ceramics — NeoForge 1.21.11
+# Ceramics — NeoForge and Fabric 1.21.11
 
-**Clay buckets, cisterns, faucets, channels, kilns and porcelain — now on Minecraft 1.21.11.**
+**Clay buckets, cisterns, faucets, channels, kilns and porcelain — now on Minecraft 1.21.11, for NeoForge and Fabric.**
 
 [![Minecraft 1.21.11](https://img.shields.io/badge/Minecraft-1.21.11-3c8527)](https://www.minecraft.net)
-[![NeoForge 21.1](https://img.shields.io/badge/NeoForge-21.1.197%2B-e0682b)](https://neoforged.net)
+[![NeoForge 21.11.42+](https://img.shields.io/badge/NeoForge-21.11.42%2B-e0682b)](https://neoforged.net)
+[![Fabric Loader 0.19.5+](https://img.shields.io/badge/Fabric-0.19.5%2B-dbd0b4)](https://fabricmc.net)
 [![Kilnwork bundled](https://img.shields.io/badge/Kilnwork-bundled-8a5cf6)](https://github.com/Vladeezyy/kilnwork)
 [![License LGPL-3.0](https://img.shields.io/badge/license-LGPL--3.0-blue)](LICENSE)
 
 An unofficial port of **[Ceramics](https://www.curseforge.com/minecraft/mc-mods/ceramics)** 1.8.0 by **KnightMiner**
-from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.11** (and 1.21.1, branch `main`), with all of its content.
+from Minecraft 1.20.1 (Forge) to **NeoForge and Fabric 1.21.11** (and 1.21.1, branch `main`), with all of its content.
 
 <img src="docs/images/faucet.jpg" width="49%" alt="A porcelain faucet pouring lava into a porcelain cistern">
 <img src="docs/images/cracks.jpg" width="49%" alt="Terracotta cisterns at every crack stage">
@@ -26,20 +27,34 @@ from Minecraft 1.20.1 (Forge) to **NeoForge 1.21.11** (and 1.21.1, branch `main`
 
 ## Download
 
-| Version | Minecraft | Loader | Java |
-| --- | --- | --- | --- |
-| 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 or newer | 21 |
-| 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer | 21 |
-| 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 or newer (Mantle inside) | 21 |
+| Version | Minecraft | NeoForge | Fabric | Java |
+| --- | --- | --- | --- | --- |
+| 1.8.0.2+26.3 | 26.3 | 26.3.0.83 or newer | Loader 0.19.5 or newer + Fabric API 0.163.0+26.3 or newer | 25 |
+| 1.8.0.2+26.2 | 26.2 | 26.2.0.93 or newer | Loader 0.19.5 or newer + Fabric API 0.161.0+26.2 or newer | 25 |
+| 1.8.0.2+26.1.2 | 26.1.2 | 26.1.2.121 or newer | Loader 0.19.5 or newer + Fabric API 0.155.3+26.1.2 or newer | 25 |
+| 1.8.0.2+1.21.11 | 1.21.11 | 21.11.42 or newer | Loader 0.19.5 or newer + Fabric API 0.141.6+1.21.11 or newer | 21 |
+| 1.8.0.2+1.21.1 | 1.21.1 | 21.1.197 or newer | Loader 0.16.14 or newer + Fabric API 0.116.17+1.21.1 or newer | 21 |
+| 1.8.0.1+26.3 | 26.3 | 26.3.0.83 or newer | — | 25 |
+| 1.8.0.1+26.2 | 26.2 | 26.2.0.93 or newer | — | 25 |
+| 1.8.0.1+26.1.2 | 26.1.2 | 26.1.2.121 or newer | — | 25 |
+| 1.8.0.1+1.21.11 | 1.21.11 | 21.11.42 or newer | — | 21 |
+| 1.8.0.1+1.21.1 | 1.21.1 | 21.1.197 or newer | — | 21 |
+| 1.8.0+1.21.1 | 1.21.1 | 21.1.197 or newer (Mantle inside) | — | 21 |
 
-Releases: [GitHub releases](../../releases).
+One jar per loader: `Ceramics-neoforge-…` or `Ceramics-fabric-…`. Releases: [GitHub releases](../../releases).
 
-## Requirements
+## Installation
 
-- **Singleplayer:** put the jar into `mods/` of a NeoForge instance of the matching Minecraft version.
-- **Server:** put the same jar into `mods/` of the server **and** of every client.
-- **No other mods needed.** The original Ceramics needs the library Mantle by SlimeKnights, which has no release for new Minecraft versions. This port uses [Kilnwork](https://github.com/Vladeezyy/kilnwork) instead, a library built from the parts of Mantle that Ceramics needs, and it ships inside the jar.
-- [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) is optional: it shows the kiln recipes.
+- **NeoForge:** put `Ceramics-neoforge-1.8.0.2+1.21.11.jar` into `mods/` of a NeoForge 21.11.42 (or newer) instance.
+- **Fabric:** put `Ceramics-fabric-1.8.0.2+1.21.11.jar` and [Fabric API](https://modrinth.com/mod/fabric-api)
+  0.141.6+1.21.11 (or newer) into `mods/` of a Fabric Loader 0.19.5 (or newer) instance.
+- **Server:** the same jar on the server **and** on every client.
+- **Nothing else to install.** The original Ceramics needs the library Mantle by SlimeKnights, which has no release
+  for new Minecraft versions. This port uses [Kilnwork](https://github.com/Vladeezyy/kilnwork) instead, a library
+  built from the parts of Mantle that Ceramics needs, and it ships inside the jar on both loaders.
+- [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) is optional on both loaders: it shows the kiln recipes.
+- On Fabric, fluid blocks of Ceramics (cisterns, faucets, channels, clay buckets) work with the Fabric transfer API, so
+  pipes and tanks of other Fabric mods connect to them.
 
 ## Features
 
@@ -80,10 +95,13 @@ Details for each problem: [PORTLOG.md](PORTLOG.md).
 
 ## Testing
 
-- Functional test on a dev server, 44 checks: recipes, buckets, cauldrons, a cistern tower that is broken in the middle
-  and merged back, faucets, channels, cracking with lava, drops, saving, data from 1.20.
-- Client scene with screenshots (above): fluid rendering, crack stages, bucket models, creative tab, JEI.
-- The release jar started on real NeoForge 21.1.259 and 21.1.197 servers with a clean log.
+The same tests on NeoForge and on Fabric:
+
+- Functional test on a dev server, 51 checks: recipes, buckets, cauldrons, a cistern tower that is broken in the
+  middle and merged back, faucets, channels, cracking with lava, drops, saving, data from 1.20 and 1.21.1.
+- Client scene with screenshots (above): fluid rendering, crack stages, bucket models, creative tab, kiln recipes in
+  JEI.
+- The release jars started on real servers with a clean log: NeoForge 21.11.42; Fabric Loader 0.19.5 with Fabric API 0.141.6.
 
 ## Reporting problems
 
@@ -96,7 +114,7 @@ Problems of this port go to the [issues of this repository](../../issues), not t
 - **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), included in the jar,
   based on parts of **Mantle** by [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Czech translation: RomanPlayer22. Korean: mindy15963 and the original translators.
-- Port to NeoForge 1.21.1 and 1.21.11: Vladeezyy.
+- Port to NeoForge and Fabric 1.21.1, 1.21.11 and 26.x: Vladeezyy.
 
 This port is released under **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL text in
 [licenses/COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Forks are welcome: they stay open, under the
@@ -109,19 +127,35 @@ same license, with credit to the authors. Please download the mod only from the 
 
 ## Скачать
 
-| Версия | Minecraft | Загрузчик | Java |
-| --- | --- | --- | --- |
-| 1.8.0.1+1.21.11 | 1.21.11 | NeoForge 21.11.42 или новее | 21 |
-| 1.8.0.1+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее | 21 |
-| 1.8.0+1.21.1 | 1.21.1 | NeoForge 21.1.197 или новее (Mantle внутри) | 21 |
+| Версия | Minecraft | NeoForge | Fabric | Java |
+| --- | --- | --- | --- | --- |
+| 1.8.0.2+26.3 | 26.3 | 26.3.0.83 или новее | Loader 0.19.5 или новее + Fabric API 0.163.0+26.3 или новее | 25 |
+| 1.8.0.2+26.2 | 26.2 | 26.2.0.93 или новее | Loader 0.19.5 или новее + Fabric API 0.161.0+26.2 или новее | 25 |
+| 1.8.0.2+26.1.2 | 26.1.2 | 26.1.2.121 или новее | Loader 0.19.5 или новее + Fabric API 0.155.3+26.1.2 или новее | 25 |
+| 1.8.0.2+1.21.11 | 1.21.11 | 21.11.42 или новее | Loader 0.19.5 или новее + Fabric API 0.141.6+1.21.11 или новее | 21 |
+| 1.8.0.2+1.21.1 | 1.21.1 | 21.1.197 или новее | Loader 0.16.14 или новее + Fabric API 0.116.17+1.21.1 или новее | 21 |
+| 1.8.0.1+26.3 | 26.3 | 26.3.0.83 или новее | — | 25 |
+| 1.8.0.1+26.2 | 26.2 | 26.2.0.93 или новее | — | 25 |
+| 1.8.0.1+26.1.2 | 26.1.2 | 26.1.2.121 или новее | — | 25 |
+| 1.8.0.1+1.21.11 | 1.21.11 | 21.11.42 или новее | — | 21 |
+| 1.8.0.1+1.21.1 | 1.21.1 | 21.1.197 или новее | — | 21 |
+| 1.8.0+1.21.1 | 1.21.1 | 21.1.197 или новее (Mantle внутри) | — | 21 |
 
-Релизы: [GitHub releases](../../releases).
+Свой jar на каждый загрузчик: `Ceramics-neoforge-…` или `Ceramics-fabric-…`. Релизы: [GitHub releases](../../releases).
 
-## Требования
+## Установка
 
-- NeoForge нужной версии Minecraft, на сервере **и** у каждого клиента.
-- **Других модов не нужно.** Оригиналу нужна библиотека Mantle от SlimeKnights, у которой нет версий под новые Minecraft. Порт использует вместо неё [Kilnwork](https://github.com/Vladeezyy/kilnwork) — библиотеку из тех частей Mantle, которые нужны Ceramics, и она встроена в jar.
-- [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) по желанию: в нём видны рецепты печи для обжига.
+- **NeoForge:** положите `Ceramics-neoforge-1.8.0.2+1.21.11.jar` в `mods/` сборки NeoForge 21.11.42 или новее.
+- **Fabric:** положите `Ceramics-fabric-1.8.0.2+1.21.11.jar` и [Fabric API](https://modrinth.com/mod/fabric-api)
+  0.141.6+1.21.11 или новее в `mods/` сборки Fabric Loader 0.19.5 или новее.
+- **Сервер:** тот же jar на сервере **и** у каждого клиента.
+- **Больше ничего ставить не нужно.** Оригиналу нужна библиотека Mantle от SlimeKnights, у которой нет версий под
+  новые Minecraft. Порт использует вместо неё [Kilnwork](https://github.com/Vladeezyy/kilnwork) — библиотеку из тех
+  частей Mantle, которые нужны Ceramics, и она встроена в jar на обоих загрузчиках.
+- [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) по желанию, на обоих загрузчиках: в нём видны рецепты печи для
+  обжига.
+- На Fabric жидкостные блоки Ceramics (бочки, краны, жёлоба, глиняные вёдра) работают через transfer API Fabric, к ним
+  подключаются трубы и баки других Fabric-модов.
 
 ## Возможности
 
@@ -162,10 +196,13 @@ same license, with credit to the authors. Please download the mod only from the 
 
 ## Тестирование
 
-- Функциональный тест на dev-сервере, 44 проверки: рецепты, вёдра, котлы, башня из бочек, которую ломают посередине и
-  собирают обратно, краны, жёлоба, растрескивание от лавы, дроп, сохранение, данные из 1.20.
-- Клиентская сцена со скриншотами (выше): рендер жидкостей, стадии трещин, модели вёдер, творческая вкладка, JEI.
-- Релизный jar запущен на настоящих серверах NeoForge 21.1.259 и 21.1.197, лог чистый.
+Одни и те же тесты на NeoForge и на Fabric:
+
+- Функциональный тест на dev-сервере, 51 проверка: рецепты, вёдра, котлы, башня из бочек, которую ломают
+  посередине и собирают обратно, краны, жёлоба, растрескивание от лавы, дроп, сохранение, данные из 1.20 и 1.21.1.
+- Клиентская сцена со скриншотами (выше): рендер жидкостей, стадии трещин, модели вёдер, творческая вкладка, рецепты
+  печи в JEI.
+- Релизные jar запущены на настоящих серверах, лог чистый: NeoForge 21.11.42; Fabric Loader 0.19.5 с Fabric API 0.141.6.
 
 ## Сообщить о проблеме
 
@@ -177,7 +214,7 @@ same license, with credit to the authors. Please download the mod only from the 
 - **Kilnwork** ([Vladeezyy/kilnwork](https://github.com/Vladeezyy/kilnwork), LGPL-3.0-only), встроена в jar, основана
   на частях **Mantle** от [SlimeKnights](https://github.com/SlimeKnights/Mantle) (MIT).
 - Чешский перевод: RomanPlayer22. Корейский: mindy15963 и переводчики оригинала.
-- Порт на NeoForge 1.21.1 и 1.21.11: Vladeezyy.
+- Порт на NeoForge и Fabric 1.21.1, 1.21.11 и 26.x: Vladeezyy.
 
 Порт распространяется под **LGPL-3.0-only** ([LICENSE](LICENSE), текст GPL в [licenses/COPYING](licenses/COPYING)),
 Copyright (c) 2026 Vladeezyy. Форки приветствуются: они остаются открытыми, под той же лицензией и с указанием
