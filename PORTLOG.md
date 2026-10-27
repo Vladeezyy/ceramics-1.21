@@ -121,3 +121,13 @@ Branch `mc/26.1.2` (from 1.21.11), Java 25, Minecraft without obfuscation, Kilnw
 - GUI is extracted (`GuiGraphicsExtractor`, `extractBackground`), messages above the hotbar are
   `sendOverlayMessage`, cauldron interactions are dispatchers in `CauldronInteractions`, `ChunkPos.containing`.
 - Datagen: cooking recipes take an explicit book category (blocks for block items, else misc, as before).
+
+## 1.8.0.2+26.1.2: NeoForge and Fabric
+
+- Modules `common` (vanilla code on NeoForm), `neoforge` and `fabric`; fluids through the loader-neutral fluid API of
+  Kilnwork 2.0 (bridged to the NeoForge and Fabric transfer APIs by Kilnwork).
+- Fabric parts: no_nbt ingredient (`fabric:type` written at build time), kiln recipe sync for JEI, the clay bucket item
+  model built from vanilla parts, item-destroyed hook (mixin) for cracked buckets.
+- Verification: self test 51/51 and client scene on both loaders; release jars on NeoForge 26.1.2.121 and on
+  Fabric Loader 0.19.5 with Fabric API 0.155.3+26.1.2 (`prodtest/serve-fabric.sh`).
+
